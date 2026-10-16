@@ -1,0 +1,19 @@
+.detail-page { padding: 32rpx 28rpx 50rpx; }
+.top { display: flex; flex-direction: column; gap: 15rpx; margin-bottom: 30rpx; }
+.overline { color: #922958; letter-spacing: 1.4rpx; font-size: 19rpx; font-weight: 700; }
+.name { font-size: 44rpx; font-weight: 800; line-height: 1.3; }
+.station { font-size: 23rpx; color: #7d7580; }
+.cards { display: flex; gap: 15rpx; margin-bottom: 25rpx; }
+.metric { background: white; flex: 1; min-width: 0; border-radius: 15rpx; padding: 23rpx 21rpx; display: flex; flex-direction: column; gap: 14rpx; }
+.tag { font-size: 21rpx; color: #827b83; }.big { font-size: 41rpx; font-weight: 800; }.desc { font-size: 19rpx; color: #948c95; }
+.section { background: white; border-radius: 15rpx; padding: 20rpx 23rpx 25rpx; }
+.section-title { font-size: 28rpx; font-weight: 800; display: block; padding-bottom: 15rpx; }
+.item { border-top: 1rpx solid #f2edf0; padding: 20rpx 0; display: flex; gap: 22rpx; justify-content: space-between; align-items: flex-start; font-size: 23rpx; }
+.item text:first-child { flex-shrink: 0; color: #8e858d; }
+.item text:last-child { color: #333039; text-align: right; }
+.address { color: #615963; font-size: 22rpx; padding: 16rpx 0; }
+.notice { font-size: 21rpx; color: #927b45; background: #fff7e7; border-radius: 8rpx; padding: 18rpx; line-height: 1.65; }
+.buttons { display: flex; gap: 15rpx; margin-top: 26rpx; }
+.buttons button { flex: 1; margin: 0; font-size: 23rpx; border-radius: 12rpx; }
+.primary { color: #fff; background: #922958; }.secondary { color: #922958; background: white; border: 1rpx solid #922958; }
+.source { font-size: 20rpx; color: #8a8189; line-height: 1.65; margin-top: 27rpx; }

@@ -1,0 +1,17 @@
+{
+  "description": "酒迹 — 微信原生酒吧地图小程序",
+  "miniprogramRoot": "miniprogram/",
+  "cloudfunctionRoot": "cloudfunctions/",
+  "appid": "touristappid",
+  "projectname": "jiuji-barmap",
+  "setting": {
+    "urlCheck": true,
+    "es6": true,
+    "enhance": true,
+    "postcss": true,
+    "minified": true,
+    "compileHotReLoad": true
+  },
+  "libVersion": "3.5.0",
+  "compileType": "miniprogram"
+}

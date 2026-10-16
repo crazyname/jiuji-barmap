@@ -1,0 +1,54 @@
+<view class="page safe-bottom">
+  <view class="search-area">
+    <view class="title-row"><text class="title">酒迹</text><text class="tiny">JIUJI · 真实地图</text></view>
+    <view class="search-row">
+      <input class="search" value="{{query}}" bindinput="onSearchInput" confirm-type="search" placeholder="搜索酒吧、地铁站、编号" />
+      <button class="add" bindtap="openAdd">＋ 添加</button>
+    </view>
+    <scroll-view scroll-x="true" class="line-scroll" show-scrollbar="false">
+      <view class="line-flex">
+        <view wx:for="{{lineTabs}}" wx:key="id" class="line-item {{item.active ? 'current' : ''}}" data-id="{{item.id}}" bindtap="onLineTap">
+          <view class="line-dot" style="background:{{item.color}}"></view><text>{{item.label}}</text>
+        </view>
+      </view>
+    </scroll-view>
+    <view class="filter-row">
+      <picker class="picker" mode="selector" range="{{statusLabels}}" value="{{statusIndex}}" bindchange="onStatusChange"><view>{{statusLabels[statusIndex]}} ▾</view></picker>
+      <picker class="picker" mode="selector" range="{{priceLabels}}" value="{{priceIndex}}" bindchange="onPriceChange"><view>{{priceLabels[priceIndex]}} ▾</view></picker>
+      <picker class="picker" mode="selector" range="{{ratingLabels}}" value="{{ratingIndex}}" bindchange="onRatingChange"><view>{{ratingLabels[ratingIndex]}} ▾</view></picker>
+    </view>
+  </view>
+  <view class="map-wrap">
+    <map id="barMap" class="real-map" latitude="{{mapLatitude}}" longitude="{{mapLongitude}}" scale="{{mapScale}}"
+      markers="{{markers}}" polyline="{{polylines}}" enable-scroll="{{true}}" enable-zoom="{{true}}"
+      enable-poi="{{true}}" show-scale="{{true}}" show-compass="{{true}}" bindmarkertap="onMarkerTap" />
+    <cover-view class="map-note">微信真实地图 · 自由拖动 / 双指缩放</cover-view>
+    <cover-view wx:if="{{selectedCard}}" class="floating-card">
+      <cover-view class="floating-info">
+        <cover-view class="floating-name">{{selectedCard.name}}</cover-view>
+        <cover-view class="floating-secondary">{{selectedCard.ratingText}}　{{selectedCard.priceText}}</cover-view>
+        <cover-view class="floating-secondary">{{selectedCard.locationText}}</cover-view>
+      </cover-view>
+      <cover-view class="detail-button" bindtap="openSelectedDetail">详情 ›</cover-view>
+    </cover-view>
+  </view>
+  <view class="results">
+    <view class="result-title">
+      <text>筛选结果 {{displayBars.length}} 家 · 地图已定位 {{mappedCount}} 家</text>
+      <text class="refresh" bindtap="retryPositions">{{resolving ? '定位匹配中…' : '刷新坐标 ↻'}}</text>
+    </view>
+    <view wx:if="{{hint}}" class="hint">{{hint}}</view>
+    <scroll-view scroll-y="true" class="bar-scroll">
+      <view wx:for="{{displayBars}}" wx:key="id" data-id="{{item.id}}" bindtap="onBarTap" class="bar-row">
+        <view class="bar-id">{{item.idLabel}}</view>
+        <view class="bar-text">
+          <text class="bar-name">{{item.name}}</text>
+          <text class="bar-sub">{{item.station}} · {{item.statusLabel}} · {{item.locationText}}</text>
+          <text class="bar-sub">{{item.ratingText}}　{{item.priceText}}</text>
+        </view>
+        <text class="chev">›</text>
+      </view>
+      <view wx:if="{{!displayBars.length}}" class="empty">当前筛选无结果，请更换筛选条件。</view>
+    </scroll-view>
+  </view>
+</view>
