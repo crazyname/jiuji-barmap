@@ -49,3 +49,7 @@ npm test
 ```
 
 `npm run check` 对数据、契约、声明、JS 语法和 Node 测试执行校验。各端实际编译及真机结果独立记录在 [兼容矩阵](compatibility.md)。
+
+## ChatGPT Sites 开发测试数据
+
+`npm run sites:seed` 导出测试数据，`npm run sites:check` 验证快照。管理站搭建说明见 [Sites 测试数据](sites-test-data.md)。
