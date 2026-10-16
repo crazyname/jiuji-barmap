@@ -55,7 +55,7 @@ npm run migration:status
 npm run sites:import -- ./jiuji-tools.json
 ```
 
-[产品决策](docs/product-decisions.md) · [账号与身份设计](docs/auth-design.md) · [构建指南](docs/build.md) · [个人中心界面](docs/profile-ui.md) · [Sites 测试数据](docs/sites-test-data.md) · [四端架构](docs/multiplatform.md) · [兼容矩阵](docs/compatibility.md) · [迁移任务](docs/migration.md) · [参与贡献](CONTRIBUTING.md)
+[产品决策](docs/product-decisions.md) · [账号与身份设计](docs/auth-design.md) · [调酒模块设计](docs/cocktails-design.md) · [构建指南](docs/build.md) · [个人中心界面](docs/profile-ui.md) · [Sites 测试数据](docs/sites-test-data.md) · [四端架构](docs/multiplatform.md) · [兼容矩阵](docs/compatibility.md) · [迁移任务](docs/migration.md) · [参与贡献](CONTRIBUTING.md)
 
 **License:** [MPL-2.0](LICENSE)
 
