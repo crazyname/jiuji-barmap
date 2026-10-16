@@ -21,7 +21,7 @@ npm run migration:status
 | Android | HBuilderX、Android SDK |
 | HarmonyOS NEXT | HBuilderX、DevEco Studio |
 
-开发 Vue 页面、TypeScript、数据契约和单元测试可以用 VS Code 等编辑器；**四端应用编译仍需要 HBuilderX 工具链**。地图服务需分别配置平台密钥及权限。当前没有采用 uniCloud、DCloud 统计、DCloud 广告等服务。
+开发 Vue 页面、TypeScript、数据契约和单元测试可以用 VS Code 等编辑器；**四端应用编译仍需要 HBuilderX 工具链**。App 打包需要有效的 DCloud AppID；云打包需要相应账号权限。地图服务需分别配置平台密钥及权限。当前没有采用 uniCloud、DCloud 统计、DCloud 广告等服务。
 
 微信原生版：微信开发者工具导入仓库根目录，使用 `project.config.json` 配置自己的微信 AppID；地图 POI 自动搜索需要腾讯位置服务 WebService Key（仅保存在微信云函数环境变量 `QQMAP_KEY`）。
 

@@ -11,7 +11,7 @@
 ## DCloud 的范围
 
 - **需要**：使用 HBuilderX / uni-app x 工具链编译和调试移动端及鸿蒙应用。
-- **不需要**：uniCloud、DCloud 登录、广告平台、统计或托管服务。地图、后端和账号采用独立接口。
+- **不绑定 DCloud 业务服务**：不接入 uniCloud、DCloud 用户账号体系、广告、统计或托管。应用打包使用 DCloud AppID；如使用云打包，需要对应 DCloud 开发者账号与打包权限。
 - **日常协作**：Vue / TypeScript 代码在 VS Code 等编辑器开发；`npm run check` 在标准 Node.js 环境运行。
 
 传统 uni-app 的 npm CLI 与 uni-app x 四端构建工具链并不相同，不混用构建命令。
