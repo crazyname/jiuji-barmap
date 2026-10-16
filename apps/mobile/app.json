@@ -1,0 +1,22 @@
+{
+  "expo": {
+    "name": "酒迹",
+    "slug": "jiuji-barmap",
+    "scheme": "jiuji",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "package": "app.jiuji.barmap",
+      "permissions": [
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_FINE_LOCATION"
+      ]
+    },
+    "plugins": [
+      "react-native-maps"
+    ]
+  }
+}

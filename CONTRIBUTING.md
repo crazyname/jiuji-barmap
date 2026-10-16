@@ -1,26 +1,21 @@
 # 参与开发
 
-酒迹采用 **Vue 3 + TypeScript/UTS + uni-app x** 开发跨端客户端，欢迎通过 Issue 和 Pull Request 贡献。
+主技术栈：**React + TypeScript**。微信使用 Taro，iOS/Android 使用 React Native；鸿蒙使用 RNOH 适配层。
 
-## 开始
+## 开发流程
 
-```bash
-npm ci
-npm run check
-```
+1. Fork 仓库，创建分支：`feat/xxx`、`fix/xxx`。
+2. 执行 `npm ci && npm run check`。
+3. 微信页面位于 `apps/wechat/src/`；移动端位于 `apps/mobile/`；共享数据模型位于 `packages/core/`。
+4. 修改酒吧种子数据时执行 `npm run data:sync`，并提交生成的 JSON。
+5. 修改 API 或类型时同步更新 `packages/contracts/` 与测试。
+6. PR 说明改动、截图、测试命令和测试平台。
 
-1. Fork 仓库，从 `main` 创建功能分支，例如 `feat/map-search`。
-2. 在 `apps/universal/` 实现跨端功能；平台专用 SDK、系统权限与分享逻辑单独封装。
-3. 修改酒吧种子数据后运行 `npm run data:sync`。
-4. 涉及数据结构或接口时，先同步修改 `packages/contracts/` 和测试。
-5. 提交 PR，说明变更与测试结果；UI 更新附截图。
+## 代码约定
 
-## 代码规范
+- 使用 TypeScript、函数组件和 React Hooks；平台 API 放在各端适配层。
+- 坐标未经确认就保持 `null`，不得编造真实地理点位。
+- 不提交 API 密钥、私人位置数据、无权分发的照片或地图瓦片。
+- 源码采用 MPL-2.0；保留第三方依赖版权说明。
 
-- 优先使用 Vue 3、TypeScript、已有组件和共享设计数据；避免重复平台业务实现。
-- 真实地点必须使用确认过的坐标，未确认时保持空值。
-- 禁止提交 API Key、个人位置记录、无权分发的照片或地图数据。
-- 新代码按 [MPL-2.0](LICENSE) 授权，保留第三方版权声明。
-- 提交前运行 `npm run check`，改动到的端按 [兼容矩阵](docs/compatibility.md) 验收。
-
-[构建与运行](docs/build.md) · [PR 模板](.github/pull_request_template.md)
+参考：[构建指南](docs/build.md)。

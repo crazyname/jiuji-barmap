@@ -1,11 +1,35 @@
 {
-  "phase": "keep-legacy",
+  "phase": "react-migration",
   "checks": [
-    { "id": "shared-contracts", "complete": true, "description": "Shared schemas and seed checks" },
-    { "id": "wechat-universal-build", "complete": false, "description": "uni-app x compiles in WeChat DevTools" },
-    { "id": "wechat-map-device", "complete": false, "description": "Map, location picker and navigation pass on WeChat device" },
-    { "id": "feature-parity", "complete": false, "description": "Four tabs, posts, favorites, recipe editors and themes meet parity checklist" },
-    { "id": "storage-migration", "complete": false, "description": "Local favorites/recipes/posts preserved or users explicitly migrate" },
-    { "id": "rollback-ready", "complete": false, "description": "Can quickly roll back to known-good WeChat release" }
+    {
+      "id": "shared-contracts",
+      "complete": true,
+      "description": "Shared schemas and React seed checks"
+    },
+    {
+      "id": "taro-wechat-build",
+      "complete": false,
+      "description": "Taro React client builds and opens in WeChat DevTools"
+    },
+    {
+      "id": "wechat-map-device",
+      "complete": false,
+      "description": "Real map and location navigation verified on WeChat device"
+    },
+    {
+      "id": "feature-parity",
+      "complete": false,
+      "description": "Four tabs, recipes, posts, favorites and themes match native client"
+    },
+    {
+      "id": "storage-migration",
+      "complete": false,
+      "description": "Local user records preserved during the switch"
+    },
+    {
+      "id": "rollback-ready",
+      "complete": false,
+      "description": "WeChat rollback available"
+    }
   ]
 }

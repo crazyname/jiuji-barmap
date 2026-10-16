@@ -7,7 +7,12 @@ cloudfunctions/*/.env.*
 miniprogram/config.private.js
 .idea/
 .vscode/
-apps/universal/unpackage/
-apps/universal/dist/
-apps/universal/node_modules/
+apps/wechat/dist/
+apps/wechat/.temp/
+apps/wechat/node_modules/
+apps/mobile/node_modules/
+apps/mobile/.expo/
+apps/mobile/ios/
+apps/mobile/android/
+apps/harmony/build/
 coverage/

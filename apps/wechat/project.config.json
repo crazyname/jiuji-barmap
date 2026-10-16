@@ -1,0 +1,10 @@
+{
+  "appid": "touristappid",
+  "projectname": "jiuji-react-wechat",
+  "miniprogramRoot": "dist/",
+  "compileType": "miniprogram",
+  "setting": {
+    "es6": true,
+    "minified": true
+  }
+}

@@ -1,13 +1,10 @@
 # 酒迹 · Jiuji BarMap
 
 [![CI](https://github.com/crazyname/jiuji-barmap/actions/workflows/test.yml/badge.svg)](https://github.com/crazyname/jiuji-barmap/actions/workflows/test.yml)
-[![License: MPL-2.0](https://img.shields.io/badge/License-MPL--2.0-blue.svg)](LICENSE)
 
-酒吧地图、调酒教程与探店分享应用。面向微信小程序、iOS、Android、HarmonyOS NEXT。默认 UI：**C · 城市编辑**。
+React + TypeScript 的开源酒吧地图、调酒教程与探店分享应用。目标平台：**微信小程序、iOS、Android、HarmonyOS NEXT**。默认视觉为 C「城市编辑」。
 
-## 快速开始
-
-Node.js 20+：
+## 开始开发
 
 ```bash
 git clone https://github.com/crazyname/jiuji-barmap.git
@@ -16,27 +13,46 @@ npm ci
 npm run check
 ```
 
-开发入口：
-
-- `apps/universal/`：**uni-app x + Vue 3 + TypeScript/UTS** 四端客户端。用 HBuilderX 打开并选择目标平台运行；业务逻辑与测试可在 VS Code 等编辑器维护。
-- `miniprogram/`：现有微信原生版本，过渡期使用微信开发者工具从仓库根目录导入。
-- `packages/contracts/`：共享数据模型与 API 契约。
-- `packages/design/`：主题设计数据。
-- `scripts/`、`tests/`：数据同步与自动检查。
-
-## 开发命令
-
-| 命令 | 用途 |
+| 目录 | 技术 |
 |---|---|
-| `npm run check` | 全部数据、契约、兼容性、语法和单元测试 |
-| `npm test` | 单元测试 |
-| `npm run data:sync` | 同步酒吧种子数据到跨端工程 |
-| `npm run migration:status` | 查看微信原生入口迁移进度 |
+| `apps/wechat/` | Taro 4 + React + TypeScript · 新微信小程序客户端 |
+| `apps/mobile/` | React Native + Expo · iOS / Android |
+| `apps/harmony/` | React Native OpenHarmony 适配说明 · 鸿蒙 |
+| `packages/core/` | React 客户端共享业务模型 |
+| `packages/contracts/` | 数据结构与 API 契约 |
+| `packages/design/` | UI 主题 |
+| `miniprogram/` | 现有原生微信客户端，迁移验收后删除 |
 
-## 开发文档
+## 运行
 
-[构建与运行](docs/build.md) · [多端架构与框架选择](docs/multiplatform.md) · [接口契约](packages/contracts/README.md) · [兼容性矩阵](docs/compatibility.md) · [微信迁移](docs/migration.md) · [参与贡献](CONTRIBUTING.md)
+**微信 React 客户端**
 
-## License
+```bash
+cd apps/wechat
+npm install
+npm run dev:weapp
+```
 
-[MPL-2.0](LICENSE)
+微信开发者工具打开 `apps/wechat/dist/`；发布前配置自己的 AppID。
+
+**iOS / Android**
+
+```bash
+cd apps/mobile
+npm install
+npx expo install --fix
+npm start
+```
+
+使用 Expo 设备工具或开发构建运行。地图使用原生地图组件，安卓发行需要配置地图 SDK。
+
+**共享检查**
+
+```bash
+npm run check
+npm run migration:status
+```
+
+[构建指南](docs/build.md) · [四端架构](docs/multiplatform.md) · [兼容矩阵](docs/compatibility.md) · [迁移任务](docs/migration.md) · [参与贡献](CONTRIBUTING.md)
+
+**License:** [MPL-2.0](LICENSE)

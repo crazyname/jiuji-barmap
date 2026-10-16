@@ -1,6 +1,8 @@
-# 构建与测试
+# 开发与构建
 
-## 公共检查（Node.js 20+）
+## 共用检查
+
+Node.js 20+：
 
 ```bash
 npm ci
@@ -8,25 +10,42 @@ npm run check
 npm run migration:status
 ```
 
-`npm run check` 包括数据同步、JSON Schema、平台能力声明、JS 语法和单元测试，已接入 GitHub Actions。修改 `miniprogram/data/bars.js` 后运行 `npm run data:sync`。
+共享业务检查不需要 Xcode、Android Studio 或 DevEco Studio。
 
-## 四端客户端
+## 微信小程序（Taro + React）
 
-统一入口：`apps/universal/`（uni-app x）。
+```bash
+cd apps/wechat
+npm install
+npm run dev:weapp
+# 生产构建：npm run build:weapp
+```
 
-| 目标端 | 开发与构建工具 |
-|---|---|
-| 微信小程序 | HBuilderX + 微信开发者工具 |
-| iOS | macOS、HBuilderX、Xcode |
-| Android | HBuilderX、Android SDK |
-| HarmonyOS NEXT | HBuilderX、DevEco Studio |
+用微信开发者工具打开 `apps/wechat/dist/`。编译、地图、位置与导航请在微信真机验收。原生入口 `miniprogram/` 暂时保留，尚不替换根目录 `project.config.json`。
 
-开发 Vue 页面、TypeScript、数据契约和单元测试可以用 VS Code 等编辑器；**四端应用编译仍需要 HBuilderX 工具链**。App 打包需要有效的 DCloud AppID；云打包需要相应账号权限。地图服务需分别配置平台密钥及权限。当前没有采用 uniCloud、DCloud 统计、DCloud 广告等服务。
+## iOS / Android（React Native + Expo）
 
-微信原生版：微信开发者工具导入仓库根目录，使用 `project.config.json` 配置自己的微信 AppID；地图 POI 自动搜索需要腾讯位置服务 WebService Key（仅保存在微信云函数环境变量 `QQMAP_KEY`）。
+```bash
+cd apps/mobile
+npm install
+npx expo install --fix
+npm start
+```
 
-## 功能与设备验证
+iOS 需要 macOS / Xcode 进行正式构建；Android 构建需要相应 SDK。地图使用 `react-native-maps`；生产 Android 地图需要 Google Maps 配置。所需依赖以对应 Expo SDK 的 `expo install` 检查结果为准。
 
-开发测试以 `npm run check` 为基础；实际编译、真机地图与系统权限记录在 [四端兼容矩阵](compatibility.md)，微信原生迁移按 [迁移门槛](migration.md) 执行。
+## HarmonyOS NEXT
 
-DCloud 官方测试 CLI 参考：https://github.com/dcloudio/uni-app/blob/uni-app-x/docs/ai/auto-test.md
+React Native OpenHarmony（RNOH）方向，说明在 [apps/harmony/README.md](../apps/harmony/README.md)。需 DevEco Studio 和鸿蒙原生适配工作；当前尚无可打包的鸿蒙应用，不能当作 Android APK 使用。
+
+## 数据与测试
+
+```bash
+npm run data:sync
+npm run data:check
+npm run contracts:check
+npm run compat:check
+npm test
+```
+
+`npm run check` 对数据、契约、声明、JS 语法和 Node 测试执行校验。各端实际编译及真机结果独立记录在 [兼容矩阵](compatibility.md)。
