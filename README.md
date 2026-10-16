@@ -53,16 +53,14 @@ tests/                    Node.js 逻辑测试
 
 MIT License。项目不会包含密钥和微信小程序 AppID。首次部署需要你自己的平台身份与授权。
 
-## 发布到你新建的 GitHub 仓库
-
-使用 GitHub 账号 `crazyname` 创建一个空仓库（命名为 `jiuji-barmap`，不要勾选自动生成 README，因为项目里已有）。然后在本项目根目录执行：
+## 克隆项目
 
 ```bash
-git init -b main
-git add .
-git commit -m "feat: Jiuji BarMap MVP"
-git remote add origin https://github.com/crazyname/jiuji-barmap.git
-git push -u origin main
+git clone https://github.com/crazyname/jiuji-barmap.git
+cd jiuji-barmap
+node --test tests/*.test.js
 ```
 
-不要把云环境密钥或用户位置历史提交仓库。
+随后使用微信开发者工具导入仓库根目录，并按照上面的配置步骤填写自己的小程序 AppID、云开发环境 ID。欢迎通过 GitHub Issues 反馈数据错误或功能问题。
+
+请勿在 Issues、提交记录或前端配置中公开腾讯地图 API Key、云环境密钥或用户位置数据。
