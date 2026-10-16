@@ -1,0 +1,67 @@
+{
+  "version": "1.0.0-draft",
+  "service": "jiuji-sites-dev",
+  "routes": [
+    {
+      "method": "GET",
+      "path": "/v1/health",
+      "auth": false,
+      "response": {
+        "ok": true,
+        "version": 1
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/v1/sync",
+      "auth": "optional",
+      "response": {
+        "revision": "integer",
+        "collections": {
+          "bars": "Bar[]",
+          "recipes": "Recipe[]",
+          "posts": "Post[]",
+          "favorites": "Favorite[] (authenticated subject only)"
+        },
+        "versions": "Record<collection, Record<id, integer>>"
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/v1/sync/mutations",
+      "auth": true,
+      "request": {
+        "mutations": "Mutation[] (max 20)"
+      },
+      "response": {
+        "applied": "mutationId[]",
+        "conflicts": "Conflict[]"
+      }
+    }
+  ],
+  "mutation": {
+    "mutationId": "idempotency key",
+    "collection": [
+      "bars",
+      "recipes",
+      "posts",
+      "favorites"
+    ],
+    "action": [
+      "upsert",
+      "delete"
+    ],
+    "id": "string",
+    "baseVersion": "integer >=0, 0 for new items",
+    "record": "item payload for upsert"
+  },
+  "guarantees": [
+    "GET /v1/sync must only return published content and the caller's own private data",
+    "POST requires a validated per-user session; do not trust client-supplied user identifiers",
+    "Only moderators/admins can modify canonical bar records or sponsored promotions",
+    "Server must store mutationId per subject for idempotency and assign monotonically increasing revision",
+    "On baseVersion mismatch return conflict with current item and version; do not overwrite",
+    "Never expose testUsers, audit records or private files in public sync snapshots",
+    "Image upload is a separate authenticated R2 URL flow; not part of the JSON sync body"
+  ]
+}

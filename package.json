@@ -14,11 +14,13 @@
     "contracts:check": "node scripts/verify-contracts.cjs",
     "compat:check": "node scripts/verify-compat.cjs",
     "syntax:check": "node scripts/check-syntax.cjs",
-    "check": "npm run data:check && npm run sites:check && npm run sites:exports:check && npm run contracts:check && npm run compat:check && npm run syntax:check && npm test",
+    "check": "npm run data:check && npm run sites:check && npm run sites:exports:check && npm run sync:check && npm run contracts:check && npm run compat:check && npm run syntax:check && npm test",
     "migration:status": "node scripts/migration-status.cjs",
     "sites:seed": "node scripts/export-sites-seed.cjs",
     "sites:check": "node scripts/export-sites-seed.cjs --check",
     "sites:import": "node scripts/import-sites-export.cjs",
-    "sites:exports:check": "node scripts/import-sites-export.cjs --check"
+    "sites:exports:check": "node scripts/import-sites-export.cjs --check",
+    "sync:generate": "node scripts/generate-sync-core.cjs",
+    "sync:check": "node scripts/generate-sync-core.cjs --check"
   }
 }
