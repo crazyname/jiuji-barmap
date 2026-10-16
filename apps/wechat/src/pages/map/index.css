@@ -1,1 +1,26 @@
-.layout{height:100vh;display:flex;flex-direction:column}.toolbar{background:#f9f4eb;padding:24rpx}.eyebrow{display:block;color:#82442f;letter-spacing:2rpx;font-size:19rpx}.headline{display:block;font-size:42rpx;font-weight:700;margin:8rpx 0 18rpx}.search{background:#ede1d2;border-radius:9rpx;padding:18rpx 22rpx}.map{width:100%;flex:1;min-height:360rpx}.selected{display:flex;justify-content:space-between;padding:16rpx;background:#f9f4eb;border-top:4rpx solid #82442f}.count{color:#887969;padding:16rpx 22rpx;font-size:22rpx}.list{height:240rpx;overflow:auto}.item{display:flex;justify-content:space-between;border-top:1rpx solid #d8c7b5;padding:15rpx 22rpx;font-size:22rpx}
+.layout{height:100vh;display:flex;flex-direction:column;background:#f4eddf}
+.toolbar{background:#f9f4eb;padding:20rpx 24rpx 15rpx}
+.eyebrow{display:block;color:#82442f;letter-spacing:3rpx;font-size:18rpx}
+.headline{display:block;font-size:37rpx;font-weight:700;color:#35291f;margin:8rpx 0 16rpx}
+.search{height:66rpx;background:#ede1d2;border:1rpx solid #d8c7b5;border-radius:8rpx;padding:0 18rpx;font-size:25rpx}
+.filterRow{display:flex;justify-content:space-between;align-items:center;margin-top:12rpx}
+.filter{font-size:22rpx;color:#82442f;border:1rpx solid #d8c7b5;padding:12rpx;border-radius:6rpx}
+.filterHint{font-size:18rpx;color:#887969}
+.map{width:100%;height:0;flex:1;min-height:280rpx}
+.selected{background:#f9f4eb;border-top:5rpx solid #82442f;padding:13rpx 24rpx}
+.smallLabel{display:block;color:#82442f;letter-spacing:2rpx;font-size:17rpx}
+.selectedName{display:block;color:#35291f;font-size:28rpx;font-weight:700;margin:7rpx 0}
+.meta{display:block;color:#887969;font-size:21rpx;margin-top:4rpx}
+.actions{display:flex;gap:10rpx;margin-top:11rpx}
+.actions button{flex:1;margin:0;font-size:22rpx}
+.primary{color:#fff;background:#82442f}
+.secondary{color:#82442f;background:#f9f4eb;border:1rpx solid #82442f}
+.count{background:#f9f4eb;display:flex;justify-content:space-between;align-items:center;padding:15rpx 23rpx;font-size:21rpx;color:#887969}
+.expand{color:#82442f}
+.list{height:240rpx;background:#f9f4eb;flex-shrink:0}
+.item{display:flex;justify-content:space-between;align-items:center;border-top:1rpx solid #d8c7b5;padding:15rpx 23rpx}
+.info{flex:1;min-width:0}
+.venueName{display:block;font-size:24rpx;font-weight:700;color:#35291f;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.venueMeta{display:block;font-size:19rpx;color:#887969;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.arrow{font-size:34rpx;color:#82442f}
+.empty{padding:35rpx;font-size:23rpx;color:#887969;text-align:center}
