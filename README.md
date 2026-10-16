@@ -60,3 +60,5 @@ npm run sites:import -- ./jiuji-tools.json
 **License:** [MPL-2.0](LICENSE)
 
 跨端自动同步的协议与接入条件见 [数据同步](docs/sync.md)。
+
+开发测试同步 API：`https://jiuji-test-console.equal-genet-1707.chatgpt.site`（已配置匿名读取；带令牌写入待真机验收）。

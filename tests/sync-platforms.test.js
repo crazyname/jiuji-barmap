@@ -19,11 +19,13 @@ test('sync adapters use device storage and HTTPS but contain no packaged admin c
  assert.match(mobile,/fetch\(/)
  assert.match(wechat,/Bearer/)
  assert.match(mobile,/Bearer/)
+ assert.match(wechat,/deviceToken = ''/)
+ assert.match(mobile,/deviceToken = ''/)
  const configs=['apps/wechat/src/config/sync.ts','apps/mobile/src/config/sync.ts']
  for(const file of configs){
   const code=read(file)
-  assert.match(code,/SYNC_ENABLED = false/)
-  assert.match(code,/SYNC_API_BASE_URL = ''/)
+  assert.match(code,/SYNC_ENABLED = true/)
+  assert.match(code,/SYNC_API_BASE_URL = 'https:\/\/jiuji-test-console\.equal-genet-1707\.chatgpt\.site'/)
  }
 })
 test('wechat and native clients pull on display and private drafts are queued for later upload',()=>{

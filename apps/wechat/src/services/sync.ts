@@ -6,7 +6,9 @@ import { createSyncClient } from './sync-core'
 export type SyncKind = 'bars' | 'recipes' | 'posts' | 'favorites'
 type RecordRow = { id: number | string; [key: string]: unknown }
 const STORE_KEY = 'jiuji.sync.snapshot.v1'
-const SESSION_KEY = 'jiuji.sync.session.v1'
+let deviceToken = ''
+// Migration: remove a legacy persisted token if present; tokens are memory-only.
+try { Taro.removeStorageSync('jiuji.sync.session.v1') } catch (_) {}
 
 const store = {
   read: (): unknown => {
@@ -34,16 +36,13 @@ const engine = createSyncClient({
     post: (path: string, body: unknown, token?: string) => request(path, 'POST', token, body)
   }
 })
-function sessionToken(): string {
-  try { return String(Taro.getStorageSync(SESSION_KEY) || '') }
-  catch (_) { return '' }
-}
+function sessionToken(): string { return deviceToken }
 export const syncEnabled = SYNC_ENABLED && SYNC_API_BASE_URL.startsWith('https://')
 export function publishedRows<T extends RecordRow>(collection: SyncKind): T[] {
   return engine.list(collection) as T[]
 }
 export function queueRemoteUpsert(collection: SyncKind, record: RecordRow): void {
-  engine.queueUpsert(collection, record)
+  if (deviceToken) engine.queueUpsert(collection, record)
 }
 export function syncState(): { queued: number; conflicts: number; revision: number } {
   return engine.status()
@@ -51,9 +50,11 @@ export function syncState(): { queued: number; conflicts: number; revision: numb
 export async function refreshSites(): Promise<{ enabled: boolean; ok: boolean; message: string }> {
   if (!syncEnabled) return { enabled: false, ok: false, message: '等待 Sites API 上线' }
   try {
-    const result = await engine.sync(sessionToken())
+    const result = sessionToken() ? await engine.sync(sessionToken()) : await engine.pull()
+    const state = engine.status()
     return { enabled: true, ok: true, message: '已更新 · 版本 ' + result.revision +
-      (result.queued ? ' · 待上传 ' + result.queued + ' 条' : '') }
+      (state.queued ? ' · 待上传 ' + state.queued + ' 条' : '') +
+      (!sessionToken() ? ' · 未连接设备账号' : '') }
   } catch (error) {
     return { enabled: true, ok: false, message: '同步暂不可用，本机修改已保留' }
   }
@@ -61,9 +62,12 @@ export async function refreshSites(): Promise<{ enabled: boolean; ok: boolean; m
 // An authenticated sign-in flow must provide a real server-issued session before upload.
 // Never bundle owner credentials or any test admin token in a client.
 export function saveAuthenticatedSession(token: string): void {
-  if (!token || token.length < 16) throw Error('Invalid authenticated session')
-  Taro.setStorageSync(SESSION_KEY, token)
+  const value = token.trim()
+  if (value.length < 16) throw Error('无效设备令牌')
+  if (deviceToken && deviceToken !== value) throw Error('请先断开当前设备会话')
+  deviceToken = value
 }
 export function clearAuthenticatedSession(): void {
-  Taro.removeStorageSync(SESSION_KEY)
+  deviceToken = ''
 }
+export function hasAuthenticatedSession(): boolean { return !!deviceToken }

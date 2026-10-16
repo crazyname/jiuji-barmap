@@ -1,3 +1,4 @@
-// Configured only after the D1-backed Sites JSON API has been deployed and tested.
-export const SYNC_API_BASE_URL = ''
-export const SYNC_ENABLED = false
+// Development-only data sync endpoint; login tokens are runtime-only.
+export const SYNC_API_BASE_URL = 'https://jiuji-test-console.equal-genet-1707.chatgpt.site'
+export const SYNC_ENABLED = true
+export const ENABLE_DEVICE_TOKEN_TESTING = true // Disable for public releases.

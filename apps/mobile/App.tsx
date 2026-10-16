@@ -3,7 +3,8 @@ import { AppState, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, Toucha
 import MapView, { Marker } from 'react-native-maps'
 import seed from './src/data/bars.json'
 import sitesData from './src/data/sites-test.json'
-import { getMobileRows, queueMobileUpsert, refreshMobileSites } from './src/services/sync'
+import { clearMobileTestToken, getMobileRows, hasMobileTestToken, queueMobileUpsert, refreshMobileSites, saveMobileTestToken } from './src/services/sync'
+import { ENABLE_DEVICE_TOKEN_TESTING } from './src/config/sync'
 
 type Tab = 'map' | 'mix' | 'community' | 'mine'
 type Bar = { id:number; name:string; station:string; location:{latitude:number;longitude:number}|null }
@@ -23,6 +24,8 @@ export default function App() {
  const [body,setBody]=useState('')
  const [syncMessage,setSyncMessage]=useState('本机模式')
  const [pending,setPending]=useState(0)
+ const [deviceToken,setDeviceToken]=useState('')
+ const [linked,setLinked]=useState(false)
  async function refresh(){
   const result=await refreshMobileSites()
   const [remoteBars,remoteRecipes,remotePosts]=await Promise.all([
@@ -80,6 +83,19 @@ export default function App() {
        <Text style={s.body}>统一测试数据服务</Text>
        <Text style={s.sub}>{syncMessage} · 待上传 {pending} 条</Text>
        <TouchableOpacity style={s.button} onPress={()=>void refresh()}><Text style={s.buttonLabel}>立即刷新</Text></TouchableOpacity>
+       {ENABLE_DEVICE_TOKEN_TESTING?<View>
+        <TextInput style={s.input} placeholder='临时设备令牌' secureTextEntry
+          value={deviceToken} onChangeText={setDeviceToken} />
+        <TouchableOpacity style={s.button} onPress={()=>{
+          try{
+            saveMobileTestToken(deviceToken);setDeviceToken('');setLinked(true);void refresh()
+          }catch(_){setSyncMessage('令牌格式无效或需要先断开会话')}
+        }}><Text style={s.buttonLabel}>启用测试设备同步</Text></TouchableOpacity>
+        <TouchableOpacity style={s.button} onPress={()=>{
+          if(pending>0){setSyncMessage('还有待发送数据，请先完成同步');return}
+          clearMobileTestToken();setLinked(false);setDeviceToken('');void refresh()
+        }}><Text style={s.buttonLabel}>{linked?'断开设备会话':'清除设备会话'}</Text></TouchableOpacity>
+       </View>:null}
     </View>}
   </View>}
   <View style={s.tabs}>{tabs.map(t=><TouchableOpacity key={t.id} style={s.tab} onPress={()=>{setTab(t.id);void refresh()}}>

@@ -8,6 +8,7 @@ type AnyRow = { id: string | number; [key: string]: unknown }
 const STORAGE_KEY='jiuji.sync.snapshot.v1'
 let snapshot: any = null
 let initialized: Promise<void> | null = null
+let deviceToken = ''
 let persist: Promise<unknown> = Promise.resolve()
 
 async function ready(): Promise<void> {
@@ -48,18 +49,27 @@ export async function getMobileRows<T extends AnyRow>(kind:SyncKind):Promise<T[]
 }
 export async function queueMobileUpsert(kind:SyncKind,row:AnyRow):Promise<void>{
  await ready()
- engine.queueUpsert(kind,row)
+ if (deviceToken) engine.queueUpsert(kind,row)
  await persist
 }
 // Pass a short-lived token issued by an actual mobile sign-in flow.
 // Do not persist the Sites owner session, a shared admin token or test credentials.
+export function saveMobileTestToken(token:string):void{
+ const value=token.trim()
+ if(value.length<16)throw Error('无效设备令牌')
+ if(deviceToken && deviceToken!==value)throw Error('请先断开当前设备会话')
+ deviceToken=value
+}
+export function clearMobileTestToken():void{ deviceToken='' }
+export function hasMobileTestToken():boolean{ return !!deviceToken }
 export async function refreshMobileSites(token?:string):Promise<{ok:boolean;queued:number;message:string}>{
  await ready()
  if(!mobileSyncEnabled)return {ok:false,queued:engine.status().queued,message:'等待 Sites API 上线'}
  try{
-  const result=await engine.sync(token)
+  const result=(token||deviceToken)?await engine.sync(token||deviceToken):await engine.pull()
+  const state=engine.status()
   await persist
-  return {ok:true,queued:result.queued,message:'已同步版本 '+result.revision}
+  return {ok:true,queued:state.queued,message:'已同步版本 '+result.revision+(!token&&!deviceToken?' · 未连接设备账号':'')}
  }catch(_){
   await persist
   return {ok:false,queued:engine.status().queued,message:'离线，修改已保存在本机'}

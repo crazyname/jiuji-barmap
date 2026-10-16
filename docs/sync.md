@@ -1,6 +1,6 @@
 # 酒迹 · 跨端同步协议 v1
 
-服务端暂定部署在 Sites 的服务端路由，网站使用现有 D1 / R2。**接口尚未在 Sites 部署**，当前由共享引擎和本地模拟器先验证。
+服务端现已按部署方验收报告发布在 ChatGPT Sites（原 D1 / R2）。API Base URL 为 `https://jiuji-test-console.equal-genet-1707.chatgpt.site`。部署报告：`GET /v1/health` 为 HTTP 200，匿名 `GET /v1/sync` 返回 31 家酒吧、2 份配方、3 条帖子；请求无法从当前执行环境独立复测。
 
 ## 工作流
 
@@ -15,11 +15,11 @@
 
 **访问规则**：公开端只读取已公开的配方、帖子、酒吧；收藏和未发布内容按已认证用户隔离。写入必须由服务器验证登录令牌；酒吧位置修改、商业推广需要额外审核权限。不得把 Sites 控制台的所有者身份、管理密钥写到小程序里。
 
-## 网站端需要增加的路由
+## 网站端 API
 
-在已经发布的 `https://jiuji-test-console.equal-genet-1707.chatgpt.site` 中新增上述三个路由，共用现有 D1 数据表，不另建不相关的数据副本。Sites 控制台的登录不自动构成微信、iOS 和 Android 客户端登录。服务端必须为外部客户端提供可验证的用户令牌或对接身份提供方。
+站点报告已部署 `GET /v1/health`、`GET /v1/sync`、`POST /v1/sync/mutations`。匿名只读、登录后的短期设备令牌及后台 401 隔离已有服务端验收；**线上令牌写入及真机仍需验证**。令牌由所有者在控制台「设备令牌」签发，有效期 5–120 分钟。
 
-如果 Sites 平台当前不允许外部客户端直接访问这些 API，应将相同协议部署在独立的 HTTPS API 层，并连接到允许授权访问的数据服务；不要公开数据库凭证。
+如果小程序实际访问得到登录 HTML、重定向或非 JSON，应视为 API 不可用，不提交数据。
 
 ## 本机双设备模拟
 
@@ -31,9 +31,9 @@
 
 ## 第一步落地清单
 
-1. 将 `packages/sync/protocol.json` 交给 Sites 管理站的 Work 开发会话，实现真实的 D1 读写接口。
+1. 网站侧已发布本协议接口；从两台设备独立完成匿名读和带令牌写入验收。
 2. 管理员保持原有登录权限，另外提供客户端使用的用户身份验证和独立授权；不得复用管理后台会话。
-3. 微信端将 `apps/wechat/src/config/sync.ts` 中的 `SYNC_ENABLED` 打开、填写经过真机验证的 `API_BASE_URL`，并在微信公众平台添加 request 合法域名。
+3. 微信与 Expo 测试端已配置公开 API 地址；微信公众平台需将 `jiuji-test-console.equal-genet-1707.chatgpt.site` 添加为 request 合法域名后真机验证。
 4. 在微信端登录获得经过服务器签名的用户令牌后执行同步；没有有效令牌时本地修改保持排队。
 5. 两台测试设备先验证 A 端发布 → D1 持久化 → B 端刷新；再验证断网与并发编辑。
 
@@ -41,10 +41,10 @@
 
 `apps/wechat/src/services/sync.ts` 复用共享引擎。微信地图、调酒、社区及我的页进入前台时尝试同步；提交酒谱/帖子会加入本机离线队列，用户必须通过未来的登录流程获得服务端令牌才会自动上传。
 
-配置 `apps/wechat/src/config/sync.ts` 中的 HTTPS API 根地址及开关；当前默认关闭，因为尚未验证网站公开路由。没有服务端 API 时保留现有 `sites-test.json` 演示内容。
+测试模式已配置 HTTPS API 地址，匿名读取无需设备令牌；「我的」可临时输入控制台签发的设备令牌以进行私人数据写入。令牌仅驻留在应用内存中，不写入 Git 或设备持久存储。断开设备会话前先确保待发送队列为零。正式发布前关闭 `ENABLE_DEVICE_TOKEN_TESTING`，替换为正式登录流程。
 
 ## React Native / Expo 适配
 
-`apps/mobile/src/services/sync.ts` 用本机 AsyncStorage 持久化同步队列，HTTPS `fetch` 用于 API，请求令牌需由真正的客户端登录流程传入。`apps/mobile/App.tsx` 现可读取缓存并创建私人草稿队列。鸿蒙移植须再验收存储、网络与地图等原生模块。
+`apps/mobile/src/services/sync.ts` 用本机 AsyncStorage 持久化同步队列，HTTPS `fetch` 读取公共数据。测试令牌只保留在运行内存，可从移动端「我的」临时录入；正式用户认证之后替换。`apps/mobile/App.tsx` 现可读取缓存并创建私人草稿队列。鸿蒙移植须再验收存储、网络与地图等原生模块。
 
 调酒与社区中标为“保存”的内容默认是 **private 草稿**，同一个用户的其他登录设备可以下载，但不会自动公开给其他账号。
