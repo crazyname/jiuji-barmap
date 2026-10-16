@@ -24,6 +24,7 @@
     "@babel/runtime": "^7.25.0",
     "@types/react": "^18.3.0",
     "typescript": "^5.5.0",
-    "@babel/core": "^7.25.0"
+    "@babel/core": "^7.25.0",
+    "@babel/preset-react": "^7.25.0"
   }
 }
