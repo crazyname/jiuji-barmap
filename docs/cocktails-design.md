@@ -94,6 +94,29 @@ recommendation_feedback(id, user_id, cocktail_id, recipe_variant_id, reaction, c
 - 样本过少要显示“暂无足够评价”；具体阈值、统计修正方法、评分量纲和缓存刷新机制仍未决。
 - 商业投放不能改变客观聚合排名，评价可申诉并接受 AI 辅助与人工复核的内容治理。
 
+## 3.2 改编溯源与协作修改（PD-012 已确认）
+
+配方创作有三种不同的业务行为。第一种是独立投稿：用户为一款酒提交自己的版本。第二种是改编版本：在新配方中记录被改编版本的 ID、作者、来源链接与改动说明，形成可追溯的关联，不改写原版本。第三种是协作修改：用户给已有版本提出修改建议，须经原作者或授权维护者采纳后，才进入该版本的修订历史。
+
+建议数据结构增加：
+
+```text
+recipe_variants.derived_from_variant_id
+recipe_variants.derivation_note
+recipe_change_proposals(
+  id, target_variant_id, proposer_user_id, diff_payload,
+  reason, status, reviewer_user_id, reviewed_at
+)
+recipe_contributions(
+  id, variant_id, contributor_user_id, contribution_kind,
+  proposal_id, revision_id, recorded_at
+)
+```
+
+界面应区分原作者、改编者、提议者、采纳者，显示来源链接及变更记录。被改编配方和新配方独立保存评价。协作提议不能直接覆盖别人作品。
+
+需遵循作者署名、内容许可及审核流程。引用配方思路不表示获得复制原图片、独创说明等内容的许可。改编许可、作者撤稿时如何处理关联、多人维护的权限边界属于待定事项。本节是设计方案，并非已实施数据库迁移或审核工作流。
+
 ## 4. 与当前实现的差异
 
 目前 `packages/contracts/schemas/recipe.schema.json` 仅要求 `id`、`title`、`ingredients`（字符串）、`steps`（字符串）、`visibility`，微信调酒页 `apps/wechat/src/pages/mix/index.tsx` 仍主要是简单的配方录入、展示和复制。
@@ -113,7 +136,7 @@ recommendation_feedback(id, user_id, cocktail_id, recipe_variant_id, reaction, c
 ## 6. 待进一步确认
 
 1. 具体评分制、最低样本量、跨版本评价去重和汇总算法（PD-011 已确认评分归属）。
-2. 酒款与配方版本的创建规范、同义名称合并、用户能否从他人版本衍生新版本。
+2. 酒款名称规范、改编许可、作者署名与协作维护者权限（已确认允许改编并保留来源及贡献）。
 3. 杯型容量的单位、默认容量、是否扣除冰块占用。
 4. 库存记录是否持久保存、是否记录数量和是否允许自定义材料。
 5. 口味推荐是否可按酒精度/过敏排除、无酒精是否独立筛选。
