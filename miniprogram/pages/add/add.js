@@ -1,3 +1,4 @@
+const { DEFAULT_THEME, applyTheme } = require('../../utils/theme');
 const { getBars, saveBars } = require('../../utils/storage');
 const { lines } = require('../../data/lines');
 const { isValidPoint } = require('../../utils/map-data');
@@ -5,8 +6,9 @@ const { invoke } = require('../../utils/cloud');
 const { initialBars } = require('../../data/bars');
 const stations = ['待核实'].concat([...new Set(initialBars.map(b => b.station))].sort());
 Page({
-  data: { query: '', loading: false, hint: '', candidates: [], pending: null, newName: '',
+  data: { themeKey: DEFAULT_THEME, query: '', loading: false, hint: '', candidates: [], pending: null, newName: '',
     stationChoices: stations, stationIndex: 0, lineChoices: ['待核实'].concat(lines.map(l => l.id === 'APM' ? 'APM' : l.id + '号线')), lineIndex: 0 },
+  onShow() { applyTheme(this); },
   onInput(e) { this.setData({ query: e.detail.value }); },
   async search() {
     const q = this.data.query.trim();

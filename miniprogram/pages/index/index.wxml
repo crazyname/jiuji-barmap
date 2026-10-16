@@ -1,54 +1,56 @@
-<view class="page safe-bottom">
-  <view class="search-area">
-    <view class="title-row"><text class="title">酒迹</text><text class="tiny">JIUJI · 真实地图</text></view>
+<view class="page jiuji-page theme-{{themeKey}} safe-bottom">
+  <view class="search-area jiuji-surface">
+    <view class="title-row">
+      <view class="brand-lockup"><text class="brand jiuji-title">酒迹</text><view class="brand-side"><text class="jiuji-overline">JIUJI / BAR MAP</text><text class="tagline jiuji-muted">城市酒吧探索指南</text></view></view>
+      <view class="city-label jiuji-accent">广州 · GUANGZHOU</view>
+    </view>
     <view class="search-row">
-      <input class="search" value="{{query}}" bindinput="onSearchInput" confirm-type="search" placeholder="搜索酒吧、地铁站、编号" />
-      <button class="add" bindtap="openAdd">＋ 添加</button>
+      <view class="search-field jiuji-input"><text class="search-icon">⌕</text><input class="search" value="{{query}}" bindinput="onSearchInput" confirm-type="search" placeholder="搜索酒吧、商圈、地铁站" placeholder-class="placeholder" /></view>
+      <button class="add jiuji-primary" bindtap="openAdd">＋ 新增</button>
+    </view>
+    <view class="filter-row">
+      <picker class="picker jiuji-chip" mode="selector" range="{{statusLabels}}" value="{{statusIndex}}" bindchange="onStatusChange"><view>{{statusLabels[statusIndex]}} ▾</view></picker>
+      <picker class="picker jiuji-chip" mode="selector" range="{{priceLabels}}" value="{{priceIndex}}" bindchange="onPriceChange"><view>{{priceLabels[priceIndex]}} ▾</view></picker>
+      <picker class="picker jiuji-chip" mode="selector" range="{{ratingLabels}}" value="{{ratingIndex}}" bindchange="onRatingChange"><view>{{ratingLabels[ratingIndex]}} ▾</view></picker>
     </view>
     <scroll-view scroll-x="true" class="line-scroll" show-scrollbar="false">
       <view class="line-flex">
-        <view wx:for="{{lineTabs}}" wx:key="id" class="line-item {{item.active ? 'current' : ''}}" data-id="{{item.id}}" bindtap="onLineTap">
+        <view wx:for="{{lineTabs}}" wx:key="id" class="line-item jiuji-chip {{item.active ? 'jiuji-chip-active' : ''}}" data-id="{{item.id}}" bindtap="onLineTap">
           <view class="line-dot" style="background:{{item.color}}"></view><text>{{item.label}}</text>
         </view>
       </view>
     </scroll-view>
-    <view class="filter-row">
-      <picker class="picker" mode="selector" range="{{statusLabels}}" value="{{statusIndex}}" bindchange="onStatusChange"><view>{{statusLabels[statusIndex]}} ▾</view></picker>
-      <picker class="picker" mode="selector" range="{{priceLabels}}" value="{{priceIndex}}" bindchange="onPriceChange"><view>{{priceLabels[priceIndex]}} ▾</view></picker>
-      <picker class="picker" mode="selector" range="{{ratingLabels}}" value="{{ratingIndex}}" bindchange="onRatingChange"><view>{{ratingLabels[ratingIndex]}} ▾</view></picker>
-    </view>
   </view>
   <view class="map-wrap">
     <map id="barMap" class="real-map" latitude="{{mapLatitude}}" longitude="{{mapLongitude}}" scale="{{mapScale}}"
       markers="{{markers}}" polyline="{{polylines}}" enable-scroll="{{true}}" enable-zoom="{{true}}"
       enable-poi="{{true}}" show-scale="{{true}}" show-compass="{{true}}" bindmarkertap="onMarkerTap" />
-    <cover-view class="map-note">微信真实地图 · 自由拖动 / 双指缩放</cover-view>
+    <cover-view class="map-note">真实地图 · 可拖动及双指缩放</cover-view>
     <cover-view wx:if="{{selectedCard}}" class="floating-card">
-      <cover-view class="floating-info">
-        <cover-view class="floating-name">{{selectedCard.name}}</cover-view>
-        <cover-view class="floating-secondary">{{selectedCard.ratingText}}　{{selectedCard.priceText}}</cover-view>
-        <cover-view class="floating-secondary">{{selectedCard.locationText}}</cover-view>
+      <cover-view class="floating-overline">JIUJI / SELECTED PLACE</cover-view>
+      <cover-view class="floating-name">{{selectedCard.name}}</cover-view>
+      <cover-view class="floating-secondary">{{selectedCard.ratingText}}　·　{{selectedCard.priceText}}</cover-view>
+      <cover-view class="floating-secondary">{{selectedCard.statusLabel}}　·　{{selectedCard.station}}</cover-view>
+      <cover-view class="floating-foot">
+        <cover-view class="floating-location">{{selectedCard.locationText}}</cover-view>
+        <cover-view class="detail-button" bindtap="openSelectedDetail">查看详情 →</cover-view>
       </cover-view>
-      <cover-view class="detail-button" bindtap="openSelectedDetail">详情 ›</cover-view>
     </cover-view>
   </view>
-  <view class="results">
-    <view class="result-title">
-      <text>筛选结果 {{displayBars.length}} 家 · 地图已定位 {{mappedCount}} 家</text>
-      <text class="refresh" bindtap="retryPositions">{{resolving ? '定位匹配中…' : '刷新坐标 ↻'}}</text>
+  <view class="results jiuji-surface {{listExpanded ? 'expanded' : 'collapsed'}}">
+    <view class="result-title jiuji-rule">
+      <view><text class="result-kicker jiuji-overline">CURATED PLACES</text><text class="result-count">找到 {{displayBars.length}} 家酒吧 <text class="jiuji-muted">· 已定位 {{mappedCount}} 家</text></text></view>
+      <text class="toggle jiuji-accent" bindtap="toggleResults">{{listExpanded ? '收起 ↑' : '展开 ↓'}}</text>
     </view>
-    <view wx:if="{{hint}}" class="hint">{{hint}}</view>
-    <scroll-view scroll-y="true" class="bar-scroll">
-      <view wx:for="{{displayBars}}" wx:key="id" data-id="{{item.id}}" bindtap="onBarTap" class="bar-row">
-        <view class="bar-id">{{item.idLabel}}</view>
-        <view class="bar-text">
-          <text class="bar-name">{{item.name}}</text>
-          <text class="bar-sub">{{item.station}} · {{item.statusLabel}} · {{item.locationText}}</text>
-          <text class="bar-sub">{{item.ratingText}}　{{item.priceText}}</text>
-        </view>
-        <text class="chev">›</text>
+    <view wx:if="{{hint}}" class="hint jiuji-notice">{{hint}}</view>
+    <scroll-view wx:if="{{listExpanded}}" scroll-y="true" class="bar-scroll">
+      <view wx:for="{{displayBars}}" wx:key="id" data-id="{{item.id}}" bindtap="onBarTap" class="bar-row jiuji-rule">
+        <view class="bar-id jiuji-panel">{{item.idLabel}}</view>
+        <view class="bar-text"><text class="bar-name">{{item.name}}</text><text class="bar-sub jiuji-muted">{{item.station}} · {{item.statusLabel}} · {{item.locationText}}</text><text class="bar-sub"><text class="rating jiuji-accent">{{item.ratingText}}</text>　<text class="jiuji-muted">{{item.priceText}}</text></text></view>
+        <text class="chev jiuji-accent">›</text>
       </view>
-      <view wx:if="{{!displayBars.length}}" class="empty">当前筛选无结果，请更换筛选条件。</view>
+      <view wx:if="{{!displayBars.length}}" class="empty jiuji-muted">当前没有匹配结果，可以调整上方筛选。</view>
     </scroll-view>
+    <view wx:if="{{!listExpanded}}" class="compact-actions"><text class="refresh jiuji-accent" bindtap="retryPositions">{{resolving ? '坐标匹配中…' : '更新地点坐标 ↻'}}</text></view>
   </view>
 </view>

@@ -1,9 +1,10 @@
+const { DEFAULT_THEME, applyTheme } = require('../../utils/theme');
 const { getBars, saveBars } = require('../../utils/storage');
 const { isValidPoint, STATUS_LABEL } = require('../../utils/map-data');
 Page({
-  data: { bar: null, located: false, ratingText: '—', priceText: '—', ratingSource: '暂无可核实的同店评分', statusLabel: '', lineText: '', locationText: '' },
+  data: { themeKey: DEFAULT_THEME, bar: null, located: false, ratingText: '—', priceText: '—', ratingSource: '暂无可核实的同店评分', statusLabel: '', lineText: '', locationText: '' },
   onLoad(options) { this.barId = Number(options.id); this.refresh(); },
-  onShow() { if (this.barId) this.refresh(); },
+  onShow() { applyTheme(this); if (this.barId) this.refresh(); },
   refresh() {
     const b = getBars().find(x => x.id === this.barId);
     if (!b) { wx.showToast({ title: '门店不存在', icon: 'none' }); return; }

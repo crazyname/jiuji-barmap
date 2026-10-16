@@ -1,8 +1,23 @@
 {
-  "pages": ["pages/index/index", "pages/detail/detail", "pages/add/add"],
-  "window": {"navigationBarTitleText": "酒迹 · 酒吧地图", "navigationBarBackgroundColor": "#ffffff", "navigationBarTextStyle": "black", "backgroundColor": "#f7f7f7"},
+  "pages": [
+    "pages/index/index",
+    "pages/detail/detail",
+    "pages/add/add"
+  ],
+  "window": {
+    "navigationBarTitleText": "酒迹 · 酒吧地图",
+    "navigationBarBackgroundColor": "#f9f4eb",
+    "navigationBarTextStyle": "black",
+    "backgroundColor": "#f4eddf"
+  },
   "style": "v2",
   "sitemapLocation": "sitemap.json",
-  "permission": {"scope.userLocation": {"desc": "选择酒吧地点时定位当前所在位置"}},
-  "requiredPrivateInfos": ["chooseLocation"]
+  "permission": {
+    "scope.userLocation": {
+      "desc": "选择酒吧地点时定位当前所在位置"
+    }
+  },
+  "requiredPrivateInfos": [
+    "chooseLocation"
+  ]
 }

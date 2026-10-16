@@ -1,0 +1,53 @@
+/* Jiuji theme skin: central semantic colors. Avoid CSS var() for older WXSS runtimes. */
+.jiuji-page { background: #f4eddf; color: #35291f; }
+.jiuji-surface { background: #f9f4eb; color: #35291f; }
+.jiuji-card { background: #f9f4eb; border: 1rpx solid #d8c7b5; border-radius: 18rpx; }
+.jiuji-title { color: #35291f; font-family: Georgia, 'Songti SC', 'SimSun', serif; font-weight: 700; }
+.jiuji-muted { color: #887969; }
+.jiuji-overline { color: #82442f; font-size: 19rpx; letter-spacing: 3rpx; font-weight: 700; }
+.jiuji-rule { border-color: #d8c7b5; }
+.jiuji-input { color: #35291f; background: #f4eddf; border: 1rpx solid #d8c7b5; border-radius: 7rpx; }
+.jiuji-chip { color: #675546; background: #ede1d2; border: 1rpx solid #d8c7b5; border-radius: 6rpx; }
+.jiuji-chip-active { color: #fff; background: #82442f; border-color: #82442f; }
+.jiuji-primary { color: #fff; background: #82442f; border: 1rpx solid #82442f; border-radius: 8rpx; }
+.jiuji-secondary { color: #82442f; background: #f9f4eb; border: 1rpx solid #82442f; border-radius: 8rpx; }
+.jiuji-panel { background: #ede1d2; color: #35291f; }
+.jiuji-accent { color: #82442f; }
+.jiuji-notice { color: #795331; background: #f2e6c9; }
+/* Other palettes are already registered; settings entry can be enabled later. */
+.theme-minimal.jiuji-page { background: #f7f5f5; color: #242329; }
+.theme-minimal .jiuji-surface,.theme-minimal .jiuji-card { background: #fff; color: #242329; }
+.theme-minimal .jiuji-card,.theme-minimal .jiuji-rule { border-color: #e8e3e5; }
+.theme-minimal .jiuji-title { font-family: -apple-system, 'PingFang SC', sans-serif; color: #242329; }
+.theme-minimal .jiuji-muted { color: #807c83; }
+.theme-minimal .jiuji-overline,.theme-minimal .jiuji-accent { color: #903f59; }
+.theme-minimal .jiuji-input { color: #242329; background: #f7f5f5; border-color: #e8e3e5; }
+.theme-minimal .jiuji-chip { color: #4e454b; background: #f7f0f3; border-color: #e8e3e5; }
+.theme-minimal .jiuji-chip-active,.theme-minimal .jiuji-primary { background: #903f59; color: #fff; border-color: #903f59; }
+.theme-minimal .jiuji-secondary { color: #903f59; background: #fff; border-color: #903f59; }
+.theme-minimal .jiuji-panel { background: #f7f0f3; color: #242329; }
+.theme-minimal .jiuji-notice { background: #fff6e5; color: #72552e; }
+.theme-noir.jiuji-page { background: #131418; color: #f8f2e9; }
+.theme-noir .jiuji-surface,.theme-noir .jiuji-card { background: #222126; color: #f8f2e9; }
+.theme-noir .jiuji-card,.theme-noir .jiuji-rule { border-color: #454149; }
+.theme-noir .jiuji-title { font-family: -apple-system, 'PingFang SC', sans-serif; color: #f8f2e9; }
+.theme-noir .jiuji-muted { color: #c2b8ae; }
+.theme-noir .jiuji-overline,.theme-noir .jiuji-accent { color: #e9ba79; }
+.theme-noir .jiuji-input { color: #f8f2e9; background: #131418; border-color: #454149; }
+.theme-noir .jiuji-chip { color: #eee4dc; background: #353039; border-color: #454149; }
+.theme-noir .jiuji-chip-active,.theme-noir .jiuji-primary { background: #e9ba79; color: #171719; border-color: #e9ba79; }
+.theme-noir .jiuji-secondary { color: #e9ba79; background: #222126; border-color: #e9ba79; }
+.theme-noir .jiuji-panel { background: #353039; color: #f8f2e9; }
+.theme-noir .jiuji-notice { color: #e9ba79; background: #393125; }
+.theme-pop.jiuji-page { background: #f2f2ff; color: #15204c; }
+.theme-pop .jiuji-surface,.theme-pop .jiuji-card { background: #fff; color: #15204c; }
+.theme-pop .jiuji-card,.theme-pop .jiuji-rule { border-color: #d5d9f4; }
+.theme-pop .jiuji-title { font-family: -apple-system, 'PingFang SC', sans-serif; color: #15204c; }
+.theme-pop .jiuji-muted { color: #6c7195; }
+.theme-pop .jiuji-overline,.theme-pop .jiuji-accent { color: #3048e8; }
+.theme-pop .jiuji-input { color: #15204c; background: #f2f2ff; border-color: #d5d9f4; }
+.theme-pop .jiuji-chip { color: #22377a; background: #e6e9ff; border-color: #d5d9f4; }
+.theme-pop .jiuji-chip-active,.theme-pop .jiuji-primary { background: #3048e8; color: #fff; border-color: #3048e8; }
+.theme-pop .jiuji-secondary { color: #3048e8; background: #fff; border-color: #3048e8; }
+.theme-pop .jiuji-panel { background: #e6e9ff; color: #15204c; }
+.theme-pop .jiuji-notice { background: #fff4d9; color: #655420; }

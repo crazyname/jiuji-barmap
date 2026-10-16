@@ -1,21 +1,9 @@
-<view class="add-page safe-bottom">
-  <view class="header"><text class="h1">发现更多酒吧</text><text class="desc">搜索腾讯地图真实 POI，或在微信地图中手动选点。新增门店默认标为“待核实”。</text></view>
-  <view class="search-box"><input class="query" placeholder="输入广州酒吧名称" value="{{query}}" bindinput="onInput" confirm-type="search" bindconfirm="search" /><button class="search-btn" bindtap="search" loading="{{loading}}">搜索</button></view>
-  <view wx:if="{{hint}}" class="hint">{{hint}}</view>
-  <view class="results" wx:if="{{candidates.length}}">
-    <view class="label">真实地点搜索结果（请核对地址与名称）</view>
-    <view class="candidate" wx:for="{{candidates}}" wx:key="poiId">
-      <view class="item-info"><text class="name">{{item.name}}</text><text class="sub">{{item.address}}</text></view>
-      <button class="insert" data-index="{{index}}" bindtap="addCandidate">＋ 加入</button>
-    </view>
-  </view>
-  <view class="manual"><view class="label">不用密钥也能添加</view><text class="desc">直接打开微信真实地图，在广州区域搜索并选择店铺，取得准确经纬度。</text><button class="choose" bindtap="choosePoint">在地图中选取酒吧</button></view>
-  <view class="selection" wx:if="{{pending}}"><text class="label">即将加入的门店</text>
-    <input class="entry" value="{{newName}}" bindinput="changeName" placeholder="酒吧名称" maxlength="80" />
-    <text class="sub">{{pending.address}}</text>
-    <picker mode="selector" range="{{stationChoices}}" value="{{stationIndex}}" bindchange="stationChange"><view class="entry">附近地铁站：{{stationChoices[stationIndex]}}　▾</view></picker>
-    <picker mode="selector" range="{{lineChoices}}" value="{{lineIndex}}" bindchange="lineChange"><view class="entry">对应线路：{{lineChoices[lineIndex]}}　▾</view></picker>
-    <button class="save" bindtap="saveNewBar">确认添加到本机地图</button>
-  </view>
-  <view class="footnote">当前新增酒吧只保存在本机微信存储中，卸载后可能丢失。下一阶段可接入云数据库、编辑审核和账号同步。</view>
+<view class="add-page jiuji-page theme-{{themeKey}} safe-bottom">
+  <view class="header"><text class="jiuji-overline">JIUJI / DISCOVER MORE</text><text class="h1 jiuji-title">添加新的酒吧</text><text class="desc jiuji-muted">搜索真实地图地点，或直接在微信地图上选点。新门店默认标为「待核实」。</text></view>
+  <view class="search-box"><input class="query jiuji-input" placeholder="输入广州酒吧名称" value="{{query}}" bindinput="onInput" confirm-type="search" bindconfirm="search" /><button class="search-btn jiuji-primary" bindtap="search" loading="{{loading}}">搜索</button></view>
+  <view wx:if="{{hint}}" class="hint jiuji-notice">{{hint}}</view>
+  <view class="results jiuji-card" wx:if="{{candidates.length}}"><view class="label jiuji-title">地点搜索结果</view><text class="desc jiuji-muted">请核对具体门店名称与地址</text><view class="candidate jiuji-rule" wx:for="{{candidates}}" wx:key="poiId"><view class="item-info"><text class="name">{{item.name}}</text><text class="sub jiuji-muted">{{item.address}}</text></view><button class="insert jiuji-secondary" data-index="{{index}}" bindtap="addCandidate">＋ 加入</button></view></view>
+  <view class="manual jiuji-card"><text class="eyebrow jiuji-overline">ALTERNATIVE</text><view class="label jiuji-title">在地图上选点</view><text class="desc jiuji-muted">不用配置地点搜索密钥，也可以使用微信原生地图选取真实位置。</text><button class="choose jiuji-secondary" bindtap="choosePoint">打开地图选择酒吧 ↗</button></view>
+  <view class="selection jiuji-card" wx:if="{{pending}}"><text class="eyebrow jiuji-overline">CONFIRM PLACE</text><view class="label jiuji-title">核对新增门店</view><input class="entry jiuji-input" value="{{newName}}" bindinput="changeName" placeholder="酒吧名称" maxlength="80" /><text class="sub jiuji-muted">{{pending.address}}</text><picker mode="selector" range="{{stationChoices}}" value="{{stationIndex}}" bindchange="stationChange"><view class="entry jiuji-input">附近地铁站：{{stationChoices[stationIndex]}}　▾</view></picker><picker mode="selector" range="{{lineChoices}}" value="{{lineIndex}}" bindchange="lineChange"><view class="entry jiuji-input">对应线路：{{lineChoices[lineIndex]}}　▾</view></picker><button class="save jiuji-primary" bindtap="saveNewBar">确认添加到本机地图</button></view>
+  <view class="footnote jiuji-muted">新增酒吧暂存本机微信存储，卸载或清除数据后可能丢失。经营资料需要再次核实。</view>
 </view>

@@ -1,21 +1,19 @@
-<view class="detail-page safe-bottom" wx:if="{{bar}}">
-  <view class="top"><text class="overline">GUANGZHOU NIGHT ATLAS / NO. {{bar.id}}</text><text class="name">{{bar.name}}</text><text class="station">{{bar.station}}站 · 原图距离约 {{bar.originalDistanceM || '—'}} 米（直线）</text></view>
-  <view class="cards">
-    <view class="metric"><text class="tag">平台用户评分</text><text class="big">{{ratingText}}</text><text class="desc">{{ratingSource}}</text></view>
-    <view class="metric"><text class="tag">平台参考人均</text><text class="big">{{priceText}}</text><text class="desc">不代表一杯鸡尾酒价格</text></view>
+<view class="detail-page jiuji-page theme-{{themeKey}} safe-bottom" wx:if="{{bar}}">
+  <view class="hero"><text class="hero-label jiuji-overline">JIUJI / PLACES / {{bar.id}}</text><text class="hero-name jiuji-title">{{bar.name}}</text><text class="hero-station jiuji-muted">广州 · {{bar.station}} · 原图直线距离约 {{bar.originalDistanceM || '—'}} 米</text></view>
+  <view class="metrics">
+    <view class="metric jiuji-card"><text class="tag jiuji-muted">平台用户评分</text><text class="number jiuji-title">{{ratingText}}</text><text class="metric-note jiuji-muted">{{ratingSource}}</text></view>
+    <view class="metric jiuji-card"><text class="tag jiuji-muted">平台参考人均</text><text class="number jiuji-title">{{priceText}}</text><text class="metric-note jiuji-muted">不是单杯鸡尾酒售价</text></view>
   </view>
-  <view class="section"><text class="section-title">经营与定位信息</text>
-    <view class="item"><text>营业证据</text><text>{{statusLabel}}</text></view>
-    <view class="item"><text>资料核对时间</text><text>{{bar.statusCheckedAt || '待核实'}}</text></view>
-    <view class="item"><text>对应线路</text><text>{{lineText}}</text></view>
-    <view class="item"><text>最近地铁口（原图）</text><text>{{bar.station}} {{bar.exit || '—'}} 口</text></view>
-    <view class="item"><text>地图点位</text><text>{{locationText}}</text></view>
-    <view wx:if="{{bar.resolvedAddress}}" class="address">地图匹配地址：{{bar.resolvedAddress}}</view>
-    <view class="notice">经营资料不是实时开门状态。位置来自腾讯 POI 名称匹配或用户地图选点，建议出行前核对商家地址和营业时段。</view>
+  <view class="section jiuji-card">
+    <view class="section-head"><text class="jiuji-overline">VENUE INFORMATION</text><text class="section-title jiuji-title">经营与位置</text></view>
+    <view class="item jiuji-rule"><text class="jiuji-muted">营业证据</text><text>{{statusLabel}}</text></view>
+    <view class="item jiuji-rule"><text class="jiuji-muted">资料核对日期</text><text>{{bar.statusCheckedAt || '待核实'}}</text></view>
+    <view class="item jiuji-rule"><text class="jiuji-muted">对应地铁线</text><text>{{lineText}}</text></view>
+    <view class="item jiuji-rule"><text class="jiuji-muted">附近地铁站</text><text>{{bar.station}} · {{bar.exit || '—'}} 出口</text></view>
+    <view class="item jiuji-rule"><text class="jiuji-muted">地图坐标</text><text>{{locationText}}</text></view>
+    <view wx:if="{{bar.resolvedAddress}}" class="address jiuji-muted">地图匹配地址：{{bar.resolvedAddress}}</view>
+    <view class="notice jiuji-notice">经营证据不等于实时开门。POI 名称匹配也不代表实地核准，建议出行前核实门店位置和时段。</view>
   </view>
-  <view class="buttons">
-    <button class="primary" bindtap="navigate" disabled="{{!located}}">微信地图导航</button>
-    <button class="secondary" bindtap="choosePoint">{{located ? '纠正地图位置' : '地图选点确认位置'}}</button>
-  </view>
-  <view wx:if="{{bar.rating && bar.rating.source}}" class="source">评分来源：{{bar.rating.platform}}，{{bar.rating.reviews}} 条参考评论。评价可能随时间变化，详情请以商家对应平台页面为准。</view>
+  <view class="buttons"><button class="primary jiuji-primary" bindtap="navigate" disabled="{{!located}}">打开微信地图导航 →</button><button class="secondary jiuji-secondary" bindtap="choosePoint">{{located ? '纠正地图位置' : '地图选点确认位置'}}</button></view>
+  <view wx:if="{{bar.rating && bar.rating.source}}" class="source jiuji-muted">评分来源：{{bar.rating.platform}} · {{bar.rating.reviews}} 条参考评论。不同平台口径及更新时间可能不同。</view>
 </view>

@@ -1,3 +1,4 @@
-page { background: #f7f7f7; color: #262229; font-size: 28rpx; }
+@import "./styles/theme.wxss";
+page { background: #f4eddf; color: #35291f; font-size: 28rpx; }
 button { font-size: 26rpx; }
 .safe-bottom { padding-bottom: env(safe-area-inset-bottom); }

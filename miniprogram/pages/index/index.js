@@ -1,3 +1,4 @@
+const { DEFAULT_THEME, applyTheme } = require('../../utils/theme');
 const store = require('../../utils/storage');
 const { lines } = require('../../data/lines');
 const { CENTER, STATUS_LABEL, isValidPoint, filterBars, buildMarkers, createPolylines } = require('../../utils/map-data');
@@ -15,7 +16,7 @@ function asView(b) {
 }
 Page({
   data: {
-    query: '', selectedLine: 'all', statusIndex: 0, priceIndex: 0, ratingIndex: 0,
+    themeKey: DEFAULT_THEME, listExpanded: true, query: '', selectedLine: 'all', statusIndex: 0, priceIndex: 0, ratingIndex: 0,
     statusLabels: ['全部状态', '官网有资料', '平台有记录', '待核实', '停业提示'],
     priceLabels: ['人均不限', '≤¥150', '≤¥250', '≤¥350'],
     ratingLabels: ['评分不限', '≥4.0', '≥4.5'],
@@ -25,6 +26,7 @@ Page({
     selectedCard: null, resolving: false, hint: ''
   },
   onLoad() {
+    applyTheme(this);
     this.bars = store.getBars();
     this.stations = store.getStations();
     this.selectedId = null;
@@ -34,6 +36,7 @@ Page({
     else this.setData({ hint: '未配置云开发：真实底图可用；可点进详情用微信地图选点。配置腾讯地点服务后可自动匹配坐标及搜索新增酒吧。' });
   },
   onShow() {
+    applyTheme(this);
     if (!this.bars) return;
     const previousCount = this.bars.length;
     this.bars = store.getBars();
@@ -59,6 +62,7 @@ Page({
       selectedCard: selectedBar ? asView(selectedBar) : null
     });
   },
+  toggleResults() { this.setData({ listExpanded: !this.data.listExpanded }); },
   onSearchInput(e) { this.setData({ query: e.detail.value }); this.refresh(); },
   onStatusChange(e) { this.setData({ statusIndex: Number(e.detail.value) }); this.refresh(); },
   onPriceChange(e) { this.setData({ priceIndex: Number(e.detail.value) }); this.refresh(); },

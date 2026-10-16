@@ -12,6 +12,12 @@
 - 搜索腾讯地图 POI 添加新酒吧；没有 API Key 也可通过微信自带地图选点新增，记录只保存到当前手机。
 - 增加了 1/2/3/5/6/8/10/11/12/18/APM 号线的数据结构，更多线路站点可以在 `miniprogram/data/lines.js` 扩展。
 
+## 界面风格
+
+默认采用 **C · 城市编辑（Editorial）**：暖纸白底色、棕红主色、编辑式标题、真实地图与可收起的结果列表。首页搜索框、筛选项、地铁线选项均在地图上方；点中地图标记会显示底部店铺卡片。
+
+UI 使用 `miniprogram/styles/theme.wxss` 中的语义样式类，`miniprogram/utils/theme.js` 提供 `editorial / minimal / noir / pop` 四套主题定义和本地偏好存取接口。**目前未开放用户外观切换入口**，默认固定城市编辑；以后可以在“我的 → 外观设置”加切换控件，无需改动真实地图底图、数据和定位逻辑。主题偏好设计为保存在当前设备的微信存储中，不涉及账号或云端同步。
+
 ## 微信开发者工具运行
 
 1. 安装[微信开发者工具](https://developers.weixin.qq.com/miniprogram/dev/devtools/download.html)，在微信公众平台注册小程序获得 AppID。

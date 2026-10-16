@@ -1,9 +1,21 @@
-.add-page { padding: 30rpx 25rpx 60rpx; }
-.header { display: flex; flex-direction: column; gap: 14rpx; margin-bottom: 27rpx; }.h1 { font-size: 39rpx; font-weight: 800; }.desc { font-size: 23rpx; color: #807983; line-height: 1.65; }
-.search-box { display: flex; gap: 12rpx; margin-bottom: 22rpx; }.query { flex: 1; min-width: 0; background: #fff; border: 1rpx solid #ece4e8; padding: 13rpx 18rpx; height: 65rpx; border-radius: 11rpx; font-size: 26rpx; }.search-btn { background: #922958; color: #fff; margin: 0; line-height: 91rpx; font-size: 23rpx; }
-.label { display: block; font-weight: 750; font-size: 27rpx; margin-bottom: 17rpx; }.hint { padding: 17rpx; font-size: 21rpx; color: #815a35; background: #fff2da; border-radius: 10rpx; margin-bottom: 18rpx; }
-.results,.manual,.selection { background: #fff; padding: 25rpx; border-radius: 15rpx; margin-bottom: 22rpx; }
-.candidate { padding: 18rpx 0; display: flex; gap: 16rpx; align-items: center; border-top: 1rpx solid #f3eef1; }.item-info { flex: 1; display: flex; flex-direction: column; gap: 8rpx; }.name { font-size: 25rpx; font-weight: 700; }.sub { font-size: 21rpx; color: #827c82; line-height: 1.5; }.insert { margin: 0; color: #922958; background: #fff2f7; font-size: 23rpx; }
-.choose { background: #fff; color: #922958; border: 1rpx solid #922958; margin: 22rpx 0 0; font-size: 25rpx; }
-.entry { display: block; width: 100%; box-sizing: border-box; border: 1rpx solid #ebe4e8; padding: 22rpx 15rpx; font-size: 24rpx; border-radius: 10rpx; margin: 16rpx 0; }
-.save { color: white; background: #922958; font-size: 25rpx; margin-top: 22rpx; }.footnote { font-size: 20rpx; color: #9b9299; line-height: 1.7; margin-top: 25rpx; }
+.add-page { box-sizing: border-box; min-height: 100vh; padding: 35rpx 24rpx 65rpx; }
+.header { display: flex; flex-direction: column; gap: 15rpx; margin: 0 4rpx 28rpx; }
+.h1 { font-size: 45rpx; }
+.desc { font-size: 22rpx; line-height: 1.7; }
+.search-box { display: flex; gap: 10rpx; margin-bottom: 23rpx; }
+.query { box-sizing: border-box; flex: 1; min-width: 0; height: 77rpx; padding: 0 15rpx; font-size: 24rpx; }
+.search-btn { min-width: 115rpx; margin: 0; padding: 0 16rpx; height: 77rpx; line-height: 75rpx; font-size: 23rpx; }
+.search-btn::after { border: 0; }
+.label { display: block; font-size: 31rpx; margin: 8rpx 0 11rpx; }
+.hint { padding: 17rpx; font-size: 20rpx; line-height: 1.6; margin-bottom: 20rpx; }
+.results,.manual,.selection { box-sizing: border-box; padding: 23rpx; margin-bottom: 21rpx; }
+.eyebrow { display: block; }
+.candidate { border-top: 1rpx solid #d8c7b5; margin-top: 14rpx; padding: 18rpx 0; display: flex; align-items: center; gap: 12rpx; }
+.item-info { flex: 1; display: flex; flex-direction: column; gap: 7rpx; min-width: 0; }
+.name { font-size: 24rpx; font-weight: 750; }
+.sub { display: block; font-size: 20rpx; line-height: 1.5; }
+.insert { margin: 0; padding: 0 13rpx; font-size: 20rpx; line-height: 62rpx; height: 64rpx; }
+.choose,.save { width: 100%; margin: 22rpx 0 0; font-size: 23rpx; line-height: 82rpx; height: 84rpx; font-weight: 700; }
+.choose::after,.save::after,.insert::after { border: 0; }
+.entry { box-sizing: border-box; display: block; width: 100%; height: 84rpx; line-height: 82rpx; padding: 0 15rpx; margin: 14rpx 0; font-size: 23rpx; }
+.footnote { font-size: 20rpx; line-height: 1.7; padding: 0 5rpx; }
