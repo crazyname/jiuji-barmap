@@ -1,0 +1,68 @@
+# 酒迹 Jiuji · BarMap（微信小程序）
+
+酒迹的开源酒吧地图微信小程序，基于**微信原生 `<map>` 真实地理底图**，不是 SVG/Canvas 示意图。当前初始数据覆盖广州的 31 家酒吧；地铁线仅是可选筛选方式。
+
+## 当前实现
+
+- 真实微信地图，支持手指平移、双指缩放、地图 POI、原生地图导航。
+- 31 家原图酒吧记录，搜索酒吧/站点/编号，地铁线、营业证据、人均及评分筛选。
+- 对有地址且**经腾讯 POI 名称匹配**的酒吧才显示地图 marker；绝不把旧示意图 x/y 当经纬度。
+- 选中线路后绘制由腾讯地图匹配的实际站点坐标**直线连接的辅助高亮**，不声称为真实轨道曲线。尚未核实的车站不硬连线。
+- 门店详情显示营业证据、评分与人均数据来源、地图导航；支持 `wx.chooseLocation` 修正位置。
+- 搜索腾讯地图 POI 添加新酒吧；没有 API Key 也可通过微信自带地图选点新增，记录只保存到当前手机。
+- 增加了 1/2/3/5/6/8/10/11/12/18/APM 号线的数据结构，更多线路站点可以在 `miniprogram/data/lines.js` 扩展。
+
+## 微信开发者工具运行
+
+1. 安装[微信开发者工具](https://developers.weixin.qq.com/miniprogram/dev/devtools/download.html)，在微信公众平台注册小程序获得 AppID。
+2. 导入项目根目录，将 `project.config.json` 的 `appid` 从 `touristappid` 改成自己的小程序 AppID。
+3. 不配置云开发也可使用真实底图和 `wx.chooseLocation` 地图选点（某些 API 在开发者工具模拟器中存在限制，建议使用真机预览）。
+4. 要自动给旧酒吧定位和搜索新酒吧，需要开通**微信云开发环境**；在 `miniprogram/config.js` 中填入 `cloudEnvId`。
+5. 申请[腾讯位置服务](https://lbs.qq.com/) WebService API Key。将 `QQMAP_KEY` 配置到云函数 `mapSearch` 的**运行环境变量**中。**不要把 Key 写进前端或提交 GitHub。**
+6. 在微信开发者工具右键 `cloudfunctions/mapSearch`，直接部署到云端（只使用 Node.js 内置 `https` 模块，无第三方依赖）。云函数 Node.js 运行环境推荐 18+，运行超时时间建议 30 秒。
+7. 重新编译，在首页点“刷新坐标”或等待自动匹配。每次最多查询 6 个地点，未匹配成功的记录不生成假坐标。
+
+**微信公众平台的地理位置相关接口权限**及隐私处理需要按实际小程序类目、用户许可和平台最新要求配置；选点 API 是否可用以当前审核资格及真机为准。
+
+## 数据准确性和限制
+
+- 31 家酒吧原始列表、地铁站、出口和大致直线距离来自用户提供的**历史信息图**，并非最新门店数据库。
+- `status` 表示截至 `2026-10-16` 的 **经营证据等级**（官网资料/平台记录/待核实/停业提示），**不代表此刻开门**。尤其“已关门”的记录可能与其他平台信息冲突。
+- 仅 6 家有已收集的第三方评分/参考人均，且其平台、评价数量、时间存在差异，其余显示“待核实”；不要移用品牌不同分店的分数。
+- POI 名称匹配不等于现场地址确认。高层酒吧、重复店名、搬迁后的旧址尤其需要人工核对。搜索到一个地点**并不意味着此店仍在经营**。
+- 地铁 `polyline` 是使用站点经纬度的辅助连接，**不是精确轨道 GIS**；后续可引入有适当使用许可、具有合法 GCJ-02 转换方式的轨道数据。
+- 目前没有服务端账号系统、审核后台、商户实时营业接口或微信小程序发布审核；也没有云端多设备同步。
+
+## 开发与测试
+
+运行：`node --test tests/*.test.js`
+
+结构：
+
+```text
+miniprogram/
+  pages/index/         原生地图、搜索及筛选
+  pages/detail/        酒吧详情、导航、修正位置
+  pages/add/           腾讯 POI 搜索 / 微信地图选点
+  data/                 原图 31 家酒吧与地铁线路
+  utils/                坐标过滤、地图图层、本地数据、云函数调用
+  assets/               状态区分 marker 图标
+cloudfunctions/mapSearch/  腾讯地点服务调用（API Key 只在服务端）
+tests/                    Node.js 逻辑测试
+```
+
+MIT License。项目不会包含密钥和微信小程序 AppID。首次部署需要你自己的平台身份与授权。
+
+## 发布到你新建的 GitHub 仓库
+
+使用 GitHub 账号 `crazyname` 创建一个空仓库（命名为 `jiuji-barmap`，不要勾选自动生成 README，因为项目里已有）。然后在本项目根目录执行：
+
+```bash
+git init -b main
+git add .
+git commit -m "feat: Jiuji BarMap MVP"
+git remote add origin https://github.com/crazyname/jiuji-barmap.git
+git push -u origin main
+```
+
+不要把云环境密钥或用户位置历史提交仓库。
