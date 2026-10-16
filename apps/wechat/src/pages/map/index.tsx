@@ -3,6 +3,7 @@ import { Button, Input, Map, Picker, ScrollView, Text, View } from '@tarojs/comp
 import Taro, { useDidShow } from '@tarojs/taro'
 import { getVenues, priceText, ratingText, STATUS_LABEL, STATUS_OPTIONS, updateVenueLocation, validPoint, Venue } from '../../utils/venues'
 import './index.css'
+import { refreshSites } from '../../services/sync'
 
 const CENTER = { latitude: 23.12908, longitude: 113.26436 }
 export default function MapPage() {
@@ -13,7 +14,10 @@ export default function MapPage() {
   const [center, setCenter] = useState(CENTER)
   const [scale, setScale] = useState(12)
   const [expanded, setExpanded] = useState(true)
-  useDidShow(() => setVenues(getVenues()))
+  useDidShow(() => {
+    setVenues(getVenues())
+    void refreshSites().then(() => setVenues(getVenues()))
+  })
 
   const displayed = useMemo(() => {
     const filter = STATUS_OPTIONS[statusIndex].value

@@ -1,5 +1,6 @@
 import Taro from '@tarojs/taro'
 import seed from '../data/bars.json'
+import { publishedRows } from '../services/sync'
 
 export interface Point { latitude: number; longitude: number }
 export interface Venue {
@@ -57,15 +58,20 @@ function parseEntries(value: unknown[]): Venue[] {
     typeof (entry as Venue).name === 'string')
 }
 export function getVenues(): Venue[] {
+  const remote = publishedRows<Venue>('bars')
+  const initial = remote.length ? remote : INITIAL_VENUES
   const current = parseEntries(readArray(CURRENT_KEY))
   const previous = current.length ? current : parseEntries(readArray(PREVIOUS_KEY))
   const saved = new Map(previous.map(item => [item.id, item]))
-  const merged = INITIAL_VENUES.map(initial => {
+  const merged = initial.map(initial => {
     const edit = saved.get(initial.id)
     const location = validPoint(edit?.location) ? edit!.location : validPoint(initial.location) ? initial.location : null
-    return edit ? { ...initial, ...edit, location } : { ...initial, location }
+    if (!edit) return { ...initial, location }
+    // Only verified user-selected positions override later canonical updates.
+    if (remote.length && edit.locationSource !== 'user-map-selection') return { ...initial, location }
+    return { ...initial, ...edit, location }
   })
-  const extras = previous.filter(item => !INITIAL_VENUES.some(original => original.id === item.id))
+  const extras = previous.filter(item => !initial.some(original => original.id === item.id))
     .map(item => ({ ...item, location: validPoint(item.location) ? item.location : null }))
   if (!current.length && previous.length) writeArray(CURRENT_KEY, [...merged, ...extras])
   return [...merged, ...extras]

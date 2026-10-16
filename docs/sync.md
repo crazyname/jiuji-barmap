@@ -36,3 +36,9 @@
 3. 微信端将 `apps/wechat/src/config/sync.ts` 中的 `SYNC_ENABLED` 打开、填写经过真机验证的 `API_BASE_URL`，并在微信公众平台添加 request 合法域名。
 4. 在微信端登录获得经过服务器签名的用户令牌后执行同步；没有有效令牌时本地修改保持排队。
 5. 两台测试设备先验证 A 端发布 → D1 持久化 → B 端刷新；再验证断网与并发编辑。
+
+## 微信 Taro 客户端接入
+
+`apps/wechat/src/services/sync.ts` 复用共享引擎。微信地图、调酒、社区及我的页进入前台时尝试同步；提交酒谱/帖子会加入本机离线队列，用户必须通过未来的登录流程获得服务端令牌才会自动上传。
+
+配置 `apps/wechat/src/config/sync.ts` 中的 HTTPS API 根地址及开关；当前默认关闭，因为尚未验证网站公开路由。没有服务端 API 时保留现有 `sites-test.json` 演示内容。

@@ -58,3 +58,5 @@ npm run sites:import -- ./jiuji-tools.json
 [构建指南](docs/build.md) · [Sites 测试数据](docs/sites-test-data.md) · [四端架构](docs/multiplatform.md) · [兼容矩阵](docs/compatibility.md) · [迁移任务](docs/migration.md) · [参与贡献](CONTRIBUTING.md)
 
 **License:** [MPL-2.0](LICENSE)
+
+跨端自动同步的协议与接入条件见 [数据同步](docs/sync.md)。
