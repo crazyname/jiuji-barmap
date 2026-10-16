@@ -19,3 +19,5 @@
 DCloud / HBuilderX / uni-app x 不属于本项目新架构。
 
 [构建步骤](build.md) · [兼容矩阵](compatibility.md) · [微信入口迁移](migration.md)
+
+同步核心位于 `packages/sync/`，微信和 Expo 使用由 `npm run sync:generate` 生成的相同 JS 代码；平台仅负责 HTTPS、登录会话和本机存储。参见 [跨端同步](sync.md)。

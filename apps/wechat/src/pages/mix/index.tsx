@@ -19,7 +19,7 @@ export default function MixPage() {
  const add=()=>{if(!title.trim()||!steps.trim())return Taro.showToast({title:'填写名称和步骤',icon:'none'})
  const entry:Recipe={id:String(Date.now()),title,ingredients,steps}
  const next=[entry,...rows];Taro.setStorageSync(KEY,next);setRows(next)
- queueRemoteUpsert('recipes',{...entry,visibility:'public',imageUrl:null})
+ queueRemoteUpsert('recipes',{...entry,visibility:'private',imageUrl:null})
  void refreshSites().then(()=>setRemote(publishedRows<Recipe>('recipes')))
  setTitle('');setIngredients('');setSteps('')}
  return <View className='page'><Text className='kicker'>JIUJI / RECIPES</Text><Text className='title'>调酒教程</Text>

@@ -42,3 +42,9 @@
 `apps/wechat/src/services/sync.ts` 复用共享引擎。微信地图、调酒、社区及我的页进入前台时尝试同步；提交酒谱/帖子会加入本机离线队列，用户必须通过未来的登录流程获得服务端令牌才会自动上传。
 
 配置 `apps/wechat/src/config/sync.ts` 中的 HTTPS API 根地址及开关；当前默认关闭，因为尚未验证网站公开路由。没有服务端 API 时保留现有 `sites-test.json` 演示内容。
+
+## React Native / Expo 适配
+
+`apps/mobile/src/services/sync.ts` 用本机 AsyncStorage 持久化同步队列，HTTPS `fetch` 用于 API，请求令牌需由真正的客户端登录流程传入。`apps/mobile/App.tsx` 现可读取缓存并创建私人草稿队列。鸿蒙移植须再验收存储、网络与地图等原生模块。
+
+调酒与社区中标为“保存”的内容默认是 **private 草稿**，同一个用户的其他登录设备可以下载，但不会自动公开给其他账号。

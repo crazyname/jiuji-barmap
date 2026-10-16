@@ -19,7 +19,7 @@ export default function CommunityPage() {
  const post:Post={id:String(Date.now()),title,body,type:(['visit','tasting','promo'] as const)[type],sponsor}
  const next=[post,...rows];Taro.setStorageSync(KEY,next);setRows(next)
  queueRemoteUpsert('posts',{id:post.id,title:post.title,body:post.body,type:post.type,
-   visibility:'public',isSponsored:post.type==='promo',
+   visibility:'private',isSponsored:post.type==='promo',
    sponsorName:post.type==='promo'?(post.sponsor||''):null,barId:null})
  void refreshSites().then(()=>setRemote(publishedRows<Post>('posts')))
  setTitle('');setBody('')}
