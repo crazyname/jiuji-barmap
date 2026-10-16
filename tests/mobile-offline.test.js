@@ -1,0 +1,15 @@
+// SPDX-License-Identifier: MPL-2.0
+const test=require('node:test')
+const assert=require('node:assert/strict')
+const fs=require('node:fs')
+const path=require('node:path')
+const root=path.resolve(__dirname,'..')
+const read=p=>fs.readFileSync(path.join(root,p),'utf8')
+test('native mobile drafts persist locally until a session is available',()=>{
+ const source=read('apps/mobile/src/services/sync.ts')
+ assert.match(source,/jiuji\.mobile\.local-drafts\.v1/)
+ assert.match(source,/AsyncStorage\.setItem\(LOCAL_DRAFTS_KEY/)
+ assert.match(source,/if\(token\|\|deviceToken\)/)
+ assert.match(source,/writeLocalDrafts\(\{recipes:\[\],posts:\[\]\}\)/)
+ assert.match(source,/if\(kind!=='recipes'&&kind!=='posts'\)return rows/)
+})

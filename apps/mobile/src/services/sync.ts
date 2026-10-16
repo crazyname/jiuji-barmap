@@ -6,6 +6,18 @@ import { createSyncClient } from './sync-core'
 export type SyncKind = 'bars' | 'recipes' | 'posts' | 'favorites'
 type AnyRow = { id: string | number; [key: string]: unknown }
 const STORAGE_KEY='jiuji.sync.snapshot.v1'
+const LOCAL_DRAFTS_KEY='jiuji.mobile.local-drafts.v1'
+type DraftKind='recipes'|'posts'
+async function readLocalDrafts():Promise<Record<DraftKind,AnyRow[]>>{
+ try{
+  const saved=JSON.parse((await AsyncStorage.getItem(LOCAL_DRAFTS_KEY))||'{}')
+  return {recipes:Array.isArray(saved.recipes)?saved.recipes:[],
+    posts:Array.isArray(saved.posts)?saved.posts:[]}
+ }catch(_){return {recipes:[],posts:[]}}
+}
+async function writeLocalDrafts(value:Record<DraftKind,AnyRow[]>):Promise<void>{
+ await AsyncStorage.setItem(LOCAL_DRAFTS_KEY,JSON.stringify(value))
+}
 let snapshot: any = null
 let initialized: Promise<void> | null = null
 let deviceToken = ''
@@ -45,12 +57,23 @@ const engine=createSyncClient({storage,transport:{
 export const mobileSyncEnabled=SYNC_ENABLED&&SYNC_API_BASE_URL.startsWith('https://')
 export async function getMobileRows<T extends AnyRow>(kind:SyncKind):Promise<T[]>{
  await ready()
- return engine.list(kind) as T[]
+ const rows=engine.list(kind) as T[]
+ if(kind!=='recipes'&&kind!=='posts')return rows
+ const saved=await readLocalDrafts()
+ const local=saved[kind] as T[]
+ const keys=new Set(local.map(item=>String(item.id)))
+ return [...local,...rows.filter(item=>!keys.has(String(item.id)))]
 }
 export async function queueMobileUpsert(kind:SyncKind,row:AnyRow):Promise<void>{
  await ready()
- if (deviceToken) engine.queueUpsert(kind,row)
- await persist
+ if (deviceToken){
+  engine.queueUpsert(kind,row)
+  await persist
+ }else if(kind==='recipes'||kind==='posts'){
+  const drafts=await readLocalDrafts()
+  drafts[kind]=[row,...drafts[kind].filter(item=>String(item.id)!==String(row.id))]
+  await writeLocalDrafts(drafts)
+ }
 }
 // Pass a short-lived token issued by an actual mobile sign-in flow.
 // Do not persist the Sites owner session, a shared admin token or test credentials.
@@ -66,6 +89,16 @@ export async function refreshMobileSites(token?:string):Promise<{ok:boolean;queu
  await ready()
  if(!mobileSyncEnabled)return {ok:false,queued:engine.status().queued,message:'等待 Sites API 上线'}
  try{
+  if(token||deviceToken){
+   // Move saved offline-only drafts to the persisted network queue after sign-in.
+   const local=await readLocalDrafts()
+   if(local.recipes.length||local.posts.length){
+    for(const kind of ['recipes','posts'] as const)
+     for(const row of local[kind])engine.queueUpsert(kind,row)
+    await persist
+    await writeLocalDrafts({recipes:[],posts:[]})
+   }
+  }
   const result=(token||deviceToken)?await engine.sync(token||deviceToken):await engine.pull()
   const state=engine.status()
   await persist
