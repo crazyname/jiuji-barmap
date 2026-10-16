@@ -28,3 +28,11 @@
 ## 四端接入
 
 `packages/sync/client.js` 是不依赖 React、Taro 或 Expo 的核心逻辑。`npm run sync:generate` 更新 `apps/wechat/src/services/sync-core.js` 与 `apps/mobile/src/services/sync-core.js`。各端只实现 HTTPS 请求、设备存储与用户登录令牌适配。
+
+## 第一步落地清单
+
+1. 将 `packages/sync/protocol.json` 交给 Sites 管理站的 Work 开发会话，实现真实的 D1 读写接口。
+2. 管理员保持原有登录权限，另外提供客户端使用的用户身份验证和独立授权；不得复用管理后台会话。
+3. 微信端将 `apps/wechat/src/config/sync.ts` 中的 `SYNC_ENABLED` 打开、填写经过真机验证的 `API_BASE_URL`，并在微信公众平台添加 request 合法域名。
+4. 在微信端登录获得经过服务器签名的用户令牌后执行同步；没有有效令牌时本地修改保持排队。
+5. 两台测试设备先验证 A 端发布 → D1 持久化 → B 端刷新；再验证断网与并发编辑。
