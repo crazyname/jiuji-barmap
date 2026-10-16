@@ -1,13 +1,14 @@
-# 共享数据契约（v1 草案）
+# 共享数据与 API 契约
 
-四端使用统一语义：`bar`、`recipe`、`post`、`api-error`。`schemas/` 为 JSON Schema 2020-12，`api.v1.json` 为拟议的 HTTP 接口索引；目前**尚无线上 API**。
+`schemas/` 使用 JSON Schema 2020-12，`api.v1.json` 定义 API v1 路由与请求结构。四端统一使用 `bar`、`recipe`、`post`、`api-error` 类型。
 
-约定：
+- `bar.location` 为空表示地点坐标未确认，不能使用模拟位置。
+- `post` 的商业推广类型需要 `isSponsored: true` 和非空 `sponsorName`。
+- 本机配方与帖子保持本地存储；未来公开内容与账号同步统一通过接口实现。
 
-- 酒吧 `status` 是营业资料证据等级，不是“此刻开门”；`location: null` 表示未经核实，禁止编造经纬度。
-- 调酒记录的材料/步骤保留原始文字供前端展示；后续可以向结构化计量升级，不直接替换现有字段。
-- 社区 `promo` 帖必须具有 `isSponsored: true` 与非空 `sponsorName`。
-- `visibility` 用于区分本机内容与未来云端公开内容。本机数据迁移到云端前需要明确用户同意。
-- API 协议是设计稿，客户端目前不能依赖这些接口可用。正式实现前需定义登录方式、上传媒体和错误返回。
+```bash
+npm run contracts:check
+npm run check
+```
 
-检查：`npm run contracts:check`；修改后运行 `npm run check`。
+变更字段时，请同步更新 Schema、接口文档和相关测试。
