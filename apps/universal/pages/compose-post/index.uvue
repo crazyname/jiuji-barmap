@@ -1,0 +1,26 @@
+<template>
+  <view class="page">
+    <text class="kicker">CREATE / COMMUNITY</text><text class="title">记录一次酒吧体验</text>
+    <text class="label">类型</text>
+    <picker mode="selector" :range="categories" :value="categoryIndex" @change="onCategory"><view class="field">{{categories[categoryIndex]}}　⌄</view></picker>
+    <text class="label">标题</text><input class="field" v-model="title" maxlength="80" placeholder="酒吧名或品酒心得" />
+    <text class="label">正文</text><textarea class="textarea" v-model="body" maxlength="3000" placeholder="记录酒款、口味、服务、价格等…" />
+    <button class="primary" @click="submit">保存分享草稿</button>
+    <text class="desc">商业合作请明确选择「广告推广」。本阶段只保存本机帖子，不会公开发布，也不会直接发布到小红书。</text>
+  </view>
+</template>
+<script setup lang="ts">
+import { ref } from 'vue'
+import { addJournal, getProfile } from '../../utils/local'
+const categories=['探店','品酒','广告推广']
+const categoryIndex=ref(0);const title=ref('');const body=ref('')
+function onCategory(e: UniPickerChangeEvent):void {categoryIndex.value = Number(e.detail.value)}
+function submit():void {
+ if(title.value.trim() == '' || body.value.trim() == '') {uni.showToast({title:'请填写标题和正文',icon:'none'});return}
+ addJournal('post',{id:Date.now(),title:title.value.trim(),body:body.value.trim(),category:categories[categoryIndex.value],author:getProfile(),createdAt:new Date().toISOString().slice(0,10)})
+ uni.navigateBack()
+}
+</script>
+<style>
+.page{flex:1;background:#f4eddf;padding:22px}.kicker{font-size:10px;color:#82442f;letter-spacing:2px}.title{font-size:24px;color:#35291f;font-weight:700;margin:8px 0 20px}.label{font-size:12px;color:#887969;margin-top:18px;margin-bottom:8px}.field,.textarea{background:#f9f4eb;border:1px solid #d8c7b5;font-size:13px;color:#35291f;padding:12px;border-radius:5px}.field{height:45px}.textarea{height:190px;width:100%}.primary{background:#82442f;color:#fff;margin-top:24px}.desc{font-size:11px;line-height:1.7;color:#887969;margin-top:15px}
+</style>

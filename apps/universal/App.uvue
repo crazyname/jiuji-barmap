@@ -1,0 +1,9 @@
+<script lang="ts">
+export default {
+  onLaunch() { console.log('酒迹 · universal app started') }
+}
+</script>
+<style>
+page { background-color: #f4eddf; color: #35291f; font-size: 14px; }
+button { font-size: 14px; }
+</style>

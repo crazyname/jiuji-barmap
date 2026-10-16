@@ -88,3 +88,7 @@ node --test tests/*.test.js
 随后使用微信开发者工具导入仓库根目录，并按照上面的配置步骤填写自己的小程序 AppID、云开发环境 ID。欢迎通过 GitHub Issues 反馈数据错误或功能问题。
 
 请勿在 Issues、提交记录或前端配置中公开腾讯地图 API Key、云环境密钥或用户位置数据。
+
+## 多端客户端
+
+仓库另包含 `apps/universal/` 中的 uni-app x 基础工程，面向 iOS、Android、HarmonyOS NEXT（并具备微信端编译目标）。目前保留原生微信小程序为主要运行版本；多端工程仍需平台 SDK、签名和真机验收。开发步骤见 [多端开发说明](docs/multiplatform.md)。

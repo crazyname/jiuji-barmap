@@ -1,0 +1,20 @@
+<template>
+  <view class="page">
+    <text class="kicker">JIUJI / MY PAGE</text><text class="title">我的酒迹</text>
+    <view class="profile"><text class="label">昵称</text><input class="nickname" v-model="name" maxlength="30" /><button class="save" size="mini" @click="save">保存</button></view>
+    <view class="metrics"><view class="metric"><text class="big">{{recipes}}</text><text class="small">本机教程</text></view><view class="metric"><text class="big">{{posts}}</text><text class="small">本机分享</text></view></view>
+    <view class="section"><text class="sectionTitle">界面风格</text><text class="desc">默认 C「城市编辑」，其它主题在当前多端版暂未全量适配。</text></view>
+    <view class="section"><text class="sectionTitle">跨设备同步</text><text class="desc">当前内容保存在本机，尚未接入用户账号、云端收藏和浏览记录。各端数据不会自动互通。</text></view>
+  </view>
+</template>
+<script setup lang="ts">
+import { ref } from 'vue'
+import { onShow } from '@dcloudio/uni-app'
+import { getJournals, getProfile, setProfile } from '../../utils/local'
+const name=ref('酒迹用户');const recipes=ref(0);const posts=ref(0)
+onShow(() => {name.value=getProfile();recipes.value=getJournals('recipe').length;posts.value=getJournals('post').length})
+function save():void {setProfile(name.value.trim() || '酒迹用户');uni.showToast({title:'已保存在本机'})}
+</script>
+<style>
+.page{flex:1;padding:22px 18px;background:#f4eddf}.kicker{color:#82442f;font-size:10px;letter-spacing:2px}.title{font-size:28px;color:#35291f;font-weight:700;margin-top:8px}.profile{display:flex;flex-direction:row;align-items:center;margin:27px 0;padding:17px;background:#f9f4eb;border:1px solid #d8c7b5}.label{font-size:12px;color:#887969;margin-right:12px}.nickname{font-size:15px;flex:1;color:#35291f}.save{background:#82442f;color:#fff;font-size:11px}.metrics{display:flex;flex-direction:row;gap:12px}.metric{background:#ede1d2;padding:18px;flex:1}.big{font-size:27px;color:#82442f;font-weight:700}.small{font-size:11px;color:#887969;margin-top:7px}.section{margin-top:27px;border-top:1px solid #d8c7b5;padding-top:16px}.sectionTitle{font-size:16px;color:#35291f;font-weight:700}.desc{font-size:12px;color:#887969;margin-top:9px;line-height:1.8}
+</style>
