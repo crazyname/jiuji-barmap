@@ -48,3 +48,7 @@
 `apps/mobile/src/services/sync.ts` 用本机 AsyncStorage 持久化同步队列，HTTPS `fetch` 读取公共数据。测试令牌只保留在运行内存，可从移动端「我的」临时录入；正式用户认证之后替换。`apps/mobile/App.tsx` 现可读取缓存并创建私人草稿队列。鸿蒙移植须再验收存储、网络与地图等原生模块。
 
 调酒与社区中标为“保存”的内容默认是 **private 草稿**，同一个用户的其他登录设备可以下载，但不会自动公开给其他账号。
+
+## 公共 API 实际连通测试
+
+`npm run sites:probe` 只请求 `/v1/health` 和匿名 `/v1/sync`，校验 HTTP 200、JSON Content-Type、`revision`、四类集合和匿名隐私过滤。GitHub Actions 的 `Sites Public API Smoke` 工作流也会运行这个检查；它不会发送设备令牌或进行任何写操作。

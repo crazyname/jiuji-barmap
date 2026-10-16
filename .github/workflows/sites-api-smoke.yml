@@ -1,0 +1,22 @@
+name: Sites Public API Smoke
+on:
+  push:
+    paths:
+      - 'scripts/probe-sites-api.cjs'
+      - 'apps/wechat/src/config/sync.ts'
+      - 'apps/mobile/src/config/sync.ts'
+      - '.github/workflows/sites-api-smoke.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  public-read-only:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check real Sites health and anonymous JSON
+        run: npm run sites:probe
