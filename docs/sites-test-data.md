@@ -34,3 +34,18 @@ npm run check
 
 - [ChatGPT Sites 数据与连接](https://learn.chatgpt.com/docs/sites/data-and-connections)
 - [创建和管理 Sites](https://help.openai.com/en/articles/20001339-creating-and-using-chatgpt-sites)
+
+## 使用 Sites 实际导出更新客户端演示数据
+
+将从 Sites 下载的 `jiuji-tools.json` 放在本地，然后运行：
+
+```bash
+npm run sites:import -- /path/to/jiuji-tools.json
+npm run check
+```
+
+也可以传入存放 `jiuji-bars.json`、`jiuji-recipes.json`、`jiuji-posts.json`、`jiuji-testUsers.json`、`jiuji-favorites.json` 的目录。支持 `--dry-run` 验证而不写入。
+
+导入生成 `fixtures/sites/latest.json`（开发快照）及微信 / React Native 两份 `sites-test.json`（仅含示例酒谱和帖子）。两端只把测试内容显示为只读示例，本地草稿仍独立保存。上传的 `jiuji-files.json`、`jiuji-audit.json` 是完整数据的重复导出，不参与独立媒体或审计表导入。
+
+`npm run sites:exports:check` 用于 CI 校验快照一致性。导入只修改 Git 仓库里的测试快照，不会向 Sites 发起写请求；需要再次导出才能获取管理站中的修改。

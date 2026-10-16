@@ -51,6 +51,8 @@ npm start
 ```bash
 npm run check
 npm run migration:status
+# 导入 Sites 测试控制台的 JSON（导出后按实际路径替换）
+npm run sites:import -- ./jiuji-tools.json
 ```
 
 [构建指南](docs/build.md) · [Sites 测试数据](docs/sites-test-data.md) · [四端架构](docs/multiplatform.md) · [兼容矩阵](docs/compatibility.md) · [迁移任务](docs/migration.md) · [参与贡献](CONTRIBUTING.md)

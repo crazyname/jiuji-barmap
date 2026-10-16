@@ -2,6 +2,7 @@ import React, { useMemo, useState } from 'react'
 import { SafeAreaView, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import MapView, { Marker } from 'react-native-maps'
 import seed from './src/data/bars.json'
+import sitesData from './src/data/sites-test.json'
 
 type Tab = 'map' | 'mix' | 'community' | 'mine'
 type Bar = {id:number;name:string;station:string;location:{latitude:number;longitude:number}|null}
@@ -22,7 +23,9 @@ export default function App() {
     <Text style={s.hint}>酒吧 {filtered.length} 家 · 坐标已确认 {markers.length} 家</Text>
     <ScrollView style={s.list}>{filtered.slice(0,20).map(b=><View style={s.row} key={b.id}><Text style={s.body}>{b.name}</Text><Text style={s.sub}>{b.station}</Text></View>)}</ScrollView>
   </View>:<View style={s.flex}><Text style={s.body}>{tab==='mix'?'调酒教程':tab==='community'?'探店、品酒和推广帖子':'个人资料、收藏与设置'}</Text>
-   <Text style={s.sub}>React Native 页面基础结构；数据编辑功能正在迁移。</Text></View>}
+   {tab==='mix'?sitesData.recipes.map(r=><View key={r.id} style={s.row}><Text style={s.body}>{r.title}</Text><Text style={s.sub}>{r.ingredients}</Text></View>)
+     :tab==='community'?sitesData.posts.map(p=><View key={p.id} style={s.row}><Text style={s.body}>{p.type==='promo'?'【广告】':''}{p.title}</Text><Text style={s.sub}>{p.body}</Text></View>)
+     :<Text style={s.sub}>个人资料与收藏将在下一阶段迁移。</Text>}</View>}
   <View style={s.tabs}>{tabs.map(t=><TouchableOpacity key={t.id} style={s.tab} onPress={()=>setTab(t.id)}>
    <Text style={[s.tabText,tab===t.id&&s.active]}>{t.label}</Text></TouchableOpacity>)}</View>
  </SafeAreaView>

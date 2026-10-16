@@ -2,7 +2,9 @@ import React, { useState } from 'react'
 import { Button, Input, Picker, Text, Textarea, View } from '@tarojs/components'
 import Taro, { useDidShow } from '@tarojs/taro'
 import '../shared.css'
-type Post = {id:string;title:string;body:string;type:'visit'|'tasting'|'promo';sponsor:string}
+import sitesData from '../../data/sites-test.json'
+type Post = {id:string;title:string;body:string;type:'visit'|'tasting'|'promo';sponsor?:string;sponsorName?:string}
+const demoPosts = sitesData.posts as Post[]
 const KEY='jiuji.react.posts'; const labels=['探店','品酒','商业推广']
 export default function CommunityPage() {
  const [rows,setRows]=useState<Post[]>([]);const [title,setTitle]=useState('');const [body,setBody]=useState('')
@@ -11,7 +13,7 @@ export default function CommunityPage() {
  const save=()=>{if(!title.trim()||!body.trim()||(type===2&&!sponsor.trim()))return Taro.showToast({title:'请补全内容及推广方',icon:'none'})
  const post:Post={id:String(Date.now()),title,body,type:(['visit','tasting','promo'] as const)[type],sponsor}
  const next=[post,...rows];Taro.setStorageSync(KEY,next);setRows(next);setTitle('');setBody('')}
- const copy=(p:Post)=>Taro.setClipboardData({data:(p.type==='promo'?'【广告/商业推广】'+p.sponsor+'\n':'')+
+ const copy=(p:Post)=>Taro.setClipboardData({data:(p.type==='promo'?'【广告/商业推广】'+(p.sponsor||p.sponsorName||'')+'\n':'')+
  p.title+'\n'+p.body+'\n#酒迹 #JiujiBarMap'})
  return <View className='page'><Text className='kicker'>JIUJI / COMMUNITY</Text><Text className='title'>探店与品酒</Text>
  <Picker mode='selector' range={labels} value={type} onChange={e=>setType(Number(e.detail.value))}><View className='field'>{labels[type]}　⌄</View></Picker>
@@ -19,5 +21,5 @@ export default function CommunityPage() {
  <Textarea className='field area' placeholder='写下体验' value={body} onInput={e=>setBody(e.detail.value)}/>
  {type===2?<Input className='field' placeholder='广告主/合作商户' value={sponsor} onInput={e=>setSponsor(e.detail.value)}/>:null}
  <Button onClick={save}>保存笔记</Button>
- {rows.map(p=><View className='row' key={p.id} onClick={()=>copy(p)}><Text>{p.type==='promo'?'【推广】':''}{p.title}</Text><Text className='muted'>复制小红书文案 ↗</Text></View>)}</View>
+ {[...rows, ...demoPosts.filter(d => !rows.some(p => p.id === d.id))].map(p=><View className='row' key={p.id} onClick={()=>copy(p)}><Text>{p.type==='promo'?'【推广】':''}{p.title}{p.id.startsWith('dev-') ? ' · 测试数据' : ''}</Text><Text className='muted'>复制小红书文案 ↗</Text></View>)}</View>
 }

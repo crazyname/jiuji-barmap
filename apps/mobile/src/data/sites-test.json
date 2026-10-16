@@ -1,0 +1,55 @@
+{
+  "schemaVersion": 1,
+  "recipes": [
+    {
+      "id": "dev-recipe-001",
+      "title": "测试酒谱 · 金汤力",
+      "base": "金酒",
+      "ingredients": "金酒 45ml；汤力水 120ml；青柠角 1 片",
+      "steps": "在加冰的高球杯中加入金酒和汤力水，轻轻搅匀，以青柠装饰。",
+      "visibility": "public",
+      "imageUrl": null
+    },
+    {
+      "id": "dev-recipe-002",
+      "title": "测试酒谱 · 无酒精柑橘苏打",
+      "base": "无酒精",
+      "ingredients": "橙汁 40ml；柠檬汁 15ml；苏打水 100ml",
+      "steps": "加入冰块与果汁，最后注入苏打水。",
+      "visibility": "public",
+      "imageUrl": null
+    }
+  ],
+  "posts": [
+    {
+      "id": "dev-post-001",
+      "title": "测试探店贴 · 示例内容",
+      "body": "这是一条模拟探店记录，用于验证列表、详情和筛选。",
+      "type": "visit",
+      "visibility": "public",
+      "isSponsored": false,
+      "sponsorName": null,
+      "barId": null
+    },
+    {
+      "id": "dev-post-002",
+      "title": "测试品酒贴 · 示例内容",
+      "body": "测试品鉴笔记，不对应真实用户评价。",
+      "type": "tasting",
+      "visibility": "public",
+      "isSponsored": false,
+      "sponsorName": null,
+      "barId": null
+    },
+    {
+      "id": "dev-post-003",
+      "title": "测试广告贴 · 示例内容",
+      "body": "【广告/商业推广】这是一条专门测试商业推广标记的虚构内容。",
+      "type": "promo",
+      "visibility": "public",
+      "isSponsored": true,
+      "sponsorName": "演示合作方（虚构）",
+      "barId": null
+    }
+  ]
+}
