@@ -7,3 +7,7 @@ cloudfunctions/*/.env.*
 miniprogram/config.private.js
 .idea/
 .vscode/
+apps/universal/unpackage/
+apps/universal/dist/
+apps/universal/node_modules/
+coverage/

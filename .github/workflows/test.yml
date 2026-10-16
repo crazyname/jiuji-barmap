@@ -1,15 +1,23 @@
-name: Mini Program Logic Tests
+name: Repository Checks
 on:
   push:
   pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
 jobs:
-  unit-tests:
+  static-and-contracts:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - run: node --test tests/*.test.js
-      - run: |
-          find miniprogram cloudfunctions -name '*.js' -not -path '*/node_modules/*' -print0 | xargs -0 -n1 node --check
+          cache: npm
+      - name: Install lockfile dependencies
+        run: npm ci --ignore-scripts
+      - name: Validate repository and contracts
+        run: npm run check
+      - name: Check migration gates
+        run: npm run migration:status

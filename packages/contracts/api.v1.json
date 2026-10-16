@@ -1,0 +1,18 @@
+{
+  "version": "1.0.0-draft",
+  "status": "design-only",
+  "basePath": "/v1",
+  "endpoints": [
+    { "method": "GET", "path": "/bars", "query": ["city", "search", "cursor", "limit"], "responseSchema": "bar.schema.json", "auth": false },
+    { "method": "GET", "path": "/bars/{id}", "responseSchema": "bar.schema.json", "auth": false },
+    { "method": "GET", "path": "/recipes", "query": ["cursor", "limit"], "responseSchema": "recipe.schema.json", "auth": false },
+    { "method": "POST", "path": "/recipes", "requestSchema": "recipe.schema.json", "responseSchema": "recipe.schema.json", "auth": true },
+    { "method": "GET", "path": "/posts", "query": ["type", "cursor", "limit"], "responseSchema": "post.schema.json", "auth": false },
+    { "method": "POST", "path": "/posts", "requestSchema": "post.schema.json", "responseSchema": "post.schema.json", "auth": true },
+    { "method": "PUT", "path": "/me/favorites/{kind}/{id}", "auth": true },
+    { "method": "DELETE", "path": "/me/favorites/{kind}/{id}", "auth": true }
+  ],
+  "errors": ["BAD_REQUEST", "UNAUTHORIZED", "FORBIDDEN", "NOT_FOUND", "RATE_LIMITED", "INTERNAL_ERROR"],
+  "pagination": { "type": "cursor", "defaultLimit": 20, "maxLimit": 100 },
+  "notes": "This is an API design contract only. No endpoints or server implementation are deployed."
+}

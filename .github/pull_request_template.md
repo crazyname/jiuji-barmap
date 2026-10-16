@@ -1,22 +1,18 @@
-## Summary / 本次改动
+## 改动内容
 
-Describe the change and motivation.
-
-## Platforms tested / 平台测试
-
-- [ ] WeChat mini program
+## 影响平台
+- [ ] 微信
 - [ ] iOS
 - [ ] Android
 - [ ] HarmonyOS NEXT
-- [ ] Not tested (explain below)
+- [ ] 仅共享业务/文档
 
-## Checks
+## 验证情况
+- [ ] `npm run check` 通过
+- [ ] 改动模型时已更新 `packages/contracts/`
+- [ ] 改动种子数据后已运行 `npm run data:sync`
+- [ ] 未提交密钥、隐私数据、未授权地图资源
 
-- [ ] `node --test tests/*.test.js`
-- [ ] No API keys, personal data, third-party map tiles or unauthorized media added
-- [ ] Source licensing/attribution reviewed (MPL-2.0 by default)
-- [ ] DCO sign-off added to commits (`git commit -s`)
+设备/模拟器及平台 SDK 版本：
 
-## Screenshots / Notes
-
-<!-- UI screenshots and compatibility caveats, if relevant -->
+截图或兼容性备注：

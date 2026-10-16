@@ -1,0 +1,18 @@
+{
+  "name": "jiuji-barmap",
+  "version": "0.2.0",
+  "private": true,
+  "description": "Jiuji four-platform bar map and social client monorepo",
+  "license": "MPL-2.0",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "test": "node --test tests/*.test.js",
+    "data:sync": "node scripts/sync-universal-bars.cjs",
+    "data:check": "node scripts/sync-universal-bars.cjs --check",
+    "contracts:check": "node scripts/verify-contracts.cjs",
+    "compat:check": "node scripts/verify-compat.cjs",
+    "syntax:check": "node scripts/check-syntax.cjs",
+    "check": "npm run data:check && npm run contracts:check && npm run compat:check && npm run syntax:check && npm test",
+    "migration:status": "node scripts/migration-status.cjs"
+  }
+}

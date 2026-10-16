@@ -1,0 +1,17 @@
+{
+  "platforms": ["wechat", "ios", "android", "harmony"],
+  "states": ["implemented-needs-device", "scaffold", "planned", "verified"],
+  "features": [
+    { "id": "tab-navigation", "source": "apps/universal/pages.json", "wechat": "implemented-needs-device", "ios": "scaffold", "android": "scaffold", "harmony": "scaffold" },
+    { "id": "native-map", "source": "apps/universal/pages/map/index.uvue", "wechat": "implemented-needs-device", "ios": "scaffold", "android": "scaffold", "harmony": "scaffold" },
+    { "id": "bar-search-filter", "source": "apps/universal/pages/map/index.uvue", "wechat": "implemented-needs-device", "ios": "scaffold", "android": "scaffold", "harmony": "scaffold" },
+    { "id": "choose-location", "source": "apps/universal/pages/map/index.uvue", "wechat": "implemented-needs-device", "ios": "scaffold", "android": "scaffold", "harmony": "scaffold" },
+    { "id": "open-location", "source": "apps/universal/pages/map/index.uvue", "wechat": "implemented-needs-device", "ios": "scaffold", "android": "scaffold", "harmony": "scaffold" },
+    { "id": "local-recipes", "source": "apps/universal/pages/compose-recipe/index.uvue", "wechat": "implemented-needs-device", "ios": "scaffold", "android": "scaffold", "harmony": "scaffold" },
+    { "id": "local-posts", "source": "apps/universal/pages/compose-post/index.uvue", "wechat": "implemented-needs-device", "ios": "scaffold", "android": "scaffold", "harmony": "scaffold" },
+    { "id": "theme-switching", "source": "miniprogram/utils/theme.js", "wechat": "implemented-needs-device", "ios": "planned", "android": "planned", "harmony": "planned" },
+    { "id": "cloud-sync", "source": "packages/contracts/api.v1.json", "wechat": "planned", "ios": "planned", "android": "planned", "harmony": "planned" },
+    { "id": "public-community", "source": "packages/contracts/api.v1.json", "wechat": "planned", "ios": "planned", "android": "planned", "harmony": "planned" },
+    { "id": "share-xiaohongshu", "source": "miniprogram/utils/content.js", "wechat": "implemented-needs-device", "ios": "planned", "android": "planned", "harmony": "planned" }
+  ]
+}

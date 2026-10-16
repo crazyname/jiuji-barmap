@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://jiuji.dev/schemas/recipe.v1.json",
+  "title": "Jiuji Recipe v1",
+  "type": "object",
+  "required": ["id", "title", "ingredients", "steps", "visibility"],
+  "properties": {
+    "id": { "type": "string", "minLength": 1 },
+    "title": { "type": "string", "minLength": 2 },
+    "base": { "type": "string" },
+    "ingredients": { "type": "string", "minLength": 1 },
+    "steps": { "type": "string", "minLength": 1 },
+    "visibility": { "enum": ["local", "private", "public"] },
+    "imageUrl": { "type": ["string", "null"] },
+    "createdAt": { "type": "string" }
+  },
+  "additionalProperties": true
+}

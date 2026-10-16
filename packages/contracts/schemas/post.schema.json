@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://jiuji.dev/schemas/post.v1.json",
+  "title": "Jiuji Community Post v1",
+  "type": "object",
+  "required": ["id", "title", "body", "type", "visibility", "isSponsored"],
+  "properties": {
+    "id": { "type": "string", "minLength": 1 },
+    "title": { "type": "string", "minLength": 2 },
+    "body": { "type": "string", "minLength": 1 },
+    "type": { "enum": ["visit", "tasting", "promo"] },
+    "visibility": { "enum": ["local", "private", "public"] },
+    "isSponsored": { "type": "boolean" },
+    "sponsorName": { "type": ["string", "null"] },
+    "barId": { "type": ["integer", "null"], "minimum": 1 },
+    "createdAt": { "type": "string" }
+  },
+  "allOf": [
+    { "if": { "properties": { "type": { "const": "promo" } }, "required": ["type"] }, "then": { "properties": { "isSponsored": { "const": true }, "sponsorName": { "type": "string", "minLength": 1 } }, "required": ["isSponsored", "sponsorName"] } }
+  ],
+  "additionalProperties": true
+}

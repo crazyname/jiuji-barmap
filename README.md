@@ -1,106 +1,59 @@
-# 酒迹 Jiuji · BarMap（微信小程序）
+# 酒迹 · Jiuji BarMap
 
-酒迹的开源酒吧地图微信小程序，基于**微信原生 `<map>` 真实地理底图**，不是 SVG/Canvas 示意图。当前初始数据覆盖广州的 31 家酒吧；地铁线仅是可选筛选方式。
+[![CI](https://github.com/crazyname/jiuji-barmap/actions/workflows/test.yml/badge.svg)](https://github.com/crazyname/jiuji-barmap/actions/workflows/test.yml)
 
-## 当前实现
+酒迹是开源酒吧地图与调酒分享应用。目标平台：**微信小程序、iOS、Android、HarmonyOS NEXT**。统一采用 **C · 城市编辑** 风格，可扩展个人主题。
 
-- 真实微信地图，支持手指平移、双指缩放、地图 POI、原生地图导航。
-- 31 家原图酒吧记录，搜索酒吧/站点/编号，地铁线、营业证据、人均及评分筛选。
-- 对有地址且**经腾讯 POI 名称匹配**的酒吧才显示地图 marker；绝不把旧示意图 x/y 当经纬度。
-- 选中线路后绘制由腾讯地图匹配的实际站点坐标**直线连接的辅助高亮**，不声称为真实轨道曲线。尚未核实的车站不硬连线。
-- 门店详情显示营业证据、评分与人均数据来源、地图导航；支持 `wx.chooseLocation` 修正位置。
-- 搜索腾讯地图 POI 添加新酒吧；没有 API Key 也可通过微信自带地图选点新增，记录只保存到当前手机。
-- 增加了 1/2/3/5/6/8/10/11/12/18/APM 号线的数据结构，更多线路站点可以在 `miniprogram/data/lines.js` 扩展。
+## 快速开始
 
-## 界面风格
-
-默认采用 **C · 城市编辑（Editorial）**：暖纸白底色、棕红主色、编辑式标题、真实地图与可收起的结果列表。首页搜索框、筛选项、地铁线选项均在地图上方；点中地图标记会显示底部店铺卡片。
-
-UI 使用 `miniprogram/styles/theme.wxss` 中的语义样式类，`miniprogram/utils/theme.js` 提供 `editorial / minimal / noir / pop` 四套主题定义和本地偏好存取接口。目前已在“我的 → 外观设置”开放本机主题切换，初次使用默认城市编辑；真实地图、数据和定位逻辑不受影响。主题偏好设计为保存在当前设备的微信存储中，不涉及账号或云端同步。
-
-## 四栏导航与本机内容功能
-
-微信原生底部导航固定为 **地图 → 调酒 → 社区 → 我的**，延续默认 C「城市编辑」风格。
-
-- **地图**：保留微信原生真实地图、店铺筛选、定位及路线功能。详情页新增收藏入口。
-- **调酒**：录入名称、基酒、材料用量、制作步骤及单张图片，保存到本机；打开教程可复制配方进行文本分享。
-- **社区**：区分探店、品酒、广告推广三类帖文，支持本机创建、点赞、复制小红书文案。商业推广须填写合作方并确认广告标识。当前内容**仅本机可见**，不是多人在线社区。
-- **我的**：本机昵称与个人简介、收藏酒吧/教程/帖子、点赞笔记、浏览记录及个性化外观设置。`C · 城市编辑` 是初次使用的默认主题，可切换其他配色。
-
-**小红书分享限制**：当前不提供直接在微信小程序中代表用户发布小红书笔记的能力。复制按钮生成包含 `#酒迹 #JiujiBarMap` 的文案（商业推广加 `【广告/商业推广】`），需要用户自行打开小红书并完成发布，也需自行上传图片。不能宣称已自动发布。
-
-**正式公开社区仍需建设**：用户身份与授权、云端数据库和媒体存储、内容审查/举报/申诉、商业广告披露与审核、隐私政策、删除个人内容、同步机制，以及适用的平台合规审核。目前上述机制未上线，本地草稿不应被视为公开帖子或云端数据。
-
-## 微信开发者工具运行
-
-1. 安装[微信开发者工具](https://developers.weixin.qq.com/miniprogram/dev/devtools/download.html)，在微信公众平台注册小程序获得 AppID。
-2. 导入项目根目录，将 `project.config.json` 的 `appid` 从 `touristappid` 改成自己的小程序 AppID。
-3. 不配置云开发也可使用真实底图和 `wx.chooseLocation` 地图选点（某些 API 在开发者工具模拟器中存在限制，建议使用真机预览）。
-4. 要自动给旧酒吧定位和搜索新酒吧，需要开通**微信云开发环境**；在 `miniprogram/config.js` 中填入 `cloudEnvId`。
-5. 申请[腾讯位置服务](https://lbs.qq.com/) WebService API Key。将 `QQMAP_KEY` 配置到云函数 `mapSearch` 的**运行环境变量**中。**不要把 Key 写进前端或提交 GitHub。**
-6. 在微信开发者工具右键 `cloudfunctions/mapSearch`，直接部署到云端（只使用 Node.js 内置 `https` 模块，无第三方依赖）。云函数 Node.js 运行环境推荐 18+，运行超时时间建议 30 秒。
-7. 重新编译，在首页点“刷新坐标”或等待自动匹配。每次最多查询 6 个地点，未匹配成功的记录不生成假坐标。
-
-**微信公众平台的地理位置相关接口权限**及隐私处理需要按实际小程序类目、用户许可和平台最新要求配置；选点 API 是否可用以当前审核资格及真机为准。
-
-## 数据准确性和限制
-
-- 31 家酒吧原始列表、地铁站、出口和大致直线距离来自用户提供的**历史信息图**，并非最新门店数据库。
-- `status` 表示截至 `2026-10-16` 的 **经营证据等级**（官网资料/平台记录/待核实/停业提示），**不代表此刻开门**。尤其“已关门”的记录可能与其他平台信息冲突。
-- 仅 6 家有已收集的第三方评分/参考人均，且其平台、评价数量、时间存在差异，其余显示“待核实”；不要移用品牌不同分店的分数。
-- POI 名称匹配不等于现场地址确认。高层酒吧、重复店名、搬迁后的旧址尤其需要人工核对。搜索到一个地点**并不意味着此店仍在经营**。
-- 地铁 `polyline` 是使用站点经纬度的辅助连接，**不是精确轨道 GIS**；后续可引入有适当使用许可、具有合法 GCJ-02 转换方式的轨道数据。
-- 目前没有服务端账号系统、审核后台、商户实时营业接口或微信小程序发布审核；也没有云端多设备同步。
-
-## 开发与测试
-
-运行：`node --test tests/*.test.js`
-
-结构：
-
-```text
-miniprogram/
-  pages/index/         原生地图、搜索及筛选
-  pages/detail/        酒吧详情、导航、收藏和修正位置
-  pages/tutorials/       调酒配方列表
-  pages/recipe/          配方详情与复制分享
-  pages/community/       探店、品酒、商业推广本地笔记
-  pages/compose/         录入配方 / 编辑本机分享草稿
-  pages/mine/            个人简介、收藏、点赞、历史和主题设置
-  pages/add/           腾讯 POI 搜索 / 微信地图选点
-  data/                 原图 31 家酒吧与地铁线路
-  utils/                坐标过滤、地图图层、本地数据、云函数调用
-  assets/               状态区分 marker 图标
-cloudfunctions/mapSearch/  腾讯地点服务调用（API Key 只在服务端）
-tests/                    Node.js 逻辑测试
-```
-
-MPL-2.0。项目不会包含密钥和微信小程序 AppID。首次部署需要你自己的平台身份与授权。
-
-## 开源协议、商业化与贡献
-
-**当前发布的自主开发源码：MPL-2.0**（文件级弱 Copyleft，允许商业使用与分发；分发受许可覆盖的可执行程序时须按协议提供可获取源码的方式）。历史 MIT 授权不追溯撤销，原 MIT 许可证及其原版权署名见 [LICENSE-MIT-LEGACY](LICENSE-MIT-LEGACY)。
-
-- [LICENSE](LICENSE) · MPL-2.0 正式条款
-- [NOTICE.md](NOTICE.md) · 版权署名及历史授权说明
-- [CONTRIBUTING.md](CONTRIBUTING.md) · 开源协作与 DCO
-- [TRADEMARKS.md](TRADEMARKS.md) · 酒迹名称/品牌使用边界
-- [docs/content-rights.md](docs/content-rights.md) · 用户内容、商业推广与隐私合规的授权界限
-
-源码的开源许可不自动授予品牌商标、第三方地图数据、用户原创图文或未公开商业数据。仓库目前没有单独发布的 Apache-2.0 SDK，也没有已实现的商业运营后端。上述文档不代替未来正式上线时的用户协议、隐私政策或法律审核。
-
-## 克隆项目
+需要 Node.js 20+。无需地图密钥即可运行数据与静态测试。
 
 ```bash
 git clone https://github.com/crazyname/jiuji-barmap.git
 cd jiuji-barmap
-node --test tests/*.test.js
+npm ci
+npm run check
+npm run migration:status
 ```
 
-随后使用微信开发者工具导入仓库根目录，并按照上面的配置步骤填写自己的小程序 AppID、云开发环境 ID。欢迎通过 GitHub Issues 反馈数据错误或功能问题。
+本地启动：
 
-请勿在 Issues、提交记录或前端配置中公开腾讯地图 API Key、云环境密钥或用户位置数据。
+- **微信原生版本**：微信开发者工具导入仓库根目录，配置小程序 AppID；该入口仍保留，直到 uni-app x 微信端达到功能对等。
+- **uni-app x 四端工程**：用 HBuilderX 打开 `apps/universal/`，选择微信、iOS、Android 或 HarmonyOS 构建/运行，相关设备 SDK 及地图密钥按需配置。
 
-## 多端客户端
+运行平台与环境详情见 [构建说明](docs/build.md)。
 
-仓库另包含 `apps/universal/` 中的 uni-app x 基础工程，面向 iOS、Android、HarmonyOS NEXT（并具备微信端编译目标）。目前保留原生微信小程序为主要运行版本；多端工程仍需平台 SDK、签名和真机验收。开发步骤见 [多端开发说明](docs/multiplatform.md)。
+## 目录
+
+```text
+apps/universal/        uni-app x 多端客户端（逐步接管四端入口）
+miniprogram/           微信原生客户端（迁移过渡期保留）
+cloudfunctions/        原生微信地点搜索云函数
+packages/contracts/    酒吧、酒谱、帖子数据契约与 API v1 草案
+packages/design/       四套主题基础色板
+scripts/               数据同步、测试检查、迁移状态工具
+tests/                 逻辑、数据契约、平台兼容静态测试
+docs/                  开发构建、平台能力矩阵、迁移计划
+```
+
+## 开发命令
+
+| 命令 | 作用 |
+|---|---|
+| `npm test` | Node.js 逻辑与契约测试 |
+| `npm run check` | 数据一致性、契约、平台声明、JS 语法和全部测试 |
+| `npm run data:sync` | 从微信种子表生成 uni-app x 酒吧 JSON |
+| `npm run data:check` | 检查种子同步（不改文件） |
+| `npm run contracts:check` | 校验数据契约和拟议 API 定义 |
+| `npm run compat:check` | 四端工程静态能力检查（不代表真机验证） |
+| `npm run migration:status` | 查看微信入口迁移门槛 |
+
+## 开发规范
+
+[CONTRIBUTING.md](CONTRIBUTING.md) · [接口契约](packages/contracts/README.md) · [四端兼容矩阵](docs/compatibility.md) · [迁移计划](docs/migration.md)
+
+当前在线社区、统一账号和跨端云同步尚未开发；本机调酒配方与帖子只是本地记录。真实地图上仅显示经过定位的门店，不会根据旧图编造经纬度。
+
+## License
+
+**MPL-2.0**。当前唯一项目维护者为 [crazyname](https://github.com/crazyname)。早期 MIT 版本可在 Git 历史中查阅。地图 SDK、商户素材和用户创作内容分别遵守其对应授权；「酒迹」品牌并非软件许可证自动授予的商标许可。
