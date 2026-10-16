@@ -17,7 +17,7 @@ test('MPL 2.0 license is complete and unmodified core headings present', () => {
 
 test('legacy MIT text is preserved and licensing boundaries documented', () => {
   assert.ok(read('LICENSE-MIT-LEGACY').startsWith('MIT License'));
-  assert.match(read('NOTICE.md'), /previously granted MIT/i);
+  assert.match(read('NOTICE.md'), /Previously received MIT rights/i);
   assert.match(read('README.md'), /MPL-2\.0/);
   assert.match(read('CONTRIBUTING.md'), /DCO/);
   assert.match(read('TRADEMARKS.md'), /trademark/i);
