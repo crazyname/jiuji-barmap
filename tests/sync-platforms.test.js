@@ -1,0 +1,40 @@
+// SPDX-License-Identifier: MPL-2.0
+const test=require('node:test')
+const assert=require('node:assert/strict')
+const fs=require('node:fs')
+const path=require('node:path')
+const root=path.resolve(__dirname,'..')
+const read=p=>fs.readFileSync(path.join(root,p),'utf8')
+test('wechat and mobile import the same generated sync core',()=>{
+ const core=read('packages/sync/client.js')
+ assert.equal(read('apps/wechat/src/services/sync-core.js'),core)
+ assert.equal(read('apps/mobile/src/services/sync-core.js'),core)
+})
+test('sync adapters use device storage and HTTPS but contain no packaged admin credential',()=>{
+ const wechat=read('apps/wechat/src/services/sync.ts')
+ const mobile=read('apps/mobile/src/services/sync.ts')
+ assert.match(wechat,/Taro\.request/)
+ assert.match(wechat,/Taro\.getStorageSync/)
+ assert.match(mobile,/AsyncStorage/)
+ assert.match(mobile,/fetch\(/)
+ assert.match(wechat,/Bearer/)
+ assert.match(mobile,/Bearer/)
+ const configs=['apps/wechat/src/config/sync.ts','apps/mobile/src/config/sync.ts']
+ for(const file of configs){
+  const code=read(file)
+  assert.match(code,/SYNC_ENABLED = false/)
+  assert.match(code,/SYNC_API_BASE_URL = ''/)
+ }
+})
+test('wechat and native clients pull on display and private drafts are queued for later upload',()=>{
+ for(const file of ['apps/wechat/src/pages/map/index.tsx','apps/wechat/src/pages/mix/index.tsx',
+  'apps/wechat/src/pages/community/index.tsx','apps/wechat/src/pages/mine/index.tsx'])
+  assert.match(read(file),/refreshSites\(/,file)
+ assert.match(read('apps/wechat/src/pages/mix/index.tsx'),/visibility:'private'/)
+ assert.match(read('apps/wechat/src/pages/community/index.tsx'),/visibility:'private'/)
+ const mobile=read('apps/mobile/App.tsx')
+ assert.match(mobile,/refreshMobileSites\(/)
+ assert.match(mobile,/AppState\.addEventListener/)
+ assert.match(mobile,/queueMobileUpsert\(/)
+ assert.match(mobile,/visibility:'private'/)
+})
