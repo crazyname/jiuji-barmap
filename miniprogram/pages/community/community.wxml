@@ -1,0 +1,20 @@
+<view class="content-page jiuji-page theme-{{themeKey}} safe-bottom">
+ <view class="content-head"><text class="jiuji-overline">JIUJI / FIELD NOTES</text><text class="content-heading jiuji-title">酒友社区</text><text class="content-sub jiuji-muted">探店体验、品酒随笔与明确标注的商业推广。</text></view>
+ <view class="content-actions"><button class="content-button jiuji-primary" bindtap="addPost">＋ 写一篇分享</button></view>
+ <scroll-view scroll-x="true" class="content-chip-row">
+  <view class="content-chip {{selectedIndex===0?'content-chip-on':''}}" data-index="0" bindtap="setFilter">全部</view>
+  <view class="content-chip {{selectedIndex===1?'content-chip-on':''}}" data-index="1" bindtap="setFilter">探店</view>
+  <view class="content-chip {{selectedIndex===2?'content-chip-on':''}}" data-index="2" bindtap="setFilter">品酒</view>
+  <view class="content-chip {{selectedIndex===3?'content-chip-on':''}}" data-index="3" bindtap="setFilter">广告推广</view>
+ </scroll-view>
+ <view wx:if="{{ownOnly}}" class="content-notice jiuji-notice" bindtap="showAll">当前只看我点赞的帖子 · 点此显示全部</view>
+ <view wx:for="{{posts}}" wx:key="id" class="content-item jiuji-card">
+  <text class="content-kicker jiuji-overline">{{item.typeLabel}} · 本机记录</text><text class="content-title jiuji-title" data-id="{{item.id}}" bindtap="openPost">{{item.title}}</text>
+  <text class="content-note jiuji-muted" data-id="{{item.id}}" bindtap="openPost">{{item.body}}</text>
+  <image wx:if="{{item.imagePath}}" class="content-image" src="{{item.imagePath}}" mode="aspectFill"/>
+  <text wx:if="{{item.tags}}" class="content-note jiuji-accent">#酒迹 · {{item.tags}}</text>
+  <view class="content-foot"><text class="content-link" data-id="{{item.id}}" bindtap="toggleLike">{{item.liked?'♥ 已赞':'♡ 点赞'}}</text><text class="content-link" data-id="{{item.id}}" bindtap="toggleSave">{{item.bookmarked?'★ 已收藏':'☆ 收藏'}}</text><text class="content-link" data-id="{{item.id}}" bindtap="copyXhs">复制小红书文案 →</text></view>
+ </view>
+ <view wx:if="{{!posts.length}}" class="content-empty jiuji-card"><text class="content-empty-title jiuji-title">这里还没有分享</text><text class="content-note jiuji-muted">可以先记录一篇探店笔记或品酒体验。</text></view>
+ <text class="content-footer jiuji-muted">目前为本机内容原型，并非公开可见的社区。帖子公开发布与评论、举报、审核等功能将在接入云端账号后开放。</text>
+</view>

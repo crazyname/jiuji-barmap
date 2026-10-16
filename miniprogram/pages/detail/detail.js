@@ -1,15 +1,16 @@
+const content = require('../../utils/content');
 const { DEFAULT_THEME, applyTheme } = require('../../utils/theme');
 const { getBars, saveBars } = require('../../utils/storage');
 const { isValidPoint, STATUS_LABEL } = require('../../utils/map-data');
 Page({
-  data: { themeKey: DEFAULT_THEME, bar: null, located: false, ratingText: '—', priceText: '—', ratingSource: '暂无可核实的同店评分', statusLabel: '', lineText: '', locationText: '' },
-  onLoad(options) { this.barId = Number(options.id); this.refresh(); },
+  data: { themeKey: DEFAULT_THEME, bar: null, located: false, ratingText: '—', priceText: '—', ratingSource: '暂无可核实的同店评分', statusLabel: '', lineText: '', locationText: '', favorite: false },
+  onLoad(options) { this.barId = Number(options.id); content.visited('bar', this.barId); this.refresh(); },
   onShow() { applyTheme(this); if (this.barId) this.refresh(); },
   refresh() {
     const b = getBars().find(x => x.id === this.barId);
     if (!b) { wx.showToast({ title: '门店不存在', icon: 'none' }); return; }
     const r = b.rating || {};
-    this.setData({ bar: b, located: isValidPoint(b.location),
+    this.setData({ bar: b, located: isValidPoint(b.location), favorite: content.list('favorites').map(String).includes(String(this.barId)),
       ratingText: typeof r.score === 'number' ? `★ ${r.score.toFixed(1)} / 5` : '待核实',
       priceText: typeof r.price === 'number' ? `¥${r.price}` : '待核实',
       ratingSource: typeof r.score === 'number' ? `${r.platform || '平台'} · ${r.reviews || 0} 条评论` : '暂无同店可核实的评分',
@@ -18,6 +19,7 @@ Page({
       locationText: isValidPoint(b.location) ? (b.locationSource === 'user-map-selection' ? '微信地图人工选点' : '腾讯 POI 名称匹配') : '待准确定位'
     });
   },
+  toggleFavorite() { content.toggle('favorites',this.barId); this.refresh(); },
   navigate() {
     const b = this.data.bar;
     if (!b || !isValidPoint(b.location)) { wx.showToast({ title: '请先确认位置', icon: 'none' }); return; }

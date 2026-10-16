@@ -1,0 +1,27 @@
+<view class="content-page jiuji-page theme-{{themeKey}} safe-bottom">
+ <view class="content-head"><text class="jiuji-overline">JIUJI / WRITE YOUR STORY</text><text class="content-heading jiuji-title">{{kind==='recipe'?'记录调酒教程':'发布分享草稿'}}</text><text class="content-sub jiuji-muted">{{kind==='recipe'?'写下原料比例与操作步骤':'目前仅保存在本机，不会公开上传给其他用户。'}}</text></view>
+ <view wx:if="{{kind==='post'}}" class="jiuji-card content-item">
+  <text class="content-field-label jiuji-muted">分享类型</text><picker mode="selector" range="{{typeLabels}}" value="{{typeIndex}}" bindchange="pickType"><view class="content-field jiuji-input">{{typeIndex===0?'探店体验':typeIndex===1?'品酒笔记':'广告推广'}} ▾</view></picker>
+  <view wx:if="{{typeIndex===2}}" class="content-notice jiuji-notice"><text>商业合作必须清晰标注为广告，不得伪装为普通用户测评。</text>
+    <input class="content-field jiuji-input" placeholder="合作品牌/酒吧名称（必填）" value="{{partner}}" data-field="partner" bindinput="change" maxlength="60"/>
+    <switch checked="{{promoConfirmed}}" bindchange="confirmPromo" color="#82442F"/> <text>确认会展示广告推广标记</text>
+  </view>
+ </view>
+ <view class="content-item jiuji-card">
+  <text class="content-field-label jiuji-muted">标题</text><input class="content-field jiuji-input" value="{{title}}" placeholder="给内容起一个标题" data-field="title" bindinput="change" maxlength="60"/>
+  <view wx:if="{{kind==='recipe'}}">
+   <text class="content-field-label jiuji-muted">基酒 / 风格（可选）</text><input class="content-field jiuji-input" value="{{base}}" placeholder="例如 金酒 · 清爽酸甜" data-field="base" bindinput="change" maxlength="100"/>
+   <text class="content-field-label jiuji-muted">材料与用量</text><textarea class="content-textarea jiuji-input" placeholder="金酒 45ml&#10;柠檬汁 20ml&#10;糖浆 15ml" value="{{ingredients}}" maxlength="2000" data-field="ingredients" bindinput="change"/>
+   <text class="content-field-label jiuji-muted">制作步骤</text><textarea class="content-textarea jiuji-input" placeholder="1. 准备冰块…&#10;2. 摇和…" value="{{steps}}" maxlength="3000" data-field="steps" bindinput="change"/>
+  </view>
+  <view wx:else>
+   <text class="content-field-label jiuji-muted">关联酒吧（可选）</text><input class="content-field jiuji-input" value="{{shop}}" placeholder="例如 庙前冰室" data-field="shop" bindinput="change" maxlength="80"/>
+   <text class="content-field-label jiuji-muted">正文内容</text><textarea class="content-textarea jiuji-input" placeholder="记录你的真实体验、风味感受、价格或推荐理由…" value="{{body}}" maxlength="3000" data-field="body" bindinput="change"/>
+   <text class="content-field-label jiuji-muted">自定义标签（可选）</text><input class="content-field jiuji-input" value="{{tags}}" placeholder="用逗号分隔，例如 广州,金酒,探店" data-field="tags" bindinput="change" maxlength="120"/>
+  </view>
+  <button class="jiuji-secondary content-button" bindtap="pickImage">{{imagePath?'更换配图':'＋ 添加配图'}}</button>
+  <image wx:if="{{imagePath}}" class="content-image" src="{{imagePath}}" mode="aspectFill"/>
+ </view>
+ <button class="jiuji-primary content-button" loading="{{busy}}" bindtap="save">{{kind==='recipe'?'保存配方到本机':'保存分享至本机'}}</button>
+ <text class="content-footer jiuji-muted">当前内容仅保留在本机微信存储中。卸载或清除数据可能导致丢失；后续公开发布需要账号、云数据库、隐私设置和内容审核。</text>
+</view>

@@ -14,6 +14,7 @@
     <view wx:if="{{bar.resolvedAddress}}" class="address jiuji-muted">地图匹配地址：{{bar.resolvedAddress}}</view>
     <view class="notice jiuji-notice">经营证据不等于实时开门。POI 名称匹配也不代表实地核准，建议出行前核实门店位置和时段。</view>
   </view>
+  <button class="jiuji-secondary favorite-action" bindtap="toggleFavorite">{{favorite ? "♥ 已收藏 · 取消" : "♡ 收藏这家酒吧"}}</button>
   <view class="buttons"><button class="primary jiuji-primary" bindtap="navigate" disabled="{{!located}}">打开微信地图导航 →</button><button class="secondary jiuji-secondary" bindtap="choosePoint">{{located ? '纠正地图位置' : '地图选点确认位置'}}</button></view>
   <view wx:if="{{bar.rating && bar.rating.source}}" class="source jiuji-muted">评分来源：{{bar.rating.platform}} · {{bar.rating.reviews}} 条参考评论。不同平台口径及更新时间可能不同。</view>
 </view>

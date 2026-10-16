@@ -1,0 +1,9 @@
+<view wx:if="{{recipe}}" class="content-page jiuji-page theme-{{themeKey}} safe-bottom">
+ <view class="content-head"><text class="jiuji-overline">JIUJI / RECIPE</text><text class="content-heading jiuji-title">{{recipe.title}}</text><text class="content-sub jiuji-muted">{{recipe.base}} · 本机配方</text></view>
+ <image wx:if="{{recipe.imagePath}}" src="{{recipe.imagePath}}" class="content-image" mode="aspectFill"/>
+ <view class="jiuji-card content-item"><text class="content-kicker jiuji-overline">INGREDIENTS</text><text class="content-title jiuji-title">材料与用量</text><text class="content-note" user-select="true" space="ensp">{{recipe.ingredients}}</text></view>
+ <view class="jiuji-card content-item"><text class="content-kicker jiuji-overline">METHOD</text><text class="content-title jiuji-title">调制步骤</text><text class="content-note" user-select="true">{{recipe.steps}}</text></view>
+ <button class="content-button jiuji-secondary" style="margin-bottom:12rpx" bindtap="toggleFavorite">{{saved?"★ 已收藏 · 取消":"☆ 收藏这份配方"}}</button>
+ <button class="content-button jiuji-primary" bindtap="copy">复制配方并分享</button>
+ <text class="content-footer jiuji-muted">好友可以接收复制后的配方文本；当前尚无跨设备的公开配方链接。</text>
+</view>

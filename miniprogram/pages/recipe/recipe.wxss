@@ -1,0 +1,2 @@
+@import "../../styles/content.wxss";
+.content-note {white-space:pre-wrap;}

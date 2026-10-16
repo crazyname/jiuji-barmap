@@ -20,3 +20,5 @@
 .buttons button { box-sizing: border-box; margin: 0; font-size: 24rpx; line-height: 84rpx; height: 86rpx; width: 100%; font-weight: 700; }
 .buttons button::after { border: 0; }
 .source { margin-top: 24rpx; font-size: 19rpx; line-height: 1.7; }
+
+.favorite-action{margin:20rpx 0 0;font-size:23rpx;}

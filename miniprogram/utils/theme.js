@@ -25,8 +25,11 @@ function setTheme(id) {
 function applyTheme(page) {
   const theme = getTheme();
   page.setData({ themeKey: theme });
+  const t = THEMES[theme];
+  if (typeof wx !== 'undefined' && wx.setTabBarStyle) {
+    wx.setTabBarStyle({ color: theme === 'noir' ? '#C2B8AE' : '#887969', selectedColor: t.accent, backgroundColor: t.surface, borderStyle: 'black', fail() {} });
+  }
   if (typeof wx !== 'undefined' && wx.setNavigationBarColor) {
-    const t = THEMES[theme];
     wx.setNavigationBarColor({ frontColor: t.navigationText, backgroundColor: t.surface, animation: { duration: 0, timingFunc: 'linear' }, fail() {} });
   }
   return theme;

@@ -1,0 +1,12 @@
+<view class="content-page jiuji-page theme-{{themeKey}} safe-bottom">
+ <view class="content-head"><text class="jiuji-overline">JIUJI / COCKTAIL LAB</text><text class="content-heading jiuji-title">调酒手记</text><text class="content-sub jiuji-muted">记录配方、材料和手法，做自己的鸡尾酒资料库。</text></view>
+ <view class="content-actions"><button class="content-button jiuji-primary" bindtap="addRecipe">＋ 添加调酒教程</button></view>
+ <input class="content-field jiuji-input" placeholder="搜索已保存的配方与材料" bindinput="input" value="{{query}}"/>
+ <view wx:for="{{recipes}}" wx:key="id" class="content-item jiuji-card" data-id="{{item.id}}" bindtap="openRecipe">
+  <text class="content-kicker jiuji-overline">YOUR RECIPE · 本机保存</text><text class="content-title jiuji-title">{{item.title}}</text><text class="content-note jiuji-muted">{{item.base}} · {{item.ingredients}}</text>
+  <image wx:if="{{item.imagePath}}" src="{{item.imagePath}}" class="content-image" mode="aspectFill"/>
+  <view class="content-foot"><text class="jiuji-muted">配方详情与复制分享</text><text class="content-link">打开 →</text></view>
+ </view>
+ <view wx:if="{{!recipes.length}}" class="content-empty jiuji-card"><text class="content-empty-title jiuji-title">还没有保存的配方</text><text class="content-note jiuji-muted">第一份教程可以从你最喜欢的鸡尾酒开始。</text></view>
+ <text class="content-footer jiuji-muted">当前教程在本机保存。公开分享、他人收藏与互动需要后续接入云端内容系统。</text>
+</view>
