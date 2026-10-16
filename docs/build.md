@@ -21,7 +21,7 @@ npm run dev:weapp
 # 生产构建：npm run build:weapp
 ```
 
-用微信开发者工具打开 `apps/wechat/dist/`。编译、地图、位置与导航请在微信真机验收。原生入口 `miniprogram/` 暂时保留，尚不替换根目录 `project.config.json`。
+用微信开发者工具打开 `apps/wechat/dist/`。GitHub Actions 单独执行 Taro 微信生产编译；地图、位置与导航仍需微信真机验收。原生入口 `miniprogram/` 暂时保留，尚不替换根目录 `project.config.json`。
 
 ## iOS / Android（React Native + Expo）
 

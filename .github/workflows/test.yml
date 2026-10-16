@@ -21,3 +21,19 @@ jobs:
         run: npm run check
       - name: Check migration gates
         run: npm run migration:status
+  wechat-taro-build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install Taro packages
+        working-directory: apps/wechat
+        run: npm install --no-audit --no-fund
+      - name: Compile WeChat mini program
+        working-directory: apps/wechat
+        run: npm run build:weapp
+      - name: Check WeChat output
+        run: test -f apps/wechat/dist/app.json

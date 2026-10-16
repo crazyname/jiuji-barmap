@@ -11,7 +11,9 @@
     "@tarojs/runtime": "^4.1.0",
     "@tarojs/taro": "^4.1.0",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react-dom": "^18.3.1",
+    "@tarojs/react": "^4.1.0",
+    "@tarojs/helper": "^4.1.0"
   },
   "devDependencies": {
     "@tarojs/cli": "^4.1.0",
@@ -21,6 +23,7 @@
     "babel-preset-taro": "^4.1.0",
     "@babel/runtime": "^7.25.0",
     "@types/react": "^18.3.0",
-    "typescript": "^5.5.0"
+    "typescript": "^5.5.0",
+    "@babel/core": "^7.25.0"
   }
 }
