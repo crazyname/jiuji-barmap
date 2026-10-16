@@ -38,7 +38,7 @@
     },
     {
       "id": "choose-location",
-      "source": "miniprogram/pages/index/index.js",
+      "source": "apps/wechat/src/pages/venue/index.tsx",
       "wechat": "implemented-needs-device",
       "ios": "planned",
       "android": "planned",
@@ -46,7 +46,7 @@
     },
     {
       "id": "open-location",
-      "source": "miniprogram/pages/detail/detail.js",
+      "source": "apps/wechat/src/pages/venue/index.tsx",
       "wechat": "implemented-needs-device",
       "ios": "planned",
       "android": "planned",

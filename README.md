@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/crazyname/jiuji-barmap/actions/workflows/test.yml/badge.svg)](https://github.com/crazyname/jiuji-barmap/actions/workflows/test.yml)
 
-React + TypeScript 的开源酒吧地图、调酒教程与探店分享应用。目标平台：**微信小程序、iOS、Android、HarmonyOS NEXT**。默认视觉为 C「城市编辑」。
+React + TypeScript 的开源酒吧地图、调酒教程与探店分享应用。微信 React 客户端已迁入地点详情、经营状态筛选、地图选点、导航及旧数据读取，其他功能逐步迁移。目标平台：**微信小程序、iOS、Android、HarmonyOS NEXT**。默认视觉为 C「城市编辑」。
 
 ## 开始开发
 

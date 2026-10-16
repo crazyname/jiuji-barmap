@@ -8,6 +8,7 @@ export default defineAppConfig({
     navigationBarTextStyle: 'black',
     backgroundColor: '#f4eddf'
   },
+  requiredPrivateInfos: ['chooseLocation'],
   tabBar: {
     color: '#887969',
     selectedColor: '#82442f',

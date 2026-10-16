@@ -36,7 +36,7 @@ export default function MapPage() {
   async function choosePoint(): Promise<void> {
     if (!selected) return
     try {
-      const point = await Taro.chooseLocation()
+      const point = await Taro.chooseLocation({})
       const location = { latitude: point.latitude, longitude: point.longitude }
       if (!validPoint(location)) { await Taro.showToast({ title: '请选择广州附近的酒吧', icon: 'none' }); return }
       if (!updateVenueLocation(selected.id, location, point.address || '')) return
@@ -44,7 +44,11 @@ export default function MapPage() {
       setCenter(location)
       setScale(15)
       await Taro.showToast({ title: '位置已保存', icon: 'success' })
-    } catch (_) { /* user cancelled or permission denied */ }
+    } catch (err) {
+      if (!/cancel/i.test(String((err as { errMsg?: string })?.errMsg || ''))) {
+        await Taro.showToast({ title: '地图选点未完成', icon: 'none' })
+      }
+    }
   }
   async function navigate(): Promise<void> {
     if (!selected || !validPoint(selected.location)) {
