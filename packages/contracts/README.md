@@ -1,14 +1,9 @@
-# 共享数据与 API 契约
+# 共享数据契约
 
-`schemas/` 使用 JSON Schema 2020-12，`api.v1.json` 定义 API v1 路由与请求结构。四端统一使用 `bar`、`recipe`、`post`、`api-error` 类型。
+`schemas/` 是 JSON Schema 2020-12，`api.v1.json` 定义 API v1 的草案。微信 Taro 和 React Native 使用相同的 `bar`、`recipe`、`post` 数据含义。
 
-- `bar.location` 为空表示地点坐标未确认，不能使用模拟位置。
-- `post` 的商业推广类型需要 `isSponsored: true` 和非空 `sponsorName`。
-- 本机配方与帖子保持本地存储；未来公开内容与账号同步统一通过接口实现。
+- `bar.location: null` 表示坐标尚未核实。
+- 商业推广类型 `promo` 须填写 `sponsorName` 并明确 `isSponsored: true`。
+- 业务数据来自 `miniprogram/data/bars.js`，通过 `npm run data:sync` 同步两个 React 客户端。
 
-```bash
-npm run contracts:check
-npm run check
-```
-
-变更字段时，请同步更新 Schema、接口文档和相关测试。
+运行 `npm run contracts:check` 验证字段规则。
