@@ -75,7 +75,19 @@ cloudfunctions/mapSearch/  腾讯地点服务调用（API Key 只在服务端）
 tests/                    Node.js 逻辑测试
 ```
 
-MIT License。项目不会包含密钥和微信小程序 AppID。首次部署需要你自己的平台身份与授权。
+MPL-2.0。项目不会包含密钥和微信小程序 AppID。首次部署需要你自己的平台身份与授权。
+
+## 开源协议、商业化与贡献
+
+**当前发布的自主开发源码：MPL-2.0**（文件级弱 Copyleft，允许商业使用与分发；分发受许可覆盖的可执行程序时须按协议提供可获取源码的方式）。历史 MIT 授权不追溯撤销，原 MIT 许可证及其原版权署名见 [LICENSE-MIT-LEGACY](LICENSE-MIT-LEGACY)。
+
+- [LICENSE](LICENSE) · MPL-2.0 正式条款
+- [NOTICE.md](NOTICE.md) · 版权署名及历史授权说明
+- [CONTRIBUTING.md](CONTRIBUTING.md) · 开源协作与 DCO
+- [TRADEMARKS.md](TRADEMARKS.md) · 酒迹名称/品牌使用边界
+- [docs/content-rights.md](docs/content-rights.md) · 用户内容、商业推广与隐私合规的授权界限
+
+源码的开源许可不自动授予品牌商标、第三方地图数据、用户原创图文或未公开商业数据。仓库目前没有单独发布的 Apache-2.0 SDK，也没有已实现的商业运营后端。上述文档不代替未来正式上线时的用户协议、隐私政策或法律审核。
 
 ## 克隆项目
 
