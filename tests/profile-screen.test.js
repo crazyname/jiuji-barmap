@@ -1,0 +1,20 @@
+// SPDX-License-Identifier: MPL-2.0
+const test=require('node:test')
+const assert=require('node:assert/strict')
+const fs=require('node:fs')
+const path=require('node:path')
+const root=path.resolve(__dirname,'..')
+const read=p=>fs.readFileSync(path.join(root,p),'utf8')
+test('WeChat profile exposes user content rather than API configuration',()=>{
+ const page=read('apps/wechat/src/pages/mine/index.tsx')
+ for(const value of ['我的收藏','我的配方','我的分享','浏览记录','设置与隐私','refreshSites(', 'Taro.setStorageSync(PROFILE_KEY'])
+  assert.ok(page.includes(value),value)
+ for(const value of ['ENABLE_DEVICE_TOKEN_TESTING','saveAuthenticatedSession','deviceToken','testToken','API_BASE_URL','设备令牌','设备联调'])
+  assert.ok(!page.includes(value),value)
+ assert.ok(fs.existsSync(path.join(root,'apps/wechat/src/pages/mine/index.css')))
+})
+test('WeChat profile does not pretend to complete real account login',()=>{
+ const page=read('apps/wechat/src/pages/mine/index.tsx')
+ assert.match(page,/账号登录即将开放/)
+ assert.match(page,/本机资料/)
+})
