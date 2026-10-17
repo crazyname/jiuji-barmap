@@ -44,7 +44,8 @@ export default function MapPage() {
   const displayed = useMemo(() =>
     filterVenues(venues, query, STATUS_OPTIONS[statusIndex].value),
     [venues, query, statusIndex])
-  // Both a valid Guangzhou coordinate and verified provenance are required.
+  // Coordinates must be in the Guangzhou pilot area and have a recognized provenance.
+  // User-selected pins are navigable local marks, NOT independently verified locations.
   const mapped = useMemo(() => displayed.filter(bar =>
     validPoint(bar.location) && hasTrustedLocation(bar)), [displayed])
   const selected = displayed.find(bar => bar.id === view.selectedId)
@@ -185,7 +186,7 @@ export default function MapPage() {
             {selected ? <Text className='backAction' onClick={() => setView(current =>
               transitionView(current, { type: 'clear' }))}>‹ 返回地图浏览</Text> : null}
             <Text className='panelTitle'>{selected ? selected.name : '广州酒吧'}</Text>
-            <Text className='panelMeta'>找到 {displayed.length} 家 · 已核实点位 {mapped.length} 家</Text>
+            <Text className='panelMeta'>找到 {displayed.length} 家 · 可显示点位 {mapped.length} 家</Text>
           </View>
           <Text className='panelToggle' onClick={() => setView(current =>
             transitionView(current, { type: isExpanded ? 'collapse' : 'expand' }))}>
@@ -196,7 +197,7 @@ export default function MapPage() {
           <View className='selectedInfo'>
             <Text className='meta'>{selected.station} · {STATUS_LABEL[selected.status]}</Text>
             <Text className='meta'>{ratingText(selected)}　{priceText(selected)}</Text>
-            <Text className='locationPending'>{canNavigate ? '位置已核实' : '位置待核实，暂不可导航'}</Text>
+            <Text className='locationPending'>{canNavigate ? (selected.locationSource === 'user-map-selection' ? '用户手动标记 · 未经平台核实' : '地点来源已核实') : '位置待核实，暂不可导航'}</Text>
             {isExpanded ? <>
               <Text className='addressLine'>{selected.resolvedAddress || selected.addressHint || '地址待补充'}</Text>
               <Text className='meta'>经营资料不代表正在营业；参考评价和价格以来源时效为准。</Text>
