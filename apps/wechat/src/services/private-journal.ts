@@ -5,7 +5,7 @@ import { createJournalRepository, JOURNAL_STORAGE_PREFIX, JournalError } from '.
 import type { JournalStorage, PrivateJournalRepository } from '../../../../packages/core/src/journal-contracts'
 
 /** Dedicated private namespace: never touches bars, recipes, posts, favorites or drafts. */
-export function createWeChatJournalStorage(): JournalStorage {
+function createWeChatJournalStorage(): JournalStorage {
   function checkKey(key: string): void {
     if (!key.startsWith(JOURNAL_STORAGE_PREFIX)) {
       throw new JournalError('STORAGE_INVALID', 'Unexpected journal storage key')

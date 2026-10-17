@@ -172,7 +172,7 @@ export function createJournalRepository(deps: JournalDependencies): PrivateJourn
         !Array.isArray(raw.visits) || !object(raw.mutations)) {
       throw new JournalError('STORAGE_INVALID', 'Private journal snapshot is incompatible or belongs to another user')
     }
-    const state = copy(raw) as Snapshot
+    const state = copy(raw) as unknown as Snapshot
     for (const row of [...state.drinks, ...state.visits]) {
       if (!object(row) || row.ownerUserId !== owner || row.visibility !== 'private' ||
           typeof row.id !== 'string' || !Number.isSafeInteger(row.revision) || row.revision < 1)
