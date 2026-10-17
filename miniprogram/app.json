@@ -11,9 +11,9 @@
   ],
   "window": {
     "navigationBarTitleText": "酒迹 · 酒吧地图",
-    "navigationBarBackgroundColor": "#f9f4eb",
+    "navigationBarBackgroundColor": "#FFFFFF",
     "navigationBarTextStyle": "black",
-    "backgroundColor": "#f4eddf"
+    "backgroundColor": "#F7F5F5"
   },
   "style": "v2",
   "sitemapLocation": "sitemap.json",
@@ -26,9 +26,9 @@
     "chooseLocation"
   ],
   "tabBar": {
-    "color": "#887969",
+    "color": "#6F6D74",
     "selectedColor": "#82442F",
-    "backgroundColor": "#F9F4EB",
+    "backgroundColor": "#FFFFFF",
     "borderStyle": "black",
     "list": [
       {

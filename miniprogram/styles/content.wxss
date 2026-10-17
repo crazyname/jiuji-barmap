@@ -1,22 +1,22 @@
-/* Shared editorial layout for recipe, social and personal pages. */
+/* Light, readable content layout for recipe, social and personal pages. */
 .content-page { min-height: 100vh; box-sizing: border-box; padding: 28rpx 24rpx 48rpx; }
 .content-head { padding: 16rpx 4rpx 24rpx; }
-.content-heading { display: block; font-size: 48rpx; line-height: 1.2; margin-top: 10rpx; }
+.content-heading { display: block; font-size: 46rpx; line-height: 1.2; margin-top: 10rpx; }
 .content-sub { display: block; line-height: 1.65; font-size: 23rpx; margin-top: 13rpx; }
 .content-actions { margin: 14rpx 0 22rpx; }
 .content-button { margin: 0; padding: 5rpx 19rpx; font-size: 24rpx; height: 70rpx; line-height: 57rpx; }
-.content-item { padding: 24rpx 22rpx; margin-bottom: 16rpx; }
-.content-kicker { font-size: 18rpx; letter-spacing: 2rpx; }
+.content-item { padding: 24rpx 22rpx; margin-bottom: 10rpx; }
+.content-kicker { font-size: 18rpx; letter-spacing: 0; }
 .content-title { font-size: 34rpx; line-height: 1.35; display: block; margin: 10rpx 0; }
 .content-note { font-size: 22rpx; line-height: 1.65; display: block; }
-.content-foot { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 16rpx; align-items: center; padding-top: 14rpx; margin-top: 16rpx; border-top: 1rpx solid #d8c7b5; }
-.content-link { color: #82442f; font-size: 23rpx; }
+.content-foot { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 16rpx; align-items: center; padding-top: 14rpx; margin-top: 16rpx; border-top: 1rpx solid #E6E6E8; }
+.content-link { color: #82442F; font-size: 23rpx; }
 .content-empty { padding: 70rpx 30rpx; margin: 22rpx 0; text-align: center; }
 .content-empty text { display: block; margin: 10rpx 0; }
 .content-empty-title { font-size: 31rpx; font-weight: 650; }
 .content-chip-row { display: flex; gap: 12rpx; overflow-x: auto; padding: 2rpx 0 20rpx; }
-.content-chip { border-radius: 7rpx; border: 1rpx solid #d8c7b5; color: #82442f; padding: 12rpx 19rpx; font-size: 22rpx; white-space: nowrap; }
-.content-chip-on { background: #82442f; color: #fff; }
+.content-chip { border-radius: 22rpx; border: 1rpx solid #E6E6E8; color: #82442F; padding: 12rpx 19rpx; font-size: 22rpx; white-space: nowrap; }
+.content-chip-on { background: #82442F; color: #fff; }
 .content-image { width: 100%; border-radius: 7rpx; height: 320rpx; margin-top: 14rpx; }
 .content-field { width: 100%; min-height: 82rpx; padding: 18rpx 18rpx; box-sizing: border-box; margin-top: 8rpx; margin-bottom: 16rpx; font-size: 26rpx; }
 .content-textarea { display: block; width: 100%; padding: 18rpx; min-height: 240rpx; box-sizing: border-box; font-size: 25rpx; margin-bottom: 14rpx; }
@@ -24,6 +24,6 @@
 .content-notice { display: block; font-size: 21rpx; padding: 16rpx; line-height: 1.6; margin: 15rpx 0; }
 .content-footer { font-size: 20rpx; line-height: 1.75; margin-top: 18rpx; }
 .theme-noir .content-link { color: #e9ba79; }
-.theme-minimal .content-link { color: #903f59; }
+.theme-minimal .content-link { color: #82442F; }
 .theme-pop .content-link { color: #3048e8; }
 .theme-noir .content-foot { border-color: #454149; }
