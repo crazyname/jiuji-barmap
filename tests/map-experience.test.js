@@ -79,6 +79,17 @@ test('real Taro map, two shared filters and navigation actions are connected', (
   assert.ok(!map.includes('Taro.setStorageSync('), 'map-only controls must not overwrite personal data')
 })
 
+test('manual coordinate selection is not mislabeled as independently verified', () => {
+  const map = read('apps/wechat/src/pages/map/index.tsx')
+  const detail = read('apps/wechat/src/pages/venue/index.tsx')
+  assert.ok(map.includes('用户手动标记 · 未经平台核实'))
+  assert.ok(map.includes('可显示点位'))
+  assert.ok(detail.includes('用户手动标记 · 未经平台核实'))
+  assert.ok(detail.includes('地图位置来源已核实'))
+  assert.ok(!map.includes("'位置已核实'"))
+  assert.ok(!detail.includes("'地图位置已核实'"))
+})
+
 test('venue keeps favorites, viewed history, correction and native routing', () => {
   const venue = read('apps/wechat/src/pages/venue/index.tsx')
   for(const key of ['addVenueVisit(', 'toggleFavorite(', 'favoriteIds()', 'getVenues()',
