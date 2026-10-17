@@ -3,6 +3,7 @@
 import Taro from '@tarojs/taro'
 import { createJournalRepository, JOURNAL_STORAGE_PREFIX, JournalError } from '../../../../packages/core/src/journal'
 import type { JournalStorage, PrivateJournalRepository } from '../../../../packages/core/src/journal-contracts'
+import type { AuthService } from './auth-service'
 
 /** Dedicated private namespace: never touches bars, recipes, posts, favorites or drafts. */
 function createWeChatJournalStorage(): JournalStorage {
@@ -31,6 +32,19 @@ export function createLockedWeChatJournalRepository(): PrivateJournalRepository 
     identity: () => null,
     // These must not execute without an authenticated principal.
     newId: () => { throw new JournalError('AUTH_REQUIRED', 'User login has not been implemented') },
+    now: () => new Date().toISOString()
+  })
+}
+
+
+/** Production binding: no private read/write without a live server-attested session. */
+export function createSessionJournalRepository(auth: AuthService): PrivateJournalRepository {
+  return createJournalRepository({
+    storage: createWeChatJournalStorage(),
+    identity: () => auth.verifiedIdentity(),
+    // Client-generated entity IDs are identifiers, NOT access credentials.
+    newId: () => 'local-' + Date.now().toString(36) + '-' +
+      Math.random().toString(36).slice(2, 13),
     now: () => new Date().toISOString()
   })
 }

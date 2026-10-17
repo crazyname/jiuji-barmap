@@ -104,16 +104,24 @@ export class AuthService {
       this.accept(pair, me, sequence)
     } catch (_) {
       if (sequence === this.serial) this.erase('error', '微信登录失败或服务尚未配置，请重试')
-    } finally { this.busy = false }
+    } finally { if (sequence === this.serial) this.busy = false }
   }
   async checkSession(): Promise<void> {
-    if (!this.tokens || !this.verifiedIdentity()) return
-    if (this.busy) return
+    if (!this.tokens || this.state.status !== 'authenticated' || this.busy) return
     const current = this.tokens
+    const accountId = this.state.account?.id
+    const currentExpiry = Date.parse(this.state.expiresAt || '')
+    if (!accountId || !Number.isFinite(currentExpiry)) {
+      this.serial++
+      this.erase('expired', '登录状态已失效，请重新登录')
+      return
+    }
     const sequence = ++this.serial
     this.busy = true
+    // Hide private UI while network revalidates /me, including revocation.
+    this.emit({ status: 'authenticating', account: null, expiresAt: null, message: null })
     try {
-      if (Date.parse(this.state.expiresAt!) - this.deps.now() <= 60_000) {
+      if (currentExpiry - this.deps.now() <= 60_000) {
         const newTokens = await this.deps.transport.refresh(current.refreshToken)
         if (sequence !== this.serial) return
         if (!validTokens(newTokens, this.deps.now()) || newTokens.sessionId !== current.sessionId)
@@ -121,23 +129,24 @@ export class AuthService {
         const me = await this.deps.transport.me(newTokens.accessToken)
         if (sequence !== this.serial) return
         if (!validMe(me, newTokens, this.deps.now()) ||
-          me.account.id !== this.state.account?.id) throw new AuthError('REJECTED', '会话所属账户发生变化')
+          me.account.id !== accountId) throw new AuthError('REJECTED', '会话所属账户发生变化')
         this.accept(newTokens, me, sequence)
       } else {
         const me = await this.deps.transport.me(current.accessToken)
         if (sequence !== this.serial) return
         if (!validMe(me, current, this.deps.now()) ||
-          me.account.id !== this.state.account?.id)
+          me.account.id !== accountId)
           throw new AuthError('REJECTED', '会话所属账户发生变化')
         this.accept(current, me, sequence)
       }
     } catch (_) {
       if (sequence === this.serial) this.erase('expired', '登录状态已失效，请重新登录')
-    } finally { this.busy = false }
+    } finally { if (sequence === this.serial) this.busy = false }
   }
   async signOut(): Promise<void> {
     const old = this.tokens
     this.serial++
+    this.busy = false
     // Invalidate before awaiting network; stale responses cannot restore the session.
     this.erase('guest', null)
     if (old) {
