@@ -93,7 +93,7 @@ export default function MinePage() {
     catch (_) { void Taro.showToast({ title: '操作失败', icon: 'none' }) }
   }
   const menu: { id: Panel; title: string; note: string }[] = [
-    { id: 'favorites', title: '我的收藏', note: favorites.length + ' 家酒吧' },
+    { id: 'favorites', title: '收藏', note: favorites.length + ' 家酒吧' },
     { id: 'recipes', title: '我的配方', note: recipes.length + ' 份' },
     { id: 'posts', title: '我的分享', note: posts.length + ' 篇' },
     { id: 'history', title: '浏览记录', note: visits.length + ' 条' }
@@ -138,6 +138,15 @@ export default function MinePage() {
         </View>
         <Text className='mine-section-label'>我的内容</Text>
         <View className='mine-card'>
+          {([
+            { title: '饮酒日记', note: '私人饮用时间轴', url: '/pages/journal-timeline/index' },
+            { title: '酒吧足迹', note: '独立探店经历', url: '/pages/journal-footprints/index' },
+            { title: '我的酒款', note: '按酒款归集', url: '/pages/journal-cocktails/index' }
+          ] as const).map(item => <View className='mine-menu-row' key={item.url}
+            onClick={() => void Taro.navigateTo({ url: item.url })}>
+            <Text className='mine-menu-title'>{item.title}</Text>
+            <Text className='mine-menu-note'>{item.note}　›</Text>
+          </View>)}
           {menu.map(item => <View className='mine-menu-row' key={item.id} onClick={() => setPanel(item.id)}>
             <Text className='mine-menu-title'>{item.title}</Text>
             <Text className='mine-menu-note'>{item.note}　›</Text>

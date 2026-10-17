@@ -36,6 +36,8 @@ jobs:
         run: npm run test:journal
       - name: Execute React journal form and global action tests
         run: npm run test:quick-ui
+      - name: Exercise private journal views with real React and repository
+        run: npm run test:journal-views
       - name: Strict TypeScript check for journal and WeChat adapter
         run: apps/wechat/node_modules/.bin/tsc --noEmit -p tsconfig.journal.json
       - name: Compile WeChat mini program
@@ -48,3 +50,9 @@ jobs:
           test -f apps/wechat/dist/custom-tab-bar/index.js
           test -f apps/wechat/dist/pages/journal-drink/index.js
           test -f apps/wechat/dist/pages/journal-visit/index.js
+          test -f apps/wechat/dist/pages/journal-timeline/index.js
+          test -f apps/wechat/dist/pages/journal-footprints/index.js
+          test -f apps/wechat/dist/pages/journal-cocktails/index.js
+          test -f apps/wechat/dist/pages/journal-drink-detail/index.js
+          test -f apps/wechat/dist/pages/journal-visit-detail/index.js
+
