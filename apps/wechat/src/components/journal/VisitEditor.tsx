@@ -94,7 +94,7 @@ export default function VisitEditor({ repository, authenticated, venues,
         placeholder='记录环境、同行朋友或其他感受' cursorSpacing={24}
         onInput={event => edit({ note: event.detail.value })} />
     </View>
-    {error ? <Text className='journal-error' role='alert'>{error}</Text> : null}
+    {error ? <Text className='journal-error'>{error}</Text> : null}
     {saved ? <Text className='journal-saved'>私人探店经历已保存</Text> : null}
     <Button className='journal-main' disabled={submitting || saved}
       onClick={() => void submit()}>{submitting ? '保存中…' : '保存这次私人探店'}</Button>

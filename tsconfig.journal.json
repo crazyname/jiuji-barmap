@@ -12,7 +12,8 @@
     ],
     "types": [],
     "noEmit": true,
-    "jsx": "react-jsx"
+    "jsx": "react-jsx",
+    "allowJs": true
   },
   "files": [
     "packages/core/src/models.ts",

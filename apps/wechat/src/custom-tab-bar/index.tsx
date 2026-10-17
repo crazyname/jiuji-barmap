@@ -47,7 +47,7 @@ export default class CustomTabBar extends React.Component<{}, { selected: number
     const last = TAB_ITEMS.slice(2)
     const item = (entry: typeof TAB_ITEMS[number], index: number) =>
       <View className='jiuji-tab-item' key={entry.route}
-        accessibilityRole='button' ariaLabel={entry.label}
+        ariaLabel={entry.label}
         onClick={() => {
           if (this.state.selected !== index) void Taro.switchTab({ url: '/' + entry.route })
         }}>
@@ -59,7 +59,7 @@ export default class CustomTabBar extends React.Component<{}, { selected: number
       </View>
     return <View className='jiuji-tab-bar'>
       {first.map((entry, index) => item(entry, index))}
-      <View className='jiuji-tab-add' accessibilityRole='button' ariaLabel='打开记录与发布操作'
+      <View className='jiuji-tab-add' ariaLabel='打开记录与发布操作'
         onClick={() => void this.openActions()}>
         <View className='jiuji-tab-add-circle'><Text>＋</Text></View>
         <Text className='jiuji-tab-add-label'>记录</Text>

@@ -145,7 +145,7 @@ export default function DrinkEditor({ repository, authenticated, venues, catalog
         placeholder='0–5 分，可留空，最多一位小数' cursorSpacing={24} maxlength={3}
         onInput={event => edit({ personalRating: event.detail.value })} />
     </View>
-    {error ? <Text className='journal-error' role='alert'>{error}</Text> : null}
+    {error ? <Text className='journal-error'>{error}</Text> : null}
     {saved ? <Text className='journal-saved'>私人记录保存成功</Text> : null}
     <Button className='journal-main' disabled={submitting || saved}
       onClick={() => void submit()}>{submitting ? '保存中…' : '保存到私人日记'}</Button>
