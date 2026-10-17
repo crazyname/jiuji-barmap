@@ -11,7 +11,7 @@
 
 - `packages/core/`：酒吧模型、数据过滤和无平台依赖的业务逻辑。
 - `packages/contracts/`：JSON Schema 与公共 API 契约。
-- `packages/design/`：C「城市编辑」及其他主题的设计 Token。
+- `packages/design/`：既有 C「城市编辑」及其他主题 Token。2026-10-17 最新决定：全局 UI 改为 A「城市极简」但保留原品牌棕红 `#82442F`；需在微信优先完成主题迁移，并同步更新其他平台，**现有 Token 尚未改代码**。详见 [A UI 规范](ui-a-minimal-spec.md)。
 - `apps/*/`：地图、定位、照片、系统分享等平台适配与页面渲染。
 
 微信采用 Taro 是因为它支持 React 小程序编译，并不意味着强制移动端也采用 Taro 的 React Native 转译。移动端直接使用 React Native + Expo 官方工具链。鸿蒙使用 RNOH 单独验证。
