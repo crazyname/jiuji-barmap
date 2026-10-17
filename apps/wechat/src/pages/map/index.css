@@ -1,25 +1,46 @@
-/* The map stays native and interactive; controls sit outside its native layer. */
+/* PR-02: slim controls ABOVE native Map avoid unsupported Input-on-Map overlays.
+   Explicit panel buttons replace native-layer drag gestures pending device verification. */
 .layout { box-sizing: border-box; height: 100vh; display: flex; flex-direction: column; background: #F7F5F5; color: #242329; overflow: hidden; }
-.toolbar { flex-shrink: 0; background: #F7F5F5; padding: 16rpx 24rpx 18rpx; }
-.toolbarTitle { display: block; font-size: 34rpx; font-weight: 650; line-height: 1.4; margin-bottom: 14rpx; }
-.search { box-sizing: border-box; width: 100%; height: 88rpx; background: #FFFFFF; color: #242329; border: 1rpx solid #E6E6E8; border-radius: 44rpx; padding: 0 26rpx; font-size: 28rpx; box-shadow: 0 2rpx 10rpx rgba(20,20,25,.06); }
-.filterRow { display: flex; align-items: center; gap: 18rpx; margin-top: 14rpx; }
-.filter { box-sizing: border-box; display: flex; align-items: center; justify-content: center; min-height: 68rpx; font-size: 25rpx; color: #82442F; background: #FFFFFF; border: 1rpx solid #E6E6E8; padding: 10rpx 24rpx; border-radius: 40rpx; }
-.filterHint { flex: 1; font-size: 21rpx; color: #6F6D74; line-height: 1.4; }
-.map { width: 100%; height: 0; flex: 1; min-height: 280rpx; }
-.selected { flex-shrink: 0; background: #FFFFFF; border-top: 1rpx solid #E6E6E8; padding: 20rpx 26rpx 16rpx; }
-.selectedName { display: block; color: #242329; font-size: 32rpx; font-weight: 650; line-height: 1.4; }
-.meta { display: block; color: #6F6D74; font-size: 23rpx; margin-top: 6rpx; }
-.actions { display: flex; gap: 12rpx; margin-top: 14rpx; }
-.actions button { flex: 1; min-width: 0; margin: 0; min-height: 76rpx; line-height: 76rpx; font-size: 24rpx; border-radius: 14rpx; padding: 0 8rpx; }
-.actions .primary { color: #FFFFFF; background: #82442F; }
-.actions .secondary { color: #82442F; background: #FFFFFF; border: 1rpx solid #E6E6E8; }
-.count { flex-shrink: 0; background: #FFFFFF; display: flex; justify-content: space-between; align-items: center; gap: 16rpx; border-top: 1rpx solid #E6E6E8; padding: 18rpx 26rpx; font-size: 23rpx; color: #6F6D74; }
-.expand { flex-shrink: 0; color: #82442F; font-weight: 600; padding: 8rpx 0; }
-.list { height: 236rpx; background: #FFFFFF; flex-shrink: 0; }
-.item { box-sizing: border-box; display: flex; justify-content: space-between; align-items: center; min-height: 96rpx; border-top: 1rpx solid #E6E6E8; padding: 17rpx 26rpx; }
+.toolbar { flex-shrink: 0; padding: 16rpx 22rpx 8rpx; background: #F7F5F5; }
+.searchStrip { display: flex; align-items: center; gap: 12rpx; }
+.search { box-sizing: border-box; flex: 1; min-width: 0; height: 86rpx; padding: 0 26rpx; border-radius: 44rpx; background: #FFFFFF; border: 1rpx solid #E6E6E8; box-shadow: 0 2rpx 12rpx rgba(20,20,25,.08); color: #242329; font-size: 28rpx; }
+.modeSwitch { flex-shrink: 0; box-sizing: border-box; min-width: 98rpx; height: 86rpx; display: flex; justify-content: center; align-items: center; border-radius: 43rpx; background: #FFFFFF; color: #82442F; font-size: 26rpx; border: 1rpx solid #E6E6E8; }
+.filterScroll { width: 100%; white-space: nowrap; height: 78rpx; margin-top: 12rpx; }
+.filterRow { display: flex; flex-direction: row; gap: 12rpx; width: max-content; align-items: center; height: 76rpx; }
+.filterChip { box-sizing: border-box; flex-shrink: 0; min-height: 66rpx; padding: 13rpx 25rpx; display: flex; align-items: center; border-radius: 36rpx; color: #242329; background: #FFFFFF; border: 1rpx solid #E6E6E8; font-size: 24rpx; }
+.filterChipActive { background: #82442F; color: #FFFFFF; border-color: #82442F; }
+.toolbarFoot { display: flex; justify-content: space-between; align-items: center; gap: 12rpx; color: #6F6D74; font-size: 20rpx; padding: 3rpx 5rpx 8rpx; }
+.locateAction { color: #82442F; min-width: 84rpx; text-align: right; padding: 8rpx 0; font-size: 24rpx; }
+.notice { flex-shrink: 0; background: #FFFFFF; border-bottom: 1rpx solid #E6E6E8; padding: 10rpx 24rpx; color: #6F6D74; display: flex; align-items: center; gap: 15rpx; font-size: 22rpx; }
+.notice text:first-child { flex: 1; }
+.retry { color: #82442F; padding: 10rpx; flex-shrink: 0; }
+.map { width: 100%; height: 0; flex: 1; min-height: 260rpx; }
+.panel { box-sizing: border-box; flex-shrink: 0; background: #FFFFFF; border-top: 1rpx solid #E6E6E8; padding: 0 22rpx max(12rpx, env(safe-area-inset-bottom)); }
+.panelHandle { width: 60rpx; height: 6rpx; margin: 12rpx auto 8rpx; background: #E6E6E8; border-radius: 10rpx; }
+.panelHeader { display: flex; justify-content: space-between; align-items: center; gap: 18rpx; min-height: 76rpx; }
+.panelTitleGroup { flex: 1; min-width: 0; }
+.panelTitle { display: block; font-size: 29rpx; font-weight: 650; line-height: 1.25; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.panelMeta { display: block; font-size: 21rpx; color: #6F6D74; margin-top: 6rpx; }
+.panelToggle { flex-shrink: 0; color: #82442F; font-size: 25rpx; min-height: 66rpx; padding: 10rpx 0 10rpx 18rpx; display: flex; align-items: center; }
+.backAction { display: block; color: #82442F; font-size: 22rpx; margin: 2rpx 0 9rpx; }
+.previewList { padding-top: 4rpx; }
+.panelList { height: 34vh; min-height: 180rpx; }
+.panelExpanded .panelList { max-height: 380rpx; }
+.item { box-sizing: border-box; display: flex; align-items: center; justify-content: space-between; gap: 20rpx; min-height: 91rpx; padding: 14rpx 4rpx; border-top: 1rpx solid #E6E6E8; }
 .info { flex: 1; min-width: 0; }
-.venueName { display: block; font-size: 28rpx; font-weight: 600; color: #242329; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
-.venueMeta { display: block; font-size: 22rpx; color: #6F6D74; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; margin-top: 4rpx; }
-.arrow { font-size: 34rpx; color: #6F6D74; }
-.empty { padding: 36rpx 24rpx; font-size: 25rpx; color: #6F6D74; text-align: center; }
+.venueName { display: block; color: #242329; font-size: 27rpx; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.venueMeta { display: block; margin-top: 4rpx; font-size: 21rpx; color: #6F6D74; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.locationPending { display: block; margin-top: 5rpx; color: #6F6D74; font-size: 21rpx; }
+.arrow { flex-shrink: 0; color: #82442F; font-size: 33rpx; }
+.selectedInfo { padding: 4rpx 0 12rpx; }
+.meta { display: block; margin-top: 5rpx; font-size: 23rpx; color: #6F6D74; line-height: 1.45; }
+.addressLine { display: block; margin-top: 12rpx; font-size: 25rpx; color: #242329; }
+.actions { display: flex; gap: 10rpx; padding: 5rpx 0 14rpx; }
+.actions button { flex: 1; min-width: 0; box-sizing: border-box; height: 78rpx; min-height: 78rpx; line-height: 78rpx; margin: 0; padding: 0 5rpx; font-size: 23rpx; border-radius: 14rpx; }
+.actions .primary { background: #82442F; color: #FFFFFF; }
+.actions .secondary { background: #FFFFFF; color: #82442F; border: 1rpx solid #E6E6E8; }
+.correctAction { display: block; text-align: right; color: #82442F; font-size: 24rpx; padding: 8rpx 0 18rpx; }
+.empty { padding: 42rpx 18rpx; color: #6F6D74; font-size: 25rpx; text-align: center; line-height: 1.5; }
+.fullList { box-sizing: border-box; min-height: 0; flex: 1; background: #FFFFFF; padding: 0 26rpx; }
+.listSummary { padding: 20rpx 0; font-size: 23rpx; color: #6F6D74; }
+.listFoot { text-align: center; color: #6F6D74; font-size: 21rpx; padding: 28rpx 8rpx 46rpx; }
