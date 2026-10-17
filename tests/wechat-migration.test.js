@@ -8,7 +8,7 @@ const load = file => fs.readFileSync(path.join(root, file), 'utf8')
 test('Taro registers bar details as a non-tab page', () => {
  const app = load('apps/wechat/src/app.config.ts')
  assert.match(app, /'pages\/venue\/index'/)
- assert.match(app, /requiredPrivateInfos:\s*\['chooseLocation'\]/)
+ assert.match(app, /requiredPrivateInfos:\s*\['chooseLocation',\s*'getLocation'\]/)
  for(const tab of ['地图','调酒','社区','我的']) assert.ok(app.includes("text: '" + tab + "'"))
 })
 

@@ -56,7 +56,7 @@ test('the four Taro tabs use the same quiet canvas, white surfaces and text hier
 test('visual-only update retains real map, filtering, recipes, posts and local profile', () => {
   const map = read('apps/wechat/src/pages/map/index.tsx')
   for (const token of ['<Map ', 'validPoint(bar.location)', 'STATUS_OPTIONS[statusIndex]',
-    'onMarkerTap', 'updateVenueLocation(', 'Taro.openLocation(', 'setExpanded(!expanded)'])
+    'onMarkerTap', 'updateVenueLocation(', 'Taro.openLocation(', 'transitionView(current'])
     assert.ok(map.includes(token), token)
   const mix = read('apps/wechat/src/pages/mix/index.tsx')
   const social = read('apps/wechat/src/pages/community/index.tsx')
