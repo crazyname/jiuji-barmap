@@ -29,7 +29,7 @@ export function searchBars<T extends Pick<Bar, 'name' | 'station' | 'status'>>(b
 export type DrinkContextKind = 'bar' | 'home' | 'other'
 export type PrivateVisibility = 'private'
 export interface DrinkContextDetails {
-  bar?: { menuItem?: string; priceAmount?: number }
+  bar?: { barId?: number; menuItem?: string; priceAmount?: number }
   home?: { preparationNote?: string; ingredientsNote?: string }
   other?: { placeNote?: string }
 }

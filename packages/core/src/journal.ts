@@ -80,9 +80,13 @@ function details(value: unknown): DrinkContextDetails {
   const src = value as Record<string, unknown>
   const out: DrinkContextDetails = {}
   if (src.bar !== undefined) {
-    allowed(src.bar, ['menuItem', 'priceAmount'])
+    allowed(src.bar, ['barId', 'menuItem', 'priceAmount'])
     const bar = src.bar as Record<string, unknown>
     const entry: NonNullable<DrinkContextDetails['bar']> = {}
+    if (bar.barId !== undefined) {
+      if (!Number.isSafeInteger(bar.barId) || Number(bar.barId) <= 0) invalid('barId must be a positive integer')
+      entry.barId = bar.barId as number
+    }
     if (bar.menuItem !== undefined) entry.menuItem = nonblank(bar.menuItem, 'menuItem')
     if (bar.priceAmount !== undefined) {
       if (typeof bar.priceAmount !== 'number' || !Number.isFinite(bar.priceAmount) ||
