@@ -1,3 +1,4 @@
+import { useSyncCustomTabBar } from '../../utils/custom-tabbar'
 import React, { useState } from 'react'
 import { Button, Input, Picker, Text, Textarea, View } from '@tarojs/components'
 import Taro, { useDidShow } from '@tarojs/taro'
@@ -8,6 +9,7 @@ type Post = {id:string;title:string;body:string;type:'visit'|'tasting'|'promo';s
 const demoPosts = sitesData.posts as Post[]
 const KEY='jiuji.react.posts'; const labels=['探店','品酒','商业推广']
 export default function CommunityPage() {
+  useSyncCustomTabBar(2)
  const [rows,setRows]=useState<Post[]>([]);const [remote,setRemote]=useState<Post[]>([]);const [title,setTitle]=useState('');const [body,setBody]=useState('')
  const [type,setType]=useState(0);const [sponsor,setSponsor]=useState('')
  useDidShow(()=>{

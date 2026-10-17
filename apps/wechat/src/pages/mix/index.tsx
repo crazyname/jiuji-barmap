@@ -1,3 +1,4 @@
+import { useSyncCustomTabBar } from '../../utils/custom-tabbar'
 import React, { useState } from 'react'
 import { Button, Input, Text, Textarea, View } from '@tarojs/components'
 import Taro, { useDidShow } from '@tarojs/taro'
@@ -8,6 +9,7 @@ type Recipe = { id: string; title: string; ingredients: string; steps: string }
 const KEY='jiuji.react.recipes'
 const demoRecipes = sitesData.recipes as Recipe[]
 export default function MixPage() {
+  useSyncCustomTabBar(1)
  const [rows,setRows]=useState<Recipe[]>([])
  const [remote,setRemote]=useState<Recipe[]>([])
  const [title,setTitle]=useState(''); const [ingredients,setIngredients]=useState(''); const [steps,setSteps]=useState('')
