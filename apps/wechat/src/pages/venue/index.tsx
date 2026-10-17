@@ -56,11 +56,13 @@ export default function VenuePage() {
     <Text className='empty'>没有找到这家酒吧，请返回地图重新选择。</Text>
   </View>
   const located = hasTrustedLocation(venue)
+  const locationLabel = !located ? '地图位置待核实' : venue.locationSource === 'user-map-selection'
+    ? '用户手动标记 · 未经平台核实' : '地图位置来源已核实'
   return <View className='detail'>
     <View className='hero'>
       <Text className='heading'>{venue.name}</Text>
       <Text className='subtitle'>广州 · {venue.station}{venue.exit ? ' · ' + venue.exit + ' 出口' : ''}</Text>
-      <Text className='status'>{STATUS_LABEL[venue.status]} · {located ? '地图位置已核实' : '地图位置待核实'}</Text>
+      <Text className='status'>{STATUS_LABEL[venue.status]} · {locationLabel}</Text>
     </View>
     <View className='actionGroup'>
       <Button className='primary' disabled={!located} onClick={() => void openLocation()}>地图导航</Button>
@@ -74,7 +76,7 @@ export default function VenuePage() {
       </View>
       <View className='line'><Text>附近地铁</Text><Text>{venue.station}</Text></View>
       <View className='line'><Text>资料状态</Text><Text>{STATUS_LABEL[venue.status]}</Text></View>
-      <View className='line'><Text>地图坐标</Text><Text>{located ? '来源已核实' : '待确认'}</Text></View>
+      <View className='line'><Text>地图坐标</Text><Text>{locationLabel}</Text></View>
       {venue.statusCheckedAt ? <View className='line'><Text>资料检查日期</Text><Text>{venue.statusCheckedAt}</Text></View> : null}
       <Button className='correctButton' onClick={() => void choosePoint()}>
         {located ? '纠正地图位置' : '在微信地图中确认位置'}
