@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { Button, Text, View } from '@tarojs/components'
-import Taro from '@tarojs/taro'
+import Taro, { useDidShow } from '@tarojs/taro'
 import VisitEditor from '../../components/journal/VisitEditor'
 import { createSessionJournalRepository } from '../../services/private-journal'
 import { authService } from '../../services/wechat-auth'
@@ -11,6 +11,7 @@ import { getVenues } from '../../utils/venues'
 const repository = createSessionJournalRepository(authService)
 export default function JournalVisitPage() {
   const auth = useAuthState(authService)
+  useDidShow(() => { void authService.checkSession() })
   const [dirty, setDirty] = useState(false)
   const [createdVisitId, setCreatedVisitId] = useState<string | null>(null)
   useEffect(() => {

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { Text, View } from '@tarojs/components'
-import Taro, { useRouter } from '@tarojs/taro'
+import Taro, { useDidShow, useRouter } from '@tarojs/taro'
 import DrinkEditor from '../../components/journal/DrinkEditor'
 import { createSessionJournalRepository } from '../../services/private-journal'
 import { authService } from '../../services/wechat-auth'
@@ -11,6 +11,7 @@ import { getVenues } from '../../utils/venues'
 const repository = createSessionJournalRepository(authService)
 export default function JournalDrinkPage() {
   const auth = useAuthState(authService)
+  useDidShow(() => { void authService.checkSession() })
   const router = useRouter()
   const [dirty, setDirty] = useState(false)
   const incoming = typeof router.params.visitId === 'string' ? router.params.visitId : null
