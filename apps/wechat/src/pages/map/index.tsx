@@ -1,3 +1,4 @@
+import { useSyncCustomTabBar } from '../../utils/custom-tabbar'
 import React, { useMemo, useState } from 'react'
 import { Button, Input, Map, ScrollView, Text, View } from '@tarojs/components'
 import Taro, { useDidShow } from '@tarojs/taro'
@@ -12,6 +13,7 @@ import './index.css'
 // Guangzhou is a browsing anchor, not an assertion of the user's current location.
 const CENTER = { latitude: 23.12908, longitude: 113.26436 }
 export default function MapPage() {
+  useSyncCustomTabBar(0)
   const [venues, setVenues] = useState<Venue[]>(getVenues)
   const [query, setQuery] = useState('')
   const [statusIndex, setStatusIndex] = useState(0)

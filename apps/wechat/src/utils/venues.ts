@@ -58,7 +58,7 @@ function parseEntries(value: unknown[]): Venue[] {
     typeof (entry as Venue).name === 'string')
 }
 export function getVenues(): Venue[] {
-  const remote = publishedRows<Venue>('bars')
+  const remote = publishedRows<Venue & Record<string, unknown>>('bars')
   const initial = remote.length ? remote : INITIAL_VENUES
   const current = parseEntries(readArray(CURRENT_KEY))
   const previous = current.length ? current : parseEntries(readArray(PREVIOUS_KEY))

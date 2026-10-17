@@ -23,6 +23,7 @@
     "sync:generate": "node scripts/generate-sync-core.cjs",
     "sync:check": "node scripts/generate-sync-core.cjs --check",
     "sites:probe": "node scripts/probe-sites-api.cjs",
-    "test:journal": "node --experimental-strip-types --test tests/private-journal.test.mjs"
+    "test:journal": "node --experimental-strip-types --test tests/private-journal.test.mjs",
+    "test:quick-ui": "node --experimental-strip-types --test tests/quick-journal-ui.test.mjs"
   }
 }

@@ -1,3 +1,4 @@
+import { useSyncCustomTabBar } from '../../utils/custom-tabbar'
 import React, { useState } from 'react'
 import { Button, Input, ScrollView, Text, View } from '@tarojs/components'
 import Taro, { useDidShow } from '@tarojs/taro'
@@ -35,6 +36,7 @@ function ownEntries(kind: 'recipes' | 'posts'): Entry[] {
   return [...current, ...old.filter(item => !seen.has(String(item.id)))]
 }
 export default function MinePage() {
+  useSyncCustomTabBar(3)
   const [panel, setPanel] = useState<Panel>('home')
   const [profile, setProfile] = useState<Profile>({ name: '酒迹用户', bio: '' })
   const [name, setName] = useState('酒迹用户')

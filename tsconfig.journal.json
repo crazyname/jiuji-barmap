@@ -11,12 +11,21 @@
       "DOM"
     ],
     "types": [],
-    "noEmit": true
+    "noEmit": true,
+    "jsx": "react-jsx",
+    "allowJs": true
   },
   "files": [
     "packages/core/src/models.ts",
     "packages/core/src/journal-contracts.ts",
     "packages/core/src/journal.ts",
-    "apps/wechat/src/services/private-journal.ts"
+    "apps/wechat/src/services/private-journal.ts",
+    "apps/wechat/src/services/journal-editor.ts",
+    "apps/wechat/src/components/journal/DrinkEditor.tsx",
+    "apps/wechat/src/components/journal/VisitEditor.tsx",
+    "apps/wechat/src/pages/journal-drink/index.tsx",
+    "apps/wechat/src/pages/journal-visit/index.tsx",
+    "apps/wechat/src/custom-tab-bar/index.tsx",
+    "apps/wechat/src/utils/custom-tabbar.ts"
   ]
 }
