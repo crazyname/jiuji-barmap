@@ -34,6 +34,8 @@ jobs:
         run: npm install --no-audit --no-fund
       - name: Execute private journal TypeScript behavior tests
         run: npm run test:journal
+      - name: Execute React journal form and global action tests
+        run: npm run test:quick-ui
       - name: Strict TypeScript check for journal and WeChat adapter
         run: apps/wechat/node_modules/.bin/tsc --noEmit -p tsconfig.journal.json
       - name: Compile WeChat mini program
