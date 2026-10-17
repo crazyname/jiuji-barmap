@@ -13,7 +13,7 @@ module.exports = function (merge) {
       // PR-04 activates the PR-03 core from real Taro pages. Taro's default
       // script loader only covers src; transpile the shared TS source as well.
       webpackChain(chain) {
-        const coreTs = /packages[\\/]core[\\/]src[\\/].*\\.ts$/
+        const coreTs = /packages.*core.*src.*\.ts$/
         chain.module.rule('shared-journal-ts').test(coreTs)
           .use('babel-loader').loader(require.resolve('babel-loader'))
           .options({ presets: [[require.resolve('babel-preset-taro'), { framework: 'react', ts: true }]] })
