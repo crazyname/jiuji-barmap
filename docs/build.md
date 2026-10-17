@@ -1,5 +1,7 @@
 # 开发与构建
 
+> 准备实施微信小程序前请先读：[产品开发基线](product-baseline.md) · [A 视觉规范](ui-a-minimal-spec.md) · [微信开发任务/验收](wechat-dev-roadmap.md)。本文命令只能说明如何编译/检查现有工程，不代表新规划全部已完成。
+
 ## 共用检查
 
 Node.js 20+：
