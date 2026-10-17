@@ -17,10 +17,13 @@ interface Snapshot {
 export const JOURNAL_SCHEMA_VERSION = 1
 export const JOURNAL_STORAGE_PREFIX = 'jiuji.private-journal.v1:user:'
 
+export type JournalErrorCode = 'AUTH_REQUIRED' | 'INVALID_INPUT' | 'NOT_FOUND' |
+  'CONFLICT' | 'STORAGE_INVALID' | 'REPLAY_DELETED'
 export class JournalError extends Error {
-  constructor(public readonly code: 'AUTH_REQUIRED' | 'INVALID_INPUT' | 'NOT_FOUND' |
-    'CONFLICT' | 'STORAGE_INVALID' | 'REPLAY_DELETED', message: string) {
+  readonly code: JournalErrorCode
+  constructor(code: JournalErrorCode, message: string) {
     super(message)
+    this.code = code
     this.name = 'JournalError'
   }
 }
@@ -180,7 +183,8 @@ export function createJournalRepository(deps: JournalDependencies): PrivateJourn
   function save(key: string, state: Snapshot): void { storage.write(key, copy(state)) }
   function freshId(state: Snapshot): string {
     const id = nonblank(newId(), 'generated id')
-    if (state.drinks.some(x => x.id === id) || state.visits.some(x => x.id === id))
+    if (state.drinks.some(x => x.id === id) || state.visits.some(x => x.id === id) ||
+        Object.values(state.mutations).some(x => x.entityId === id))
       throw new JournalError('CONFLICT', 'Generated record id already exists')
     return id
   }
@@ -245,8 +249,18 @@ export function createJournalRepository(deps: JournalDependencies): PrivateJourn
       allowed(patch, ['drinkLabel', 'cocktailId', 'recipeVariantId', 'consumedAt',
         'contextKind', 'photoRefs', 'note', 'personalRating', 'contextDetails'])
       if (Object.keys(patch).length === 0) invalid('Update patch must not be empty')
-      const normalized = drinkFields({ ...row, ...patch,
-        visitSessionId: row.visitSessionId } as NewDrinkEntry)
+      const normalized = drinkFields({
+        drinkLabel: patch.drinkLabel ?? row.drinkLabel,
+        cocktailId: patch.cocktailId === undefined ? row.cocktailId : patch.cocktailId,
+        recipeVariantId: patch.recipeVariantId === undefined ? row.recipeVariantId : patch.recipeVariantId,
+        visitSessionId: row.visitSessionId,
+        consumedAt: patch.consumedAt ?? row.consumedAt,
+        contextKind: patch.contextKind ?? row.contextKind,
+        photoRefs: patch.photoRefs === undefined ? row.photoRefs : patch.photoRefs,
+        note: patch.note === undefined ? row.note : patch.note,
+        personalRating: patch.personalRating === undefined ? row.personalRating : patch.personalRating,
+        contextDetails: patch.contextDetails === undefined ? row.contextDetails : patch.contextDetails
+      })
       // visitSessionId can ONLY be changed by linkDrink()
       Object.assign(row, normalized, { updatedAt: nextTime(), revision: row.revision + 1 })
       save(key, state)
@@ -294,7 +308,12 @@ export function createJournalRepository(deps: JournalDependencies): PrivateJourn
       validateRevision(expectedRevision, row.revision)
       allowed(patch, ['barId', 'placeLabel', 'occurredAt', 'note'])
       if (!Object.keys(patch).length) invalid('Update patch must not be empty')
-      const normalized = visitFields({ ...row, ...patch } as NewVisitSession)
+      const normalized = visitFields({
+        barId: patch.barId === undefined ? row.barId : patch.barId,
+        placeLabel: patch.placeLabel === undefined ? row.placeLabel : patch.placeLabel,
+        occurredAt: patch.occurredAt ?? row.occurredAt,
+        note: patch.note === undefined ? row.note : patch.note
+      })
       Object.assign(row, normalized, { updatedAt: nextTime(), revision: row.revision + 1 })
       save(key, state)
       return copy(row)
