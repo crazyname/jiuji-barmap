@@ -106,7 +106,6 @@ export default function MinePage() {
   return <ScrollView className='mine-screen' scrollY>
     <View className='mine-wrap'>
       <View className='mine-top'>
-        <Text className='mine-overline'>JIUJI / ACCOUNT</Text>
         <Text className='mine-heading'>{listTitle[panel]}</Text>
       </View>
       {panel !== 'home' ? <View className='mine-back' onClick={() => setPanel('home')}>
@@ -117,7 +116,7 @@ export default function MinePage() {
           <View className='mine-avatar'><Text>酒</Text></View>
           <View className='mine-person'>
             <Text className='mine-name'>{profile.name}</Text>
-            <Text className='mine-sub'>{profile.bio || '收集城市的夜晚与好酒'}</Text>
+            <Text className='mine-sub'>{profile.bio || '尚未填写个人简介'}</Text>
             <Text className='mine-guest'>本机资料 · 访客模式</Text>
           </View>
           <View className='mine-edit' onClick={() => setEditing(!editing)}>

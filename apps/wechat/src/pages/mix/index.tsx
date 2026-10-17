@@ -22,7 +22,7 @@ export default function MixPage() {
  queueRemoteUpsert('recipes',{...entry,visibility:'private',imageUrl:null})
  void refreshSites().then(()=>setRemote(publishedRows<Recipe>('recipes')))
  setTitle('');setIngredients('');setSteps('')}
- return <View className='page'><Text className='kicker'>JIUJI / RECIPES</Text><Text className='title'>调酒教程</Text>
+ return <View className='page'><Text className='title'>调酒</Text>
  <Input className='field' placeholder='酒款名称' value={title} onInput={e=>setTitle(e.detail.value)}/>
  <Input className='field' placeholder='配料与用量' value={ingredients} onInput={e=>setIngredients(e.detail.value)}/>
  <Textarea className='field area' placeholder='调制步骤' value={steps} onInput={e=>setSteps(e.detail.value)}/>

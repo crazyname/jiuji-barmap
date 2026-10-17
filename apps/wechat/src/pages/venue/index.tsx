@@ -45,7 +45,6 @@ export default function VenuePage() {
   }
   if (!venue) return <View className='detail'><Text>没有找到这家酒吧。</Text></View>
   return <View className='detail'>
-    <Text className='eyebrow'>JIUJI / PLACES / {venue.id}</Text>
     <Text className='heading'>{venue.name}</Text>
     <Text className='subtitle'>广州 · {venue.station} · {venue.exit || '—'} 出口</Text>
     <View className='stats'>

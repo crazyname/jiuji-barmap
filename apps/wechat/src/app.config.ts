@@ -4,15 +4,15 @@ export default defineAppConfig({
   ],
   window: {
     navigationBarTitleText: '酒迹',
-    navigationBarBackgroundColor: '#f9f4eb',
+    navigationBarBackgroundColor: '#FFFFFF',
     navigationBarTextStyle: 'black',
-    backgroundColor: '#f4eddf'
+    backgroundColor: '#F7F5F5'
   },
   requiredPrivateInfos: ['chooseLocation'],
   tabBar: {
-    color: '#887969',
-    selectedColor: '#82442f',
-    backgroundColor: '#f9f4eb',
+    color: '#6F6D74',
+    selectedColor: '#82442F',
+    backgroundColor: '#FFFFFF',
     list: [
       { pagePath: 'pages/map/index', text: '地图', iconPath: 'assets/tabbar/map.png', selectedIconPath: 'assets/tabbar/map-active.png' },
       { pagePath: 'pages/mix/index', text: '调酒', iconPath: 'assets/tabbar/mix.png', selectedIconPath: 'assets/tabbar/mix-active.png' },

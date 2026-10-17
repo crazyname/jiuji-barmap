@@ -1,2 +1,19 @@
-page { background: #f4eddf; color: #35291f; font-size: 28rpx; }
-button { background: #82442f; color: white; }
+/* City minimal A. Keep native map rendering and system text scaling. */
+page {
+  background: #F7F5F5;
+  color: #242329;
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-size: 28rpx;
+  line-height: 1.5;
+}
+button {
+  box-sizing: border-box;
+  background: #82442F;
+  color: #FFFFFF;
+  border-radius: 16rpx;
+  min-height: 88rpx;
+  font-size: 28rpx;
+  font-weight: 600;
+}
+button::after { border: 0; }
+button[disabled] { opacity: .45; }
