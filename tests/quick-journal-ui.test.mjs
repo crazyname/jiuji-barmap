@@ -311,3 +311,46 @@ test('dedicated private journal entry points never invoke sites post, review or 
       assert.equal(source.includes(forbidden),false,file + ' contains '+forbidden)
   }
 })
+
+
+test('editing a drink passes dirty=true on cancel so page can confirm before leaving', async () => {
+  const { tree, cancelled } = await renderDrink()
+  const cancel = () => tree.root.findAllByType('Button').find(x => x.props.className === 'journal-secondary')
+  await act(async () => { cancel().props.onClick() })
+  assert.deepEqual(cancelled, [false])
+  await act(async () => { input(tree, '尼格罗尼').props.onInput({ detail: { value: '输入还没保存' } }) })
+  await act(async () => { cancel().props.onClick() })
+  assert.deepEqual(cancelled, [false, true])
+  assert.equal(input(tree, '尼格罗尼').props.value, '输入还没保存')
+  await act(async () => { tree.unmount() })
+})
+
+test('invalid date or time rejects visit and drink before a private write', () => {
+  const invalidDrink = formLogic.createDrinkDraft(today)
+  invalidDrink.drinkLabel = '酒款'
+  invalidDrink.date = '2026-02-30'
+  assert.throws(() => formLogic.buildDrinkInput(invalidDrink), /日期或时间无效/)
+  invalidDrink.date = '2026-10-17'
+  invalidDrink.time = '29:45'
+  assert.throws(() => formLogic.buildDrinkInput(invalidDrink), /请选择有效时间/)
+  const invalidVisit = formLogic.createVisitDraft(today)
+  invalidVisit.barId = -1
+  assert.throws(() => formLogic.buildVisitInput(invalidVisit), /酒吧选择无效/)
+})
+
+test('verified visit form selects a real existing bar without creating a drink or public post', async () => {
+  const { tree, captured, f } = await renderVisit()
+  await act(async () => {
+    tree.root.findAllByType('Picker').find(x => x.props.mode === 'selector')
+      .props.onChange({ detail: { value: '1' } })
+    input(tree, '朋友家').props.onInput({ detail: { value: '包间' } })
+    textarea(tree, '记录环境').props.onInput({ detail: { value: '一次独立探店' } })
+  })
+  await act(async () => { saveButton(tree).props.onClick() })
+  assert.equal(captured.length, 1)
+  assert.equal(f.repo.listVisits()[0].barId, 12)
+  assert.equal(f.repo.listVisits()[0].placeLabel, '包间')
+  assert.equal(f.repo.listVisits()[0].note, '一次独立探店')
+  assert.equal(f.repo.listDrinks().length, 0)
+  await act(async () => { tree.unmount() })
+})

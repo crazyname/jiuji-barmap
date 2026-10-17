@@ -43,3 +43,8 @@ jobs:
         run: npm run build:weapp
       - name: Check WeChat output
         run: test -f apps/wechat/dist/app.json
+      - name: Check native action bar and both quick record routes
+        run: |
+          test -f apps/wechat/dist/custom-tab-bar/index.js
+          test -f apps/wechat/dist/pages/journal-drink/index.js
+          test -f apps/wechat/dist/pages/journal-visit/index.js
