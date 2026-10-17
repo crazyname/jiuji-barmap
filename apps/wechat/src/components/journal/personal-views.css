@@ -1,0 +1,40 @@
+/* A「城市极简」私人回顾：仅私密记录，不渲染虚构内容。 */
+.pv-screen { box-sizing: border-box; background: #F7F5F5; min-height: 100vh;
+  color: #242329; padding: 30rpx 26rpx calc(110rpx + env(safe-area-inset-bottom)); }
+.pv-heading { display: block; font-size: 44rpx; font-weight: 650; margin-bottom: 8rpx; }
+.pv-card, .pv-status { background: #FFFFFF; border: 1rpx solid #E6E6E8;
+  border-radius: 17rpx; padding: 26rpx; margin-top: 20rpx; }
+.pv-row { box-sizing: border-box; background: #FFFFFF; border-bottom: 1rpx solid #E6E6E8;
+  padding: 23rpx 24rpx; min-height: 116rpx; margin-top: 3rpx; }
+.pv-main { display: block; color: #242329; font-size: 30rpx; font-weight: 620; line-height: 1.4; }
+.pv-muted { display: block; color: #6F6D74; font-size: 23rpx; line-height: 1.5; margin-top: 7rpx; }
+.pv-summary { display: block; color: #242329; font-size: 25rpx; line-height: 1.55;
+  margin-top: 9rpx; overflow-wrap: break-word; }
+.pv-link-hint, .pv-back { display: block; color: #82442F; font-size: 23rpx;
+  margin-top: 12rpx; padding: 8rpx 0; }
+.pv-back { margin: 16rpx 0; }
+.pv-section { display: block; color: #6F6D74; font-size: 24rpx; font-weight: 600;
+  margin-top: 25rpx; margin-bottom: 9rpx; }
+.pv-filters { display: flex; gap: 12rpx; align-items: center; flex-wrap: wrap;
+  margin: 23rpx 0 18rpx; }
+.pv-chip { border: 1rpx solid #E6E6E8; border-radius: 36rpx; min-height: 69rpx;
+  padding: 10rpx 21rpx; display: flex; align-items: center; font-size: 24rpx;
+  color: #82442F; background: #FFFFFF; box-sizing: border-box; }
+.pv-clear { color: #82442F; font-size: 23rpx; padding: 15rpx 0; }
+.pv-empty { display: block; background: #FFFFFF; border-radius: 17rpx;
+  padding: 55rpx 22rpx; color: #6F6D74; font-size: 25rpx; text-align: center;
+  line-height: 1.55; margin-top: 24rpx; }
+.pv-status-title { display: block; font-size: 29rpx; font-weight: 650; margin-bottom: 12rpx; }
+.pv-main-button, .pv-outline, .pv-danger { border-radius: 12rpx; margin: 18rpx 0;
+  min-height: 82rpx; font-size: 25rpx; }
+.pv-main-button { background: #82442F; color: #FFFFFF; }
+.pv-outline { background: #FFFFFF; color: #82442F; border: 1rpx solid #E6E6E8; }
+.pv-danger { background: #FFFFFF; border: 1rpx solid #E6E6E8; color: #B42318; }
+.pv-bottom { margin-top: 35rpx; }
+.pv-error { color: #B42318; display: block; padding: 17rpx 3rpx; font-size: 23rpx; }
+.pv-editor { border-top: 1rpx solid #E6E6E8; margin-top: 25rpx; padding-top: 12rpx; }
+.pv-area, .pv-input { box-sizing: border-box; display: block; background: #FFFFFF;
+  color: #242329; font-size: 25rpx; border: 1rpx solid #E6E6E8; border-radius: 12rpx;
+  padding: 16rpx 18rpx; width: 100%; }
+.pv-area { height: 176rpx; }
+.pv-input { height: 76rpx; }
