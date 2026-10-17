@@ -65,8 +65,7 @@ export default function MapPage() {
   }
   return <View className='layout'>
     <View className='toolbar'>
-      <Text className='eyebrow'>JIUJI / BAR MAP</Text>
-      <Text className='headline'>酒迹 · 城市酒吧地图</Text>
+      <Text className='toolbarTitle'>广州酒吧地图</Text>
       <Input className='search' placeholder='搜索酒吧、地铁站或名称' value={query}
         onInput={event => setQuery(event.detail.value)} />
       <View className='filterRow'>
@@ -85,7 +84,6 @@ export default function MapPage() {
       }))}
       onMarkerTap={event => selectVenue(Number(event.detail.markerId))} />
     {selected ? <View className='selected'>
-      <Text className='smallLabel'>JIUJI / SELECTED PLACE</Text>
       <Text className='selectedName'>{selected.name}</Text>
       <Text className='meta'>{selected.station} · {STATUS_LABEL[selected.status]}</Text>
       <Text className='meta'>{ratingText(selected)}　{priceText(selected)}</Text>

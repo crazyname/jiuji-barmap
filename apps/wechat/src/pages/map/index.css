@@ -1,26 +1,25 @@
-.layout{height:100vh;display:flex;flex-direction:column;background:#f4eddf}
-.toolbar{background:#f9f4eb;padding:20rpx 24rpx 15rpx}
-.eyebrow{display:block;color:#82442f;letter-spacing:3rpx;font-size:18rpx}
-.headline{display:block;font-size:37rpx;font-weight:700;color:#35291f;margin:8rpx 0 16rpx}
-.search{height:66rpx;background:#ede1d2;border:1rpx solid #d8c7b5;border-radius:8rpx;padding:0 18rpx;font-size:25rpx}
-.filterRow{display:flex;justify-content:space-between;align-items:center;margin-top:12rpx}
-.filter{font-size:22rpx;color:#82442f;border:1rpx solid #d8c7b5;padding:12rpx;border-radius:6rpx}
-.filterHint{font-size:18rpx;color:#887969}
-.map{width:100%;height:0;flex:1;min-height:280rpx}
-.selected{background:#f9f4eb;border-top:5rpx solid #82442f;padding:13rpx 24rpx}
-.smallLabel{display:block;color:#82442f;letter-spacing:2rpx;font-size:17rpx}
-.selectedName{display:block;color:#35291f;font-size:28rpx;font-weight:700;margin:7rpx 0}
-.meta{display:block;color:#887969;font-size:21rpx;margin-top:4rpx}
-.actions{display:flex;gap:10rpx;margin-top:11rpx}
-.actions button{flex:1;margin:0;font-size:22rpx}
-.primary{color:#fff;background:#82442f}
-.secondary{color:#82442f;background:#f9f4eb;border:1rpx solid #82442f}
-.count{background:#f9f4eb;display:flex;justify-content:space-between;align-items:center;padding:15rpx 23rpx;font-size:21rpx;color:#887969}
-.expand{color:#82442f}
-.list{height:240rpx;background:#f9f4eb;flex-shrink:0}
-.item{display:flex;justify-content:space-between;align-items:center;border-top:1rpx solid #d8c7b5;padding:15rpx 23rpx}
-.info{flex:1;min-width:0}
-.venueName{display:block;font-size:24rpx;font-weight:700;color:#35291f;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
-.venueMeta{display:block;font-size:19rpx;color:#887969;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
-.arrow{font-size:34rpx;color:#82442f}
-.empty{padding:35rpx;font-size:23rpx;color:#887969;text-align:center}
+/* The map stays native and interactive; controls sit outside its native layer. */
+.layout { box-sizing: border-box; height: 100vh; display: flex; flex-direction: column; background: #F7F5F5; color: #242329; overflow: hidden; }
+.toolbar { flex-shrink: 0; background: #F7F5F5; padding: 16rpx 24rpx 18rpx; }
+.toolbarTitle { display: block; font-size: 34rpx; font-weight: 650; line-height: 1.4; margin-bottom: 14rpx; }
+.search { box-sizing: border-box; width: 100%; height: 88rpx; background: #FFFFFF; color: #242329; border: 1rpx solid #E6E6E8; border-radius: 44rpx; padding: 0 26rpx; font-size: 28rpx; box-shadow: 0 2rpx 10rpx rgba(20,20,25,.06); }
+.filterRow { display: flex; align-items: center; gap: 18rpx; margin-top: 14rpx; }
+.filter { box-sizing: border-box; display: flex; align-items: center; justify-content: center; min-height: 68rpx; font-size: 25rpx; color: #82442F; background: #FFFFFF; border: 1rpx solid #E6E6E8; padding: 10rpx 24rpx; border-radius: 40rpx; }
+.filterHint { flex: 1; font-size: 21rpx; color: #6F6D74; line-height: 1.4; }
+.map { width: 100%; height: 0; flex: 1; min-height: 280rpx; }
+.selected { flex-shrink: 0; background: #FFFFFF; border-top: 1rpx solid #E6E6E8; padding: 20rpx 26rpx 16rpx; }
+.selectedName { display: block; color: #242329; font-size: 32rpx; font-weight: 650; line-height: 1.4; }
+.meta { display: block; color: #6F6D74; font-size: 23rpx; margin-top: 6rpx; }
+.actions { display: flex; gap: 12rpx; margin-top: 14rpx; }
+.actions button { flex: 1; min-width: 0; margin: 0; min-height: 76rpx; line-height: 76rpx; font-size: 24rpx; border-radius: 14rpx; padding: 0 8rpx; }
+.actions .primary { color: #FFFFFF; background: #82442F; }
+.actions .secondary { color: #82442F; background: #FFFFFF; border: 1rpx solid #E6E6E8; }
+.count { flex-shrink: 0; background: #FFFFFF; display: flex; justify-content: space-between; align-items: center; gap: 16rpx; border-top: 1rpx solid #E6E6E8; padding: 18rpx 26rpx; font-size: 23rpx; color: #6F6D74; }
+.expand { flex-shrink: 0; color: #82442F; font-weight: 600; padding: 8rpx 0; }
+.list { height: 236rpx; background: #FFFFFF; flex-shrink: 0; }
+.item { box-sizing: border-box; display: flex; justify-content: space-between; align-items: center; min-height: 96rpx; border-top: 1rpx solid #E6E6E8; padding: 17rpx 26rpx; }
+.info { flex: 1; min-width: 0; }
+.venueName { display: block; font-size: 28rpx; font-weight: 600; color: #242329; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.venueMeta { display: block; font-size: 22rpx; color: #6F6D74; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; margin-top: 4rpx; }
+.arrow { font-size: 34rpx; color: #6F6D74; }
+.empty { padding: 36rpx 24rpx; font-size: 25rpx; color: #6F6D74; text-align: center; }

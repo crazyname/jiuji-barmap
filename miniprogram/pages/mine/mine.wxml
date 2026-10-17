@@ -1,27 +1,27 @@
 <view class="content-page jiuji-page theme-{{themeKey}} safe-bottom">
- <view class="content-head"><text class="jiuji-overline">JIUJI / YOUR JOURNAL</text><text class="content-heading jiuji-title">我的酒迹</text><text class="content-sub jiuji-muted">个人简介、足迹收藏和个性化外观。</text></view>
- <view class="content-item jiuji-card"><text class="content-kicker jiuji-overline">PROFILE / 本机资料</text>
+ <view class="content-head"><text class="content-heading jiuji-title">我的酒迹</text><text class="content-sub jiuji-muted">个人简介、足迹收藏和个性化外观。</text></view>
+ <view class="content-item jiuji-card"><text class="content-kicker jiuji-overline">本机资料</text>
   <text class="content-field-label jiuji-muted">昵称</text><input class="content-field jiuji-input" value="{{profile.nickname}}" maxlength="30" bindinput="editNick"/>
   <text class="content-field-label jiuji-muted">个人简介</text><textarea class="content-textarea jiuji-input" style="min-height:112rpx;" maxlength="180" value="{{profile.bio}}" bindinput="editBio" placeholder="写一句关于你的酒吧探索…"/>
   <button class="content-button jiuji-primary" bindtap="saveProfile">保存个人资料</button>
  </view>
  <view class="counts jiuji-card"><view><text class="count">{{favorites.length+savedRecipes.length+savedPosts.length}}</text><text>我的收藏</text></view><view><text class="count">{{recipesCount}}</text><text>调酒配方</text></view><view><text class="count">{{postsCount}}</text><text>分享笔记</text></view></view>
- <view class="content-item jiuji-card"><text class="content-kicker jiuji-overline">SAVED PLACES</text><text class="content-title jiuji-title">我的收藏</text>
+ <view class="content-item jiuji-card"><text class="content-kicker jiuji-overline">收藏内容</text><text class="content-title jiuji-title">我的收藏</text>
    <view wx:for="{{favorites}}" wx:key="id" class="profile-item jiuji-rule" data-id="{{item.id}}" bindtap="openFavorite"><text>{{item.name}}</text><text class="content-link">详情 ›</text></view>
    <view wx:for="{{savedRecipes}}" wx:key="id" class="profile-item jiuji-rule" data-id="{{item.id}}" bindtap="openSavedRecipe"><text>🍸 {{item.title}}</text><text class="content-link">配方 ›</text></view>
    <view wx:for="{{savedPosts}}" wx:key="id" class="profile-item jiuji-rule" bindtap="openSavedPost"><text>✎ {{item.title}}</text><text class="content-link">社区 ›</text></view>
    <text wx:if="{{!favorites.length && !savedRecipes.length && !savedPosts.length}}" class="content-note jiuji-muted">在酒吧详情、配方或社区笔记中点收藏，内容就会出现在这里。</text>
  </view>
- <view class="content-item jiuji-card"><text class="content-kicker jiuji-overline">LIKED NOTES</text><text class="content-title jiuji-title">我的点赞</text>
+ <view class="content-item jiuji-card"><text class="content-kicker jiuji-overline">点赞内容</text><text class="content-title jiuji-title">我的点赞</text>
    <view wx:for="{{likes}}" wx:key="id" class="profile-item jiuji-rule"><text>{{item.title}}</text><text class="jiuji-accent">♥</text></view>
    <text wx:if="{{!likes.length}}" class="content-note jiuji-muted">尚未点赞任何社区笔记。</text>
    <view class="content-foot"><text class="content-link" bindtap="goLikes">查看我点赞的帖子 →</text></view>
  </view>
- <view class="content-item jiuji-card"><text class="content-kicker jiuji-overline">RECENTLY VIEWED</text><text class="content-title jiuji-title">浏览记录</text>
+ <view class="content-item jiuji-card"><text class="content-kicker jiuji-overline">最近浏览</text><text class="content-title jiuji-title">浏览记录</text>
    <view wx:for="{{history}}" wx:key="key" class="profile-item jiuji-rule" data-id="{{item.id}}" data-kind="{{item.kind}}" bindtap="openHistory"><text>{{item.title}}</text><text class="content-link">›</text></view>
    <text wx:if="{{!history.length}}" class="content-note jiuji-muted">浏览过的酒吧和配方会在这里显示（仅保存最近 80 条）。</text>
  </view>
- <view class="content-item jiuji-card"><text class="content-kicker jiuji-overline">APPEARANCE / SETTINGS</text><text class="content-title jiuji-title">外观设置</text><text class="content-note jiuji-muted">主题仅影响应用界面，微信真实地图底图不变。</text>
+ <view class="content-item jiuji-card"><text class="content-kicker jiuji-overline">设置</text><text class="content-title jiuji-title">外观设置</text><text class="content-note jiuji-muted">主题仅影响应用界面，微信真实地图底图不变。</text>
   <view wx:for="{{themes}}" wx:key="id" class="theme-row jiuji-rule" data-theme="{{item.id}}" bindtap="chooseTheme"><view class="theme-swatch" style="background:{{item.accent}}"></view><text class="theme-name">{{item.label}}</text><text class="content-link">{{item.active?'✓ 使用中':'选择'}}</text></view>
  </view>
  <text class="content-footer jiuji-muted">个人信息、收藏、点赞和记录暂存于当前设备，不会自动上传云端。请勿在公开设备上存储敏感资料。</text>

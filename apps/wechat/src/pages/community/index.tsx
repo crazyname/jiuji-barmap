@@ -25,7 +25,7 @@ export default function CommunityPage() {
  setTitle('');setBody('')}
  const copy=(p:Post)=>Taro.setClipboardData({data:(p.type==='promo'?'【广告/商业推广】'+(p.sponsor||p.sponsorName||'')+'\n':'')+
  p.title+'\n'+p.body+'\n#酒迹 #JiujiBarMap'})
- return <View className='page'><Text className='kicker'>JIUJI / COMMUNITY</Text><Text className='title'>探店与品酒</Text>
+ return <View className='page'><Text className='title'>社区</Text>
  <Picker mode='selector' range={labels} value={type} onChange={e=>setType(Number(e.detail.value))}><View className='field'>{labels[type]}　⌄</View></Picker>
  <Input className='field' placeholder='标题' value={title} onInput={e=>setTitle(e.detail.value)}/>
  <Textarea className='field area' placeholder='写下体验' value={body} onInput={e=>setBody(e.detail.value)}/>

@@ -1,1 +1,12 @@
-.page{min-height:100vh;padding:30rpx 25rpx;background:#f4eddf}.kicker{display:block;color:#82442f;font-size:19rpx;letter-spacing:3rpx}.title{display:block;font-size:42rpx;font-weight:700;margin:12rpx 0 30rpx}.field{box-sizing:border-box;width:100%;background:#f9f4eb;border:1rpx solid #d8c7b5;border-radius:9rpx;padding:18rpx 20rpx;margin:14rpx 0;min-height:70rpx}.area{height:180rpx}.row{display:flex;justify-content:space-between;gap:15rpx;padding:25rpx 0;border-bottom:1rpx solid #d8c7b5;font-size:24rpx}.muted{color:#887969}
+/* Reusable light hierarchy for the recipe and community tabs. */
+.page { min-height: 100vh; box-sizing: border-box; padding: 32rpx 28rpx 80rpx; background: #F7F5F5; color: #242329; }
+.title { display: block; font-size: 46rpx; line-height: 1.3; font-weight: 650; margin: 4rpx 0 28rpx; }
+.kicker { display: none; }
+.field { box-sizing: border-box; width: 100%; color: #242329; background: #FFFFFF; border: 1rpx solid #E6E6E8; border-radius: 16rpx; padding: 20rpx 24rpx; margin: 0 0 16rpx; height: 88rpx; font-size: 28rpx; }
+.area { display: block; height: 220rpx; line-height: 1.5; }
+.page button { margin: 8rpx 0 30rpx; }
+.row { display: flex; justify-content: space-between; align-items: center; gap: 20rpx; min-height: 96rpx; box-sizing: border-box; padding: 20rpx 22rpx; border-bottom: 1rpx solid #E6E6E8; background: #FFFFFF; font-size: 29rpx; }
+.row:first-of-type { border-top: 1rpx solid #E6E6E8; }
+.row text:first-child { flex: 1; min-width: 0; }
+.muted { color: #6F6D74; font-size: 24rpx; }
+.row .muted { flex-shrink: 0; }
