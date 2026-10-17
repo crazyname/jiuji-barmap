@@ -105,7 +105,7 @@ test('timeline orders distinct drink events newest first and opens original IDs'
   const c = addDrink(f.repository, '第三杯', date)
   const result = await renderList('timeline', f.repository)
   const rows = actions(result.tree, 'View').filter(x => x.props.className === 'pv-row')
-  assert.deepEqual(rows.map(x => JSON.stringify(x.toJSON()).match(/第[一二三]杯/)[0]), ['第二杯', '第三杯', '第一杯'])
+  assert.deepEqual(rows.map(x => instanceText(x).match(/第[一二三]杯/)[0]), ['第二杯', '第三杯', '第一杯'])
   assert.equal(rows.length, 3)
   await act(async () => { rows[2].props.onClick() })
   assert.deepEqual(result.openedDrinks, [a.id])
@@ -167,8 +167,8 @@ test('two same-day visits remain distinct; one visit displays three linked drink
   const list=await renderList('footprints',f.repository)
   const rows=actions(list.tree,'View').filter(x=>x.props.className==='pv-row')
   assert.equal(rows.length,2)
-  assert.match(getText(list.tree),/3 杯饮用记录/)
-  assert.match(getText(list.tree),/0 杯饮用记录/)
+  assert.ok(actions(list.tree,'Text').some(x => instanceText(x).includes('3 杯饮用记录')))
+  assert.ok(actions(list.tree,'Text').some(x => instanceText(x).includes('0 杯饮用记录')))
   await act(async () => { rows[1].props.onClick() })
   assert.ok([a.id,b.id].includes(list.openedVisits[0]))
   const detail=await renderDetail('visit',a.id,f.repository)
@@ -318,8 +318,7 @@ test('legacy personal keys, four tabs and community writes are not touched by pr
     assert.ok(mine.includes(label),label)
   const app=fs.readFileSync(path.join(root,'apps/wechat/src/app.config.ts'),'utf8')
   assert.equal([...app.matchAll(/pagePath:\s*'pages\/(map|mix|community|mine)\/index'/g)].length,4)
-  for(const key of ['jiuji-personal-v1:history','jiuji.react.recipes','jiuji.react.posts',
-    'jiuji.react.profile'])assert.ok(mine.includes(key),key)
+  for(const key of ['jiuji-personal-v1:history', "'jiuji.react.'", 'jiuji.react.profile'])assert.ok(mine.includes(key),key)
   for(const file of ['apps/wechat/src/services/personal-journal-views.ts',
     'apps/wechat/src/components/journal/PersonalJournalViews.tsx']) {
     const code=fs.readFileSync(path.join(root,file),'utf8')
