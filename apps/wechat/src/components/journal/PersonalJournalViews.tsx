@@ -67,7 +67,7 @@ export function PersonalJournalList({ repository, mode, bars, refreshVersion = 0
         const shown = filterTimeline(data.drinks, { date: filterDate, context })
         return <View>
           <View className='pv-filters'>
-            <Picker mode='date' value={filterDate || '2026-01-01'}
+            <Picker mode='date' value={filterDate || new Date().toISOString().slice(0, 10)}
               onChange={event => setFilterDate(event.detail.value)}>
               <View className='pv-chip'>{filterDate || '全部日期'} ⌄</View>
             </Picker>
@@ -165,6 +165,7 @@ export function PersonalJournalDetail({ repository, recordId, mode, bars,
         else load()
       } catch (cause) {
         setError(viewFailure(cause).message)
+        setEditing(false)
         // Refresh latest revisions so stale edits are never silently retried.
         load()
       }
@@ -203,7 +204,14 @@ export function PersonalJournalDetail({ repository, recordId, mode, bars,
         <Text className='pv-muted'>{personalRatingLabel(drink.personalRating)}</Text>
         {drink.cocktailId ? <Text className='pv-muted'>关联酒款 ID：{drink.cocktailId}</Text> : null}
         {drink.recipeVariantId ? <Text className='pv-muted'>配方版本：{drink.recipeVariantId}</Text> : null}
+        {drink.contextDetails.bar?.barId ? <Text className='pv-muted'>饮用酒吧：
+          {bars.find(bar => bar.id === drink.contextDetails.bar?.barId)?.name || '已关联酒吧（资料待核实）'}</Text> : null}
         {drink.contextDetails.bar?.menuItem ? <Text className='pv-muted'>酒单：{drink.contextDetails.bar.menuItem}</Text> : null}
+        {drink.contextDetails.bar?.priceAmount !== undefined ? <Text className='pv-muted'>记录价格：
+          {drink.contextDetails.bar.priceAmount}</Text> : null}
+        {drink.contextDetails.home?.ingredientsNote ? <Text className='pv-muted'>配料：
+          {drink.contextDetails.home.ingredientsNote}</Text> : null}
+        {drink.photoRefs.length ? <Text className='pv-muted'>照片引用 {drink.photoRefs.length} 项 · 附件查看尚未接入</Text> : null}
         {drink.contextDetails.home?.preparationNote ? <Text className='pv-muted'>制作：{drink.contextDetails.home.preparationNote}</Text> : null}
         {drink.contextDetails.other?.placeNote ? <Text className='pv-muted'>场景：{drink.contextDetails.other.placeNote}</Text> : null}
         <Text className='pv-section'>个人感受</Text>

@@ -65,8 +65,12 @@ function addVisit(repo, when = date) {
 }
 function getText(tree) { return JSON.stringify(tree.toJSON()) }
 function actions(tree, type) { return tree.root.findAllByType(type) }
+function instanceText(instance) {
+  return typeof instance === 'string' ? instance :
+    (instance.children || []).map(instanceText).join('')
+}
 function button(tree, label) {
-  const item = actions(tree, 'Button').find(x => getText({toJSON:()=>x.toJSON()}).includes(label))
+  const item = actions(tree, 'Button').find(x => instanceText(x).includes(label))
   assert.ok(item, 'Missing button ' + label)
   return item
 }
@@ -268,7 +272,7 @@ test('unauthenticated views never reveal private rows, including on error retry'
   for(const [mode,recordId] of [['drink',drink.id],['visit',visit.id]]) {
     const detail=await renderDetail(mode,recordId,f.repository)
     assert.match(getText(detail.tree),/尚未登录/)
-    assert.equal(actions(detail.tree,'Button').some(x=>getText({toJSON:()=>x.toJSON()}).includes('删除')),false)
+    assert.equal(actions(detail.tree,'Button').some(x=>instanceText(x).includes('删除')),false)
     await act(async()=>{detail.tree.unmount()})
   }
 })
