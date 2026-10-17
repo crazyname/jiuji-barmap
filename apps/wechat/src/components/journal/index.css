@@ -1,0 +1,36 @@
+/* A 城市极简：轻量表单、足够的触控面积和键盘/底部安全区 */
+.journal-page { box-sizing: border-box; min-height: 100vh; background: #F7F5F5;
+  color: #242329; padding: 30rpx 26rpx calc(120rpx + env(safe-area-inset-bottom)); }
+.journal-heading { display: block; font-size: 44rpx; font-weight: 650; line-height: 1.35; }
+.journal-muted { display: block; margin: 9rpx 0 24rpx; font-size: 24rpx; color: #6F6D74; }
+.journal-card { padding: 28rpx 24rpx; border-radius: 20rpx; background: #FFFFFF;
+  border: 1rpx solid #E6E6E8; margin-bottom: 24rpx; }
+.journal-auth { padding: 22rpx 24rpx; background: #FFFFFF; color: #6F6D74;
+  border: 1rpx solid #E6E6E8; border-radius: 16rpx; margin-bottom: 22rpx;
+  line-height: 1.55; font-size: 23rpx; }
+.journal-auth-title { display: block; color: #82442F; font-weight: 650; font-size: 26rpx; margin-bottom: 8rpx; }
+.journal-label { display: block; font-size: 25rpx; font-weight: 600; margin: 22rpx 0 11rpx; }
+.journal-label:first-child { margin-top: 0; }
+.journal-required { color: #B42318; }
+.journal-input, .journal-picker { display: flex; align-items: center; box-sizing: border-box;
+  width: 100%; min-height: 84rpx; padding: 15rpx 22rpx; border-radius: 12rpx;
+  border: 1rpx solid #E6E6E8; background: #FFFFFF; color: #242329; font-size: 27rpx; }
+.journal-textarea { box-sizing: border-box; width: 100%; height: 186rpx; padding: 18rpx 22rpx;
+  border: 1rpx solid #E6E6E8; border-radius: 12rpx; color: #242329; font-size: 27rpx; }
+.journal-picker { color: #82442F; }
+.journal-hint { display: block; margin-top: 14rpx; margin-bottom: 18rpx; line-height: 1.5;
+  font-size: 22rpx; color: #6F6D74; }
+.journal-datetime { display: flex; gap: 16rpx; }
+.journal-date-field { flex: 1; min-width: 0; }
+.journal-segment { display: flex; gap: 10rpx; }
+.journal-option { display: flex; align-items: center; justify-content: center; flex: 1; min-width: 0;
+  min-height: 76rpx; border-radius: 12rpx; border: 1rpx solid #E6E6E8;
+  background: #FFFFFF; color: #6F6D74; font-size: 23rpx; }
+.journal-option-on { border-color: #82442F; color: #FFFFFF; background: #82442F; }
+.journal-error { display: block; margin: 6rpx 0 18rpx; font-size: 24rpx;
+  color: #B42318; line-height: 1.5; }
+.journal-saved { display: block; color: #237A57; margin: 10rpx 0 20rpx; font-size: 24rpx; }
+.journal-main, .journal-secondary { width: 100%; box-sizing: border-box; margin: 12rpx 0;
+  min-height: 88rpx; border-radius: 14rpx; font-size: 27rpx; }
+.journal-main { background: #82442F; color: #FFFFFF; }
+.journal-secondary { background: #FFFFFF; color: #82442F; border: 1rpx solid #E6E6E8; }
