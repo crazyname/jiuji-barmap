@@ -4,7 +4,8 @@ import Taro, { useDidShow } from '@tarojs/taro'
 import { favoriteIds, getVenues, priceText, ratingText, STATUS_LABEL, STATUS_OPTIONS,
   toggleFavorite, updateVenueLocation, validPoint, Venue } from '../../utils/venues'
 import { filterVenues, hasTrustedLocation, INITIAL_VIEW, locationErrorMessage,
-  transitionView, MapView } from './map-state'
+  transitionView } from './map-state'
+import type { MapView } from './map-state'
 import { refreshSites } from '../../services/sync'
 import './index.css'
 

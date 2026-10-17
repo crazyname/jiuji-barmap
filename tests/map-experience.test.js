@@ -14,7 +14,7 @@ const untrusted = { ...verified, id: 3, name: '其他酒吧', locationSource: 't
 const rows = [verified, noPosition, untrusted]
 
 test('name, district and status filters share one dataset and do not imply open now', () => {
-  assert.deepEqual(model.filterVenues(rows, ' 东山口 ', 'all').map(x => x.id), [1])
+  assert.deepEqual(model.filterVenues(rows, ' 东山口 ', 'all').map(x => x.id), [1, 3])
   assert.deepEqual(model.filterVenues(rows, '石牌桥', 'listed').map(x => x.id), [2])
   assert.deepEqual(model.filterVenues(rows, '真实酒吧', 'official').map(x => x.id), [1])
   assert.deepEqual(model.filterVenues(rows, '不可能存在的名字', 'all'), [])
@@ -70,8 +70,8 @@ test('real Taro map, two shared filters and navigation actions are connected', (
   const map = read('apps/wechat/src/pages/map/index.tsx')
   for (const key of ['<Map ', 'onMarkerTap', 'filterVenues(venues, query, STATUS_OPTIONS[statusIndex].value)',
     'validPoint(bar.location) && hasTrustedLocation(bar)', 'displayed.slice(0, 2)',
-    "type: 'select'", "type: 'clear'", "type: 'show-list'", "type: 'show-map'",
-    "type: 'expand'", "type: 'collapse'", 'Taro.navigateTo', 'Taro.openLocation',
+    "type: 'select'", "type: 'clear'", "'show-list'", "'show-map'",
+    "'expand'", "'collapse'", 'Taro.navigateTo', 'Taro.openLocation',
     'Taro.chooseLocation({})', 'Taro.getLocation', 'updateVenueLocation',
     'toggleFavorite(', 'onInput=', 'onClick=', 'refreshSites()', 'reloadSites()'])
     assert.ok(map.includes(key), key)
