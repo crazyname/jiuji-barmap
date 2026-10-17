@@ -1,0 +1,7 @@
+.auth-panel { margin-top: 20rpx; padding: 26rpx 22rpx; border: 1rpx solid #E6E6E8;
+  border-radius: 18rpx; background: #FFFFFF; color: #242329; }
+.auth-title { display: block; font-size: 28rpx; font-weight: 650; }
+.auth-detail { display: block; margin-top: 10rpx; font-size: 23rpx; color: #6F6D74; line-height: 1.6; }
+.auth-primary { background: #82442F; color: #FFFFFF; margin-top: 20rpx; font-size: 26rpx; border-radius: 12rpx; }
+.auth-secondary { background: #FFFFFF; color: #82442F; margin-top: 20rpx; font-size: 26rpx;
+  border: 1rpx solid #E6E6E8; border-radius: 12rpx; }

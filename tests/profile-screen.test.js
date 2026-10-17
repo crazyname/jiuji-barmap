@@ -15,6 +15,12 @@ test('WeChat profile exposes user content rather than API configuration',()=>{
 })
 test('WeChat profile does not pretend to complete real account login',()=>{
  const page=read('apps/wechat/src/pages/mine/index.tsx')
- assert.match(page,/账号登录即将开放/)
+ assert.match(page,/AuthPanel/)
+ assert.match(page,/useAuthState/)
  assert.match(page,/本机资料/)
+ const config=read('apps/wechat/src/config/auth.ts')
+ assert.match(config,/AUTH_API_ENABLED = false/)
+ const auth=read('apps/wechat/src/components/auth/AuthPanel.tsx')
+ assert.match(auth,/微信登录服务|登录服务尚未正式开放|认证服务尚未正式开放/)
+ assert.match(auth,/安全退出/)
 })
