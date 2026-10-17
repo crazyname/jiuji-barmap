@@ -326,3 +326,10 @@ test('legacy personal keys, four tabs and community writes are not touched by pr
       assert.ok(!code.includes(operation),file+' contains '+operation)
   }
 })
+
+test('PR-05 private-view stylesheet is loaded by Taro and date Picker defaults to local day', () => {
+  const source = fs.readFileSync(path.join(root,
+    'apps/wechat/src/components/journal/PersonalJournalViews.tsx'), 'utf8')
+  assert.match(source, /import ['"]\.\/personal-views\.css['"]/)
+  assert.match(source, /filterDate \|\| dateKey\(new Date\(\)\.toISOString\(\)\)/)
+})

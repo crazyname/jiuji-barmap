@@ -2,11 +2,12 @@ import React, { useEffect, useState } from 'react'
 import { Button, Input, Picker, Text, Textarea, View } from '@tarojs/components'
 import type { PrivateJournalRepository } from '../../../../../packages/core/src/journal-contracts'
 import type { DrinkEntry, VisitSession } from '../../../../../packages/core/src/models'
-import { readTimeline, readFootprints, readArchive, filterTimeline, dateLabel,
+import { readTimeline, readFootprints, readArchive, filterTimeline, dateKey, dateLabel,
   personalRatingLabel, noteSummary, CONTEXT_LABEL, placeLabel, linkedVisit, viewFailure,
   readPrivateView } from '../../services/personal-journal-views'
 import type { PrivateViewResult, TimelineData, FootprintsData, ArchiveData } from '../../services/personal-journal-views'
 import './index.css'
+import './personal-views.css'
 
 type Mode = 'timeline' | 'footprints' | 'cocktails'
 type Navigate = { onOpenDrink: (id: string) => void; onOpenVisit: (id: string) => void }
@@ -67,7 +68,7 @@ export function PersonalJournalList({ repository, mode, bars, refreshVersion = 0
         const shown = filterTimeline(data.drinks, { date: filterDate, context })
         return <View>
           <View className='pv-filters'>
-            <Picker mode='date' value={filterDate || new Date().toISOString().slice(0, 10)}
+            <Picker mode='date' value={filterDate || dateKey(new Date().toISOString())}
               onChange={event => setFilterDate(event.detail.value)}>
               <View className='pv-chip'>{filterDate || '全部日期'} ⌄</View>
             </Picker>
