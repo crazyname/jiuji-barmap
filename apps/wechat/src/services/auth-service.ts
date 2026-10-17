@@ -5,8 +5,9 @@ import type { AuthAccount, AuthDependencies, AuthState, MeResponse, TokenPair } 
 
 type Listener = (state: AuthState) => void
 export class AuthError extends Error {
-  constructor(readonly code: 'UNAVAILABLE' | 'LOGIN_FAILED' | 'REJECTED' | 'EXPIRED' | 'BUSY',
-    message: string) { super(message); this.name = 'AuthError' }
+  readonly code: 'UNAVAILABLE' | 'LOGIN_FAILED' | 'REJECTED' | 'EXPIRED' | 'BUSY'
+  constructor(code: 'UNAVAILABLE' | 'LOGIN_FAILED' | 'REJECTED' | 'EXPIRED' | 'BUSY',
+    message: string) { super(message); this.name = 'AuthError'; this.code = code }
 }
 function nonempty(value: unknown): value is string {
   return typeof value === 'string' && value.trim().length > 0
@@ -41,7 +42,8 @@ export class AuthService {
   private listeners = new Set<Listener>()
   private serial = 0
   private busy = false
-  constructor(private readonly deps: AuthDependencies) {}
+  private readonly deps: AuthDependencies
+  constructor(deps: AuthDependencies) { this.deps = deps }
   private emit(next: Omit<AuthState, 'epoch'>) {
     this.state = { ...next, epoch: this.state.epoch + 1 }
     for (const listener of [...this.listeners]) listener(this.getState())
