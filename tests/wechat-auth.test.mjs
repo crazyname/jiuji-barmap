@@ -337,3 +337,53 @@ test('memory-only state and legacy data keys are not modified by authorization',
   await f.service.signOut()
   assert.equal(db.size,0)
 })
+
+
+test('actual Taro adapter calls login, HTTPS exchange and bearer-authenticated /me', async () => {
+  const calls=[]
+  const credentials={
+    accessToken:'mock-server-access-12345',refreshToken:'mock-server-refresh-12345',
+    accessExpiresAt:new Date(Date.now()+300_000).toISOString(),sessionId:'mock-session-1'
+  }
+  const api=loadComponent('apps/wechat/src/services/wechat-auth.ts',{
+    '@tarojs/taro':{__esModule:true,default:{
+      login:async()=>({code:'weapp-short-code'}),
+      request:async req=>{
+        calls.push({url:req.url,method:req.method,header:req.header,data:req.data})
+        if(req.url.endsWith('/v1/auth/wechat/exchange'))
+          return {statusCode:200,data:credentials}
+        if(req.url.endsWith('/v1/me')) return {statusCode:200,data:{
+          account:{id:'server-user',displayName:'已验证用户',bindings:{
+            wechat:true,phone:false,providers:['wechat']}},
+          session:{id:'mock-session-1',revoked:false,
+            expiresAt:new Date(Date.now()+300_000).toISOString()}
+        }}
+        throw Error('Unexpected route')
+      }
+    }},
+    '../config/auth':{AUTH_API_ENABLED:true,AUTH_API_BASE_URL:'https://auth.example.test'},
+    './auth-service':{AuthService}
+  })
+  await api.authService.signIn()
+  assert.equal(api.authService.verifiedIdentity().userId,'server-user')
+  assert.equal(calls.length,2)
+  assert.deepEqual(calls[0].data,{code:'weapp-short-code'})
+  assert.equal(calls[0].url,'https://auth.example.test/v1/auth/wechat/exchange')
+  assert.equal(calls[1].url,'https://auth.example.test/v1/me')
+  assert.equal(calls[1].header.Authorization,'Bearer mock-server-access-12345')
+  assert.equal(calls[0].header.Authorization,undefined)
+})
+
+test('actual Taro adapter rejects HTTP 401 without trusting client response data', async () => {
+  const api=loadComponent('apps/wechat/src/services/wechat-auth.ts',{
+    '@tarojs/taro':{__esModule:true,default:{
+      login:async()=>({code:'temporary'}),
+      request:async()=>({statusCode:401,data:{id:'forged-id'}})
+    }},
+    '../config/auth':{AUTH_API_ENABLED:true,AUTH_API_BASE_URL:'https://auth.example.test'},
+    './auth-service':{AuthService}
+  })
+  await api.authService.signIn()
+  assert.equal(api.authService.getState().status,'error')
+  assert.equal(api.authService.verifiedIdentity(),null)
+})
