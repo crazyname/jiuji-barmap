@@ -26,6 +26,14 @@
     "apps/wechat/src/pages/journal-drink/index.tsx",
     "apps/wechat/src/pages/journal-visit/index.tsx",
     "apps/wechat/src/custom-tab-bar/index.tsx",
-    "apps/wechat/src/utils/custom-tabbar.ts"
+    "apps/wechat/src/utils/custom-tabbar.ts",
+    "apps/wechat/src/services/personal-journal-views.ts",
+    "apps/wechat/src/components/journal/PersonalJournalViews.tsx",
+    "apps/wechat/src/pages/journal-views/JournalPages.tsx",
+    "apps/wechat/src/pages/journal-timeline/index.tsx",
+    "apps/wechat/src/pages/journal-footprints/index.tsx",
+    "apps/wechat/src/pages/journal-cocktails/index.tsx",
+    "apps/wechat/src/pages/journal-drink-detail/index.tsx",
+    "apps/wechat/src/pages/journal-visit-detail/index.tsx"
   ]
 }
