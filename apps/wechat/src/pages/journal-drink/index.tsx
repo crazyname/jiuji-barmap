@@ -2,12 +2,15 @@ import React, { useEffect, useState } from 'react'
 import { Text, View } from '@tarojs/components'
 import Taro, { useRouter } from '@tarojs/taro'
 import DrinkEditor from '../../components/journal/DrinkEditor'
-import { createLockedWeChatJournalRepository } from '../../services/private-journal'
+import { createSessionJournalRepository } from '../../services/private-journal'
+import { authService } from '../../services/wechat-auth'
+import { useAuthState } from '../../utils/use-auth-state'
 import { getVenues } from '../../utils/venues'
 
 // The production binding stays fail-closed. No client-supplied identity is accepted.
-const repository = createLockedWeChatJournalRepository()
+const repository = createSessionJournalRepository(authService)
 export default function JournalDrinkPage() {
+  const auth = useAuthState(authService)
   const router = useRouter()
   const [dirty, setDirty] = useState(false)
   const incoming = typeof router.params.visitId === 'string' ? router.params.visitId : null
@@ -29,7 +32,8 @@ export default function JournalDrinkPage() {
     await Taro.navigateBack()
   }
   return <View>
-    <DrinkEditor repository={repository} authenticated={false} venues={getVenues().map(bar => ({
+    <DrinkEditor key={(auth.account?.id || 'guest') + auth.epoch} repository={repository}
+      authenticated={auth.status === 'authenticated' && !!authService.verifiedIdentity()} venues={getVenues().map(bar => ({
       id: bar.id, name: bar.name
     }))} catalog={[]} initialVisitSessionId={incoming} onDirtyChange={setDirty}
       onCancel={value => void leave(value)}

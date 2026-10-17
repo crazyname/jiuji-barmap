@@ -2,12 +2,15 @@ import React, { useEffect, useState } from 'react'
 import { Button, Text, View } from '@tarojs/components'
 import Taro from '@tarojs/taro'
 import VisitEditor from '../../components/journal/VisitEditor'
-import { createLockedWeChatJournalRepository } from '../../services/private-journal'
+import { createSessionJournalRepository } from '../../services/private-journal'
+import { authService } from '../../services/wechat-auth'
+import { useAuthState } from '../../utils/use-auth-state'
 import { getVenues } from '../../utils/venues'
 
 // No fake verified principal: successful creation is reachable only in repository-injected tests.
-const repository = createLockedWeChatJournalRepository()
+const repository = createSessionJournalRepository(authService)
 export default function JournalVisitPage() {
+  const auth = useAuthState(authService)
   const [dirty, setDirty] = useState(false)
   const [createdVisitId, setCreatedVisitId] = useState<string | null>(null)
   useEffect(() => {
@@ -28,7 +31,8 @@ export default function JournalVisitPage() {
     await Taro.navigateBack()
   }
   return <View>
-    <VisitEditor repository={repository} authenticated={false} venues={getVenues().map(bar => ({
+    <VisitEditor key={(auth.account?.id || 'guest') + auth.epoch} repository={repository}
+      authenticated={auth.status === 'authenticated' && !!authService.verifiedIdentity()} venues={getVenues().map(bar => ({
       id: bar.id, name: bar.name
     }))} onDirtyChange={setDirty} onCancel={value => void leave(value)}
       onSaved={visit => { setDirty(false); setCreatedVisitId(visit.id) }} />
