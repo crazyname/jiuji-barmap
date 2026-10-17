@@ -8,7 +8,10 @@ export default defineAppConfig({
     navigationBarTextStyle: 'black',
     backgroundColor: '#F7F5F5'
   },
-  requiredPrivateInfos: ['chooseLocation'],
+  permission: {
+    'scope.userLocation': { desc: '仅在点击定位或手动选点时获取当前位置' }
+  },
+  requiredPrivateInfos: ['chooseLocation', 'getLocation'],
   tabBar: {
     color: '#6F6D74',
     selectedColor: '#82442F',
