@@ -1,6 +1,7 @@
 export default defineAppConfig({
   pages: [
-    'pages/map/index', 'pages/mix/index', 'pages/community/index', 'pages/mine/index', 'pages/venue/index'
+    'pages/map/index', 'pages/mix/index', 'pages/community/index', 'pages/mine/index', 'pages/venue/index',
+    'pages/journal-drink/index', 'pages/journal-visit/index'
   ],
   window: {
     navigationBarTitleText: '酒迹',
@@ -13,6 +14,7 @@ export default defineAppConfig({
   },
   requiredPrivateInfos: ['chooseLocation', 'getLocation'],
   tabBar: {
+    custom: true,
     color: '#6F6D74',
     selectedColor: '#82442F',
     backgroundColor: '#FFFFFF',

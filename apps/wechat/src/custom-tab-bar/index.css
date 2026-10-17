@@ -1,0 +1,12 @@
+.jiuji-tab-bar {
+  display: flex; align-items: center; justify-content: space-around;
+  width: 100%; box-sizing: border-box; height: 112rpx;
+  background: #FFFFFF; border-top: 1rpx solid #E6E6E8; color: #6F6D74;
+}
+.jiuji-tab-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; min-width: 0; height: 104rpx; }
+.jiuji-tab-icon { width: 43rpx; height: 43rpx; }
+.jiuji-tab-label { font-size: 21rpx; margin-top: 4rpx; color: #6F6D74; }
+.jiuji-tab-label.is-active { color: #82442F; }
+.jiuji-tab-add { flex: 1; min-width: 0; height: 104rpx; display: flex; align-items: center; justify-content: center; flex-direction: column; }
+.jiuji-tab-add-circle { display: flex; justify-content: center; align-items: center; width: 70rpx; height: 70rpx; border-radius: 50%; background: #82442F; color: #FFFFFF; font-size: 43rpx; line-height: 1; }
+.jiuji-tab-add-label { font-size: 19rpx; color: #82442F; margin-top: 1rpx; }
