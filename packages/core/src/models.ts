@@ -22,3 +22,56 @@ export function searchBars<T extends Pick<Bar, 'name' | 'station' | 'status'>>(b
   return bars.filter(bar => (!status || bar.status === status) &&
     (!needle || (bar.name + ' ' + bar.station).toLocaleLowerCase().includes(needle)))
 }
+
+
+// JR-001..008: private drink facts and private visit sessions are separate entities.
+// Knowledge-base IDs are optional references, never automatically created records.
+export type DrinkContextKind = 'bar' | 'home' | 'other'
+export type PrivateVisibility = 'private'
+export interface DrinkContextDetails {
+  bar?: { menuItem?: string; priceAmount?: number }
+  home?: { preparationNote?: string; ingredientsNote?: string }
+  other?: { placeNote?: string }
+}
+export interface DrinkEntry {
+  id: string
+  ownerUserId: string
+  drinkLabel: string
+  cocktailId: string | null
+  recipeVariantId: string | null
+  visitSessionId: string | null
+  consumedAt: string
+  contextKind: DrinkContextKind
+  photoRefs: string[]
+  note: string | null
+  personalRating: number | null
+  contextDetails: DrinkContextDetails
+  visibility: PrivateVisibility
+  createdAt: string
+  updatedAt: string
+  revision: number
+  clientMutationId: string
+}
+export interface VisitSession {
+  id: string
+  ownerUserId: string
+  barId: number | null
+  placeLabel: string | null
+  occurredAt: string
+  note: string | null
+  visibility: PrivateVisibility
+  createdAt: string
+  updatedAt: string
+  revision: number
+  clientMutationId: string
+}
+export type NewDrinkEntry = Pick<DrinkEntry, 'drinkLabel' | 'consumedAt' | 'contextKind'> &
+  Partial<Pick<DrinkEntry, 'cocktailId' | 'recipeVariantId' | 'visitSessionId' |
+    'photoRefs' | 'note' | 'personalRating' | 'contextDetails'>>
+export type NewVisitSession = Pick<VisitSession, 'occurredAt'> &
+  Partial<Pick<VisitSession, 'barId' | 'placeLabel' | 'note'>>
+export type DrinkEntryChanges = Partial<Pick<DrinkEntry, 'drinkLabel' | 'cocktailId' |
+  'recipeVariantId' | 'consumedAt' | 'contextKind' | 'photoRefs' | 'note' |
+  'personalRating' | 'contextDetails'>>
+export type VisitSessionChanges = Partial<Pick<VisitSession, 'barId' | 'placeLabel' |
+  'occurredAt' | 'note'>>

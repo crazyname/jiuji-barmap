@@ -22,6 +22,7 @@
     "sites:exports:check": "node scripts/import-sites-export.cjs --check",
     "sync:generate": "node scripts/generate-sync-core.cjs",
     "sync:check": "node scripts/generate-sync-core.cjs --check",
-    "sites:probe": "node scripts/probe-sites-api.cjs"
+    "sites:probe": "node scripts/probe-sites-api.cjs",
+    "test:journal": "node --experimental-strip-types --test tests/private-journal.test.mjs"
   }
 }
