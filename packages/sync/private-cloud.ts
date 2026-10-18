@@ -167,13 +167,20 @@ export class CloudJournalCoordinator {
       const index=rows.findIndex(x=>x.id===id)
       if(kind==='drink')d.drinks[index]=next as DrinkEntry
       else d.visits[index]=next as VisitSession
-      if(created) {
+      if(created && created.status!=='syncing') {
         const original=d.operations.find(o=>o.opId===created.opId)!
-        // Edits before first upload fold into the original create; stable mutationId.
+        // Edits BEFORE an upload begins fold into the original stable mutation.
         if(action==='link') original.payload.visitSessionId=patch.visitSessionId
         else Object.assign(original.payload,copy(patch))
         original.status='pending'
-      } else d.operations.push(this.op(kind,action,id,copy(patch),expectedRevision))
+      } else {
+        // If the create request is ALREADY in flight, never rewrite its payload:
+        // a delayed server ACK would otherwise erase this newer local edit.
+        // The subsequent update applies to the new server revision 1.
+        const expected=created ? 1+d.operations.filter(o=>o.localId===id&&
+          o.action!=='create').length : expectedRevision
+        d.operations.push(this.op(kind,action,id,copy(patch),expected))
+      }
     })
     return copy(next)
   }
@@ -194,12 +201,20 @@ export class CloudJournalCoordinator {
     const row=this.getRow(kind,id)
     id=row.id
     if(row.revision!==expectedRevision)throw new CloudSyncError('CONFLICT','本机版本冲突')
+    if(this.active().operations.some(o=>o.localId===id&&o.status==='conflict'))
+      throw new CloudSyncError('CONFLICT','请先解决服务器冲突')
     this.update(d=>{
       const queue=d.operations
       const unsent=queue.find(o=>o.kind===kind&&o.localId===id&&o.action==='create')
-      if(unsent) {
+      if(unsent && unsent.status!=='syncing') {
         d.operations=queue.filter(o=>o.localId!==id)
-      }else d.operations.push(this.op(kind,'delete',id,{},expectedRevision))
+      }else {
+        // A create in flight may already have committed on the server.
+        // Keep a dependent deletion instead of cancelling its idempotent ACK.
+        const expected=unsent ? 1+queue.filter(o=>o.localId===id&&
+          o.action!=='create').length : expectedRevision
+        d.operations.push(this.op(kind,'delete',id,{},expected))
+      }
       if(kind==='drink')d.drinks=d.drinks.filter(x=>x.id!==id)
       else {
         d.visits=d.visits.filter(x=>x.id!==id)
@@ -239,8 +254,9 @@ export class CloudJournalCoordinator {
       groupDrinksByCocktail:():CocktailArchiveGroup[]=>{
         const groups=new Map<string,CocktailArchiveGroup>()
         for(const entry of cloud.active().drinks) {
-          const label=entry.drinkLabel.trim()
-          const groupKey=entry.cocktailId?'catalog:'+entry.cocktailId:'free:'+label.toLocaleLowerCase()
+          const label=entry.drinkLabel
+          const groupKey=entry.cocktailId!==null?'cocktail:'+entry.cocktailId:
+            'custom:'+entry.drinkLabel.normalize('NFKC').trim().toLocaleLowerCase()
           if(!groups.has(groupKey))groups.set(groupKey,{
             key:groupKey,label,cocktailId:entry.cocktailId,entries:[]})
           groups.get(groupKey)!.entries.push(copy(entry))
@@ -412,6 +428,10 @@ export class CloudJournalCoordinator {
           else s.visits[index]=row.remote as VisitSession
         }else if(row.kind==='drink')s.drinks.splice(index,1)
         else s.visits.splice(index,1)
+      }else if(row.remote){
+        // Recover a server record when the offline draft was a deletion.
+        if(row.kind==='drink')s.drinks.push(row.remote as DrinkEntry)
+        else s.visits.push(row.remote as VisitSession)
       }
       s.error=null
     })
