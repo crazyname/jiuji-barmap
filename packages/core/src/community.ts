@@ -40,9 +40,10 @@ export interface CommunityPublisher {
 export interface CommunityIdentity { verifiedUserId():string|null }
 export interface CommunityStorage { read(key:string):unknown; write(key:string,value:unknown):void }
 export class CommunityError extends Error {
-  constructor(readonly code:'AUTH_REQUIRED'|'INVALID'|'STORAGE'|'NOT_FOUND'|
-    'CONFLICT'|'PUBLISH_UNAVAILABLE'|'SERVER_REJECTED',message:string) {
-    super(message);this.name='CommunityError'
+  readonly code:'AUTH_REQUIRED'|'INVALID'|'STORAGE'|'NOT_FOUND'|
+    'CONFLICT'|'PUBLISH_UNAVAILABLE'|'SERVER_REJECTED'
+  constructor(code:CommunityError['code'],message:string) {
+    super(message);this.name='CommunityError';this.code=code
   }
 }
 export const COMMUNITY_DRAFT_PREFIX='jiuji.community.drafts.v1:'
