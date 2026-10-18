@@ -19,6 +19,8 @@ jobs:
         run: npm ci --ignore-scripts
       - name: Validate repository and contracts
         run: npm run check
+      - name: Execute private backend HTTP and real SQLite integration
+        run: npm run test:backend
       - name: Check migration gates
         run: npm run migration:status
   wechat-taro-build:
