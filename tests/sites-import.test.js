@@ -38,6 +38,8 @@ test('React demos render Sites recipes and sponsored posts without auto-uploadin
  const mix=fs.readFileSync(path.join(root,'apps/wechat/src/pages/mix/index.tsx'),'utf8');
  const community=fs.readFileSync(path.join(root,'apps/wechat/src/pages/community/index.tsx'),'utf8');
  assert.match(mix,/demoRecipes/);
+ assert.match(mix,/未核实/);
+ assert.doesNotMatch(mix,/queueRemoteUpsert\(/);
  assert.match(community,/demoPosts/);
  assert.match(community,/sponsorName/);
  const content=data('apps/wechat/src/data/sites-test.json');

@@ -30,6 +30,8 @@
     "test:backend": "node --test --experimental-sqlite apps/private-api/tests/*.test.mjs",
     "test:cloud": "node --experimental-strip-types --experimental-sqlite --test apps/private-api/tests/cloud-sync.test.mjs",
     "test:cloud-ui": "node --experimental-strip-types --test tests/cloud-journal-ui.test.mjs",
-    "test:hardening": "node --experimental-strip-types --test tests/private-sync-hardening.test.mjs"
+    "test:hardening": "node --experimental-strip-types --test tests/private-sync-hardening.test.mjs",
+    "cocktails:check": "node --experimental-strip-types scripts/validate-cocktail-import.mjs",
+    "test:cocktails": "node --experimental-strip-types --test tests/cocktail-knowledge.test.mjs tests/cocktail-knowledge-ui.test.mjs"
   }
 }

@@ -7,6 +7,7 @@ import { CloudJournalStatus } from '../../components/journal/CloudJournalStatus'
 import { authService } from '../../services/wechat-auth'
 import { useAuthState } from '../../utils/use-auth-state'
 import { getVenues } from '../../utils/venues'
+import { knowledgeOptions } from '../../services/cocktail-knowledge'
 
 // The production binding stays fail-closed. No client-supplied identity is accepted.
 const repository = privateMirrorRepository
@@ -41,7 +42,7 @@ export default function JournalDrinkPage() {
       authenticated={auth.status === 'authenticated' && !!authService.verifiedIdentity()}
       saveStatusLabel='已保存到当前设备，待同步' venues={getVenues().map(bar => ({
       id: bar.id, name: bar.name
-    }))} catalog={[]} initialVisitSessionId={incoming} onDirtyChange={setDirty}
+    }))} catalog={knowledgeOptions} initialVisitSessionId={incoming} onDirtyChange={setDirty}
       onCancel={value => void leave(value)}
       onSaved={() => {
         void privateCloud.sync()

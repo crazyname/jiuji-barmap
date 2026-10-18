@@ -47,6 +47,12 @@
     "packages/sync/private-cloud.ts",
     "apps/wechat/src/services/private-cloud.ts",
     "apps/wechat/src/components/journal/CloudJournalStatus.tsx",
-    "packages/sync/recoverable-cloud-storage.ts"
+    "packages/sync/recoverable-cloud-storage.ts",
+    "packages/core/src/cocktails.ts",
+    "apps/wechat/src/services/cocktail-knowledge.ts",
+    "apps/wechat/src/components/cocktails/CocktailKnowledgeView.tsx",
+    "apps/wechat/src/pages/mix/index.tsx",
+    "apps/wechat/src/pages/cocktail-detail/index.tsx",
+    "apps/wechat/src/pages/recipe-variant/index.tsx"
   ]
 }

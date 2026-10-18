@@ -1,0 +1,14 @@
+.kb-page{background:#F7F5F5;min-height:100vh;padding:32rpx 30rpx;color:#242329}
+.kb-heading{font-size:40rpx;font-weight:650;margin-bottom:18rpx}
+.kb-subtitle{display:block;color:#6F6D74;font-size:25rpx;margin-bottom:18rpx}
+.kb-search{background:#FFFFFF;border:1rpx solid #E6E6E8;border-radius:10rpx;padding:19rpx 20rpx;margin-bottom:18rpx;font-size:28rpx}
+.kb-row{display:flex;flex-direction:column;background:#FFFFFF;border-bottom:1rpx solid #E6E6E8;padding:24rpx 20rpx;gap:6rpx}
+.kb-title{display:block;font-size:32rpx;font-weight:600}
+.kb-meta{display:block;color:#6F6D74;font-size:24rpx;line-height:1.55}
+.kb-status{display:block;color:#82442F;font-size:25rpx;margin:12rpx 0}
+.kb-section{display:block;font-size:29rpx;font-weight:600;margin:26rpx 0 15rpx}
+.kb-ingredient,.kb-step{display:block;background:#FFFFFF;padding:15rpx 20rpx;border-bottom:1rpx solid #E6E6E8;font-size:27rpx;line-height:1.5}
+.kb-source{display:block;color:#82442F;font-size:22rpx;word-break:break-all}
+.kb-empty,.kb-warning{display:block;padding:26rpx 12rpx;color:#6F6D74;font-size:26rpx}
+.kb-back{background:#FFFFFF;color:#82442F;font-size:26rpx;margin:0 0 25rpx;text-align:left}
+.kb-hint{display:block;color:#6F6D74;font-size:22rpx;margin:20rpx 0 35rpx}
