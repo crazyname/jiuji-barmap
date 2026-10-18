@@ -61,6 +61,7 @@ export function createRecoverableCloudStorage(raw:RawPrivateStorage):CloudStorag
   return {
     repair(key){
       const {primary,recovery}=slots(key)
+      if(primary.empty && recovery.empty)return
       if(!primary.valid && !recovery.valid)throw storageError()
       // Do not destroy unknown raw bytes: quarantine them BEFORE replacement.
       // Repair is only called through CloudJournalCoordinator.recoverStorage(),
