@@ -216,7 +216,7 @@ export class CloudJournalCoordinator {
       const index=rows.findIndex(x=>x.id===id)
       if(kind==='drink')d.drinks[index]=next as DrinkEntry
       else d.visits[index]=next as VisitSession
-      if(created && created.status!=='syncing') {
+      if(created && !created.uncertain && created.status!=='syncing') {
         const original=d.operations.find(o=>o.opId===created.opId)!
         // Edits BEFORE an upload begins fold into the original stable mutation.
         if(action==='link') original.payload.visitSessionId=patch.visitSessionId
@@ -255,7 +255,7 @@ export class CloudJournalCoordinator {
     this.update(d=>{
       const queue=d.operations
       const unsent=queue.find(o=>o.kind===kind&&o.localId===id&&o.action==='create')
-      if(unsent && unsent.status!=='syncing') {
+      if(unsent && !unsent.uncertain && unsent.status!=='syncing') {
         d.operations=queue.filter(o=>o.localId!==id)
       }else {
         // A create in flight may already have committed on the server.
