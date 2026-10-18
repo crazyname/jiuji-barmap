@@ -97,6 +97,7 @@ export class CloudJournalCoordinator {
     const owner=this.owner()
     if(this.state?.ownerUserId!==owner) {
       this.serial++
+      this.running=null
       let saved:unknown
       try {saved=this.deps.storage.read(key(owner))}
       catch {throw new CloudSyncError('STORAGE','设备存储读取失败')}
@@ -269,7 +270,7 @@ export class CloudJournalCoordinator {
       },
       groupDrinksByCocktail:():CocktailArchiveGroup[]=>{
         const groups=new Map<string,CocktailArchiveGroup>()
-        for(const entry of cloud.active().drinks) {
+        for(const entry of sort(copy(cloud.active().drinks),'consumedAt')) {
           const label=entry.drinkLabel
           const groupKey=entry.cocktailId!==null?'cocktail:'+entry.cocktailId:
             'custom:'+entry.drinkLabel.normalize('NFKC').trim().toLocaleLowerCase()
@@ -365,6 +366,8 @@ export class CloudJournalCoordinator {
             await this.deps.remote.getVisit(remoteId)}catch{}
         }
         this.ensure(owner,serial)
+        if(current && (current.ownerUserId!==owner || current.visibility!=='private'))
+          current=null
         this.update(next=>{
           const target=next.operations.find(x=>x.opId===opId)
           if(target) {
