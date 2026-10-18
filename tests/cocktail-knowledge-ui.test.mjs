@@ -6,7 +6,8 @@ import {fileURLToPath} from 'node:url'
 import {createRequire} from 'node:module'
 import {validateCocktailCatalog,searchCocktails,variantsForCocktail,legacyRecipePreview} from '../packages/core/src/cocktails.ts'
 import {createJournalRepository} from '../packages/core/src/journal.ts'
-import * as journal from '../apps/wechat/src/services/journal-editor.ts'
+import {JournalError} from '../packages/core/src/journal.ts'
+import {CloudSyncError} from '../packages/sync/private-cloud.ts'
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..')
 const requireApp=createRequire(path.join(root,'apps/wechat/package.json'))
 const React=requireApp('react'), {create,act}=requireApp('react-test-renderer')
@@ -33,6 +34,8 @@ function load(file){
   if(name.includes('packages/core/src/cocktails'))return {searchCocktails,variantsForCocktail,
     validateCocktailCatalog,legacyRecipePreview}
   if(name==='../../services/journal-editor')return journal
+  if(name.includes('packages/core/src/journal'))return {JournalError}
+  if(name.includes('packages/sync/private-cloud'))return {CloudSyncError}
   if(name==='../../services/cocktail-knowledge')return {knowledgeCatalog:data}
   if(name==='../../components/cocktails/CocktailKnowledgeView')return {CocktailKnowledgeView:CatalogView}
   if(name==='../../services/sync')return {publishedRows:()=>[],
@@ -42,6 +45,7 @@ function load(file){
  },mod,mod.exports)
  return mod.exports
 }
+const journal=load('apps/wechat/src/services/journal-editor.ts')
 CatalogView=load('apps/wechat/src/components/cocktails/CocktailKnowledgeView.tsx').CocktailKnowledgeView
 const DrinkEditor=load('apps/wechat/src/components/journal/DrinkEditor.tsx').default
 const MixPage=load('apps/wechat/src/pages/mix/index.tsx').default

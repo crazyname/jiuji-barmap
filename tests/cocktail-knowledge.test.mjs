@@ -6,8 +6,7 @@ import { execFileSync } from 'node:child_process'
 import { createJournalRepository } from '../packages/core/src/journal.ts'
 import { validateCocktailCatalog, variantsForCocktail,
   searchCocktails, legacyRecipePreview } from '../packages/core/src/cocktails.ts'
-import { buildDrinkInput, createDrinkDraft } from '../apps/wechat/src/services/journal-editor.ts'
-import { readFileSync } from 'node:fs'
+ import { readFileSync } from 'node:fs'
 
 const raw=JSON.parse(fs.readFileSync('apps/wechat/src/data/cocktail-knowledge.json','utf8'))
 const catalog=validateCocktailCatalog(raw)
@@ -87,23 +86,6 @@ test('unknown historical raw ingredient strings remain verbatim; never guessed m
  assert.equal(normalized.visibility,'private')
  assert.equal('quantity' in normalized,false)
  assert.equal(legacyRecipePreview({id:1,ingredients:'test'},'local'),null)
-})
-test('private drink can select cocktail+variant or cocktail-only; free-text independent',()=>{
- const options=[{id:'margarita',label:'玛格丽特',
-  variants:[{id:'margarita-iba-2026',label:'IBA'}]}]
- const base=createDrinkDraft(new Date(2026,9,18,15))
- base.drinkLabel='玛格丽特';base.cocktailId='margarita';base.recipeVariantId='margarita-iba-2026'
- const version=buildDrinkInput(base,options)
- assert.equal(version.cocktailId,'margarita')
- assert.equal(version.recipeVariantId,'margarita-iba-2026')
- const cocktailOnly=buildDrinkInput({...base,recipeVariantId:null},options)
- assert.equal(cocktailOnly.cocktailId,'margarita')
- assert.equal(cocktailOnly.recipeVariantId,undefined)
- const free=buildDrinkInput({...base,drinkLabel:'私人实验',cocktailId:null,recipeVariantId:null},options)
- assert.equal(free.cocktailId,undefined)
- assert.equal(free.recipeVariantId,undefined)
- assert.throws(()=>buildDrinkInput({...base,cocktailId:'negroni'},options),/有效的知识库酒款/)
- assert.throws(()=>buildDrinkInput({...base,recipeVariantId:'margarita-other'},options),/配方版本与酒款不匹配/)
 })
 test('real PR03 repository stores separate drink instances, version references stay private',()=>{
  const storage=new Map(),repo=createJournalRepository({

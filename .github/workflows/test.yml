@@ -21,9 +21,7 @@ jobs:
         run: npm run check
       - name: Validate cocktail knowledge source and structured version data
         run: npm run cocktails:check
-      - name: Exercise cocktail knowledge, legacy data and real React selectors
-        run: npm run test:cocktails
-      - name: Execute private backend HTTP and real SQLite integration
+       - name: Execute private backend HTTP and real SQLite integration
         run: npm run test:backend
       - name: Two-device HTTP SQLite cloud sync integration
         run: npm run test:cloud
@@ -56,6 +54,8 @@ jobs:
       - name: Install Taro packages
         working-directory: apps/wechat
         run: npm install --no-audit --no-fund
+      - name: Exercise cocktail knowledge, legacy data and real React selectors
+        run: npm run test:cocktails
       - name: Execute private journal TypeScript behavior tests
         run: npm run test:journal
       - name: Execute React journal form and global action tests

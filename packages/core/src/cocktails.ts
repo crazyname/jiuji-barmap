@@ -29,13 +29,14 @@ function verified(raw:{verification:unknown;source:unknown},label:string):void {
 }
 function ingredient(v:unknown,label:string):asserts v is RecipeIngredient {
   if(!isObj(v))error(label,'ingredient must be an object')
-  if(!nonEmpty(v.name)||typeof v.optional!=='boolean'||
-    !['ml','oz','dash','piece','tsp','unspecified'].includes(String(v.unit)))
+  const row=v as Record<string,unknown>
+  if(!nonEmpty(row.name)||typeof row.optional!=='boolean'||
+    !['ml','oz','dash','piece','tsp','unspecified'].includes(String(row.unit)))
     error(label,'invalid ingredient fields')
-  if(v.quantity===null) {
-    if(v.unit!=='unspecified' || !nonEmpty(v.originalText))error(label,'unknown amount must keep raw wording')
-  } else if(typeof v.quantity!=='number'||!Number.isFinite(v.quantity)||
-    v.quantity<=0||v.quantity>10000||v.unit==='unspecified')
+  if(row.quantity===null) {
+    if(row.unit!=='unspecified' || !nonEmpty(row.originalText))error(label,'unknown amount must keep raw wording')
+  } else if(typeof row.quantity!=='number'||!Number.isFinite(row.quantity)||
+    row.quantity<=0||row.quantity>10000||row.unit==='unspecified')
     error(label,'invalid ingredient amount/unit')
 }
 export function validateCocktailCatalog(value:unknown):CocktailCatalog {
