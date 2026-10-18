@@ -36,6 +36,9 @@ export type CloudOperation = {
   opId: string; kind: CloudKind; action: CloudAction; localId: string
   payload: Record<string, unknown>; expectedRevision?: number
   status: Exclude<CloudPhase,'synced'>; error?: string
+  // True once a request may have reached the server; non-create retries must
+  // check remote state before replaying conditional mutations.
+  uncertain?: boolean
   remote?: DrinkEntry | VisitSession | null
 }
 export type CloudSnapshot = {
@@ -73,6 +76,7 @@ export class CloudJournalCoordinator {
   private listeners=new Set<()=>void>()
   private running: Promise<void> | null=null
   private serial=0
+  private storageBlocked=false
   private deps:{identity:CloudIdentity; storage:CloudStorage; remote:CloudRemote;
     newId:()=>string; now:()=>string}
   constructor(deps:{identity:CloudIdentity; storage:CloudStorage; remote:CloudRemote;
@@ -82,7 +86,7 @@ export class CloudJournalCoordinator {
   }
   private emit(){for(const listener of [...this.listeners])listener()}
   invalidate():void {
-    this.serial++;this.state=null
+    this.serial++;this.state=null;this.storageBlocked=false
     // Old in-flight HTTP requests cannot block another verified account's sync.
     // Their old serial fails ensure() after any response and cannot write B's data.
     this.running=null
@@ -95,6 +99,9 @@ export class CloudJournalCoordinator {
   }
   private active():CloudSnapshot {
     const owner=this.owner()
+    if(this.state && this.state.ownerUserId!==owner)this.storageBlocked=false
+    if(this.storageBlocked)
+      throw new CloudSyncError('STORAGE','本机存储未确认，请恢复后再操作')
     if(this.state?.ownerUserId!==owner) {
       this.serial++
       this.running=null
@@ -106,17 +113,32 @@ export class CloudJournalCoordinator {
       this.state=saved ? copy(saved as CloudSnapshot) : blank(owner)
       this.state.syncing=false
       for(const op of this.state.operations)
-        if(op.status==='syncing')op.status='pending'
+        if(op.status==='syncing') {op.status='pending';op.uncertain=true}
       this.emit()
     }
     return this.state!
   }
   getSnapshot():CloudSnapshot {return copy(this.active())}
+  /** Deliberate user-initiated re-read after quota/partial storage failure.
+   * Never delete any storage key, operation or server ID mapping. */
+  recoverStorage():CloudSnapshot {
+    this.serial++
+    this.state=null;this.running=null;this.storageBlocked=false
+    try {return this.getSnapshot()}
+    catch(error) {
+      this.storageBlocked=true
+      throw error instanceof CloudSyncError?error:
+        new CloudSyncError('STORAGE','私人记录存储尚无法恢复')
+    }
+  }
   private commit(next:CloudSnapshot) {
     if(this.owner()!==next.ownerUserId)throw new CloudSyncError('AUTH_REQUIRED','账户已切换')
     const persisted={...next,syncing:false}
     try {this.deps.storage.write(key(next.ownerUserId),copy(persisted))}
-    catch {throw new CloudSyncError('STORAGE','设备存储失败，未确认保存')}
+    catch {
+      this.storageBlocked=true
+      throw new CloudSyncError('STORAGE','设备存储失败，尚未确认保存，请检查空间并恢复')
+    }
     this.state=next;this.emit()
   }
   private update(action:(draft:CloudSnapshot)=>void) {
@@ -126,7 +148,7 @@ export class CloudJournalCoordinator {
   private op(kind:CloudKind,action:CloudAction,localId:string,
     payload:Record<string,unknown>,expectedRevision?:number):CloudOperation {
     return {opId:this.id(),kind,action,localId,payload:copy(payload),expectedRevision,
-      status:'pending'}
+      status:'pending',uncertain:false}
   }
   private time(){return this.deps.now()}
   private getRow(kind:CloudKind,id:string):DrinkEntry|VisitSession {
@@ -299,6 +321,29 @@ export class CloudJournalCoordinator {
     if(id===null)return null
     return state.idMap[id]||id
   }
+  private equalExpected(remote: DrinkEntry|VisitSession, fields:Record<string,unknown>):boolean {
+    return Object.entries(fields).every(([key,value])=>
+      JSON.stringify((remote as unknown as Record<string,unknown>)[key]??null)===
+      JSON.stringify(value??null))
+  }
+  private async reconcile(op:CloudOperation,remoteId:string):Promise<{
+    acknowledged:boolean; row?:DrinkEntry|VisitSession }> {
+    if(!op.uncertain || op.action==='create')return {acknowledged:false}
+    // One-time GET before retry protects against a server-committed conditional
+    // mutation whose ACK could not be durably persisted on the device.
+    const current=op.kind==='drink'
+      ?await this.deps.remote.getDrink(remoteId):await this.deps.remote.getVisit(remoteId)
+    if(op.action==='delete' && !current)return {acknowledged:true}
+    if(!current || !Number.isSafeInteger(op.expectedRevision))
+      throw new CloudSyncError('CONFLICT','无法确认服务器执行结果，保留本地草稿')
+    if(current.revision===op.expectedRevision)return {acknowledged:false}
+    const fields=op.action==='link'
+      ?{visitSessionId:this.mapped(op.payload.visitSessionId as string|null,this.getSnapshot())}
+      :op.payload
+    if(op.action!=='delete' && current.revision===op.expectedRevision!+1 &&
+        this.equalExpected(current,fields))return {acknowledged:true,row:current}
+    throw new CloudSyncError('CONFLICT','服务器记录已变化，不能安全重试')
+  }
   private async flush(owner:string,serial:number):Promise<void> {
     // A drink can be created before a visit and linked to that newly created
     // offline visit later. Upload pending visit creations first so every queued
@@ -314,12 +359,18 @@ export class CloudJournalCoordinator {
       const state=this.getSnapshot(), op=state.operations.find(x=>x.opId===opId)
       if(!op)continue
       if(op.status==='conflict')break
-      this.update(s=>{const target=s.operations.find(x=>x.opId===opId)!;target.status='syncing';target.error=undefined})
+      this.update(s=>{const target=s.operations.find(x=>x.opId===opId)!;
+        target.status='syncing';target.uncertain=true;target.error=undefined})
       try {
         const snapshot=this.getSnapshot()
         const remoteId=this.mapped(op.localId,snapshot)!
         let server:DrinkEntry|VisitSession|undefined
-        if(op.action==='create') {
+        // Using op from the pre-upload snapshot preserves the previous uncertain
+        // flag; the "syncing" marker was durably saved immediately above.
+        const recovery=await this.reconcile(op,remoteId)
+        this.ensure(owner,serial)
+        if(recovery.acknowledged)server=recovery.row
+        else if(op.action==='create') {
           const payload=copy(op.payload),mutationId=String(payload.clientMutationId)
           delete payload.clientMutationId
           if(op.kind==='drink') {
@@ -363,6 +414,7 @@ export class CloudJournalCoordinator {
           }
         })
       }catch(error) {
+        if(this.storageBlocked)throw error
         this.ensure(owner,serial)
         const syncError=error instanceof CloudSyncError?error:
           new CloudSyncError('NETWORK','网络请求未完成，保留待同步记录')
@@ -434,12 +486,16 @@ export class CloudJournalCoordinator {
           state.refreshed=true
         })
       }catch(e) {
-        // Invalid credentials or logout must not cause a cross-account cache write.
-        if(this.deps.identity.verifiedUserId()!==owner)return
-        this.update(x=>{x.error=e instanceof Error?e.message:'同步未完成'})
+        // Never overwrite an unconfirmed write-ahead recovery slot with stale
+        // memory or continue network operations while persistence is blocked.
+        if(this.storageBlocked)return
+        if(this.deps.identity.verifiedUserId()!==owner || this.serial!==serial)return
+        const safe=e instanceof CloudSyncError?e.message:'同步未完成，待重试'
+        try {this.update(x=>{x.error=safe})}catch{}
       }finally {
-        if(this.deps.identity.verifiedUserId()===owner && this.serial===serial)
-          this.update(x=>{x.syncing=false})
+        if(!this.storageBlocked && this.deps.identity.verifiedUserId()===owner &&
+          this.serial===serial)
+          try {this.update(x=>{x.syncing=false})}catch{}
       }
     })()
     this.running=task
