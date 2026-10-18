@@ -106,6 +106,27 @@ test('three independent drinks with offline visit ID are uploaded in dependency 
   assert.equal(b.coordinator.localRepository().listDrinksForVisit(realVisit).length,3)
   assert.equal(new Set(b.coordinator.localRepository().listDrinks().map(x=>x.id)).size,3)
 })
+test('drink recorded first can link a later offline visit and sync across devices',async()=>{
+  const h=fixture(),a=device(h,'userA-order1'),b=device(h,'userA-order2')
+  await a.login();await b.login()
+  // The drink CREATE is deliberately earlier in the queue than the visit CREATE.
+  const d=a.coordinator.createDrink(drink('先记的一杯'),mutation())
+  const v=a.coordinator.createVisit(visit(),mutation())
+  a.coordinator.linkDrink(d.id,v.id,d.revision)
+  assert.equal(a.coordinator.getSnapshot().operations[0].kind,'drink')
+  assert.equal(a.coordinator.getSnapshot().operations[1].kind,'visit')
+  await a.coordinator.sync()
+  assert.equal(a.coordinator.getSnapshot().operations.length,0)
+  assert.equal(h.db.query('SELECT count(*) AS n FROM drink_entries')[0].n,1)
+  await b.coordinator.sync()
+  const visits=b.coordinator.localRepository().listVisits()
+  const drinks=b.coordinator.localRepository().listDrinks()
+  assert.equal(visits.length,1)
+  assert.equal(drinks.length,1)
+  assert.equal(drinks[0].visitSessionId,visits[0].id)
+  assert.equal(drinks[0].drinkLabel,'先记的一杯')
+})
+
 test('timeout after server commit retries same clientMutationId without duplicate',async()=>{
   const h=fixture(),a=device(h,'userA-timeout')
   await a.login()
