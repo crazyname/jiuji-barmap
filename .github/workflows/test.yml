@@ -27,6 +27,8 @@ jobs:
         run: npm run test:cloud
       - name: Exercise private offline recovery, quota and session lifecycle
         run: npm run test:hardening
+      - name: Test community post schema, draft privacy and review boundaries
+        run: npm run test:community-model
       - name: Check migration gates
         run: npm run migration:status
   private-backend-bundle:
