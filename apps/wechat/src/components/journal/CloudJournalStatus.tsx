@@ -49,5 +49,10 @@ export function CloudJournalStatus({cloud}: {cloud:CloudJournalCoordinator}) {
 export function cloudRecordLabel(cloud:CloudJournalCoordinator,kind:CloudKind,id:string):string {
   const labels={pending:'当前设备待同步',syncing:'正在同步',synced:'已同步',
     failed:'同步失败',conflict:'存在冲突'}
-  return labels[cloud.status(kind,id)]
+  try {return labels[cloud.status(kind,id)]}
+  catch(error){
+    if(error instanceof Error && 'code' in error && error.code==='STORAGE')
+      return '设备存储异常，尚未确认保存'
+    return '未认证，无法访问私人记录'
+  }
 }
