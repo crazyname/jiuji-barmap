@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MPL-2.0
 // Standalone Cloudflare Worker. Never proxies the existing public Sites /v1/sync.
 import { ApiError, respond, fail, requireDb } from './common.mjs'
-import { handleAuth, requireAccount } from './auth.mjs'
+import { handleAuth, requireAccount, requireAuthSecrets } from './auth.mjs'
 import { handlePrivate } from './private.mjs'
 
 export function createHandler({ wechatFetch = fetch, now = () => Date.now() } = {}) {
@@ -14,6 +14,9 @@ export function createHandler({ wechatFetch = fetch, now = () => Date.now() } = 
       if (!path.startsWith('/v1/')) fail(404, 'NOT_FOUND', '接口不存在')
       const db = requireDb(env)
       const context = { db, env, now, wechatFetch }
+      // Losing production secrets must never silently leave old sessions live.
+      if (path.startsWith('/v1/auth/') || path === '/v1/me' || path.startsWith('/v1/private/'))
+        requireAuthSecrets(env)
       if (path.startsWith('/v1/auth/') || path === '/v1/me')
         return await handleAuth(request, path, context)
       if (path.startsWith('/v1/private/')) {

@@ -136,6 +136,9 @@ test('missing server AppID, AppSecret or pepper refuses auth; no demo principal'
     503,'AUTH_BACKEND_UNAVAILABLE')
   assert.equal(f.wechatCalls(),0)
   assert.equal(f.db.query('SELECT count(*) AS n FROM users')[0].n,0)
+  check(await f.call('GET','/v1/me',undefined,'a'.repeat(64)),503,'AUTH_BACKEND_UNAVAILABLE')
+  check(await f.call('GET','/v1/private/drinks',undefined,'a'.repeat(64)),
+    503,'AUTH_BACKEND_UNAVAILABLE')
 })
 test('rate limiter blocks repeated guessing using persistent SQL bucket',async()=>{
   const f=fixture({failWechat:true})

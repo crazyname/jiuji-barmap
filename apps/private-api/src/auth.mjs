@@ -5,7 +5,7 @@ import { body, changes, fail, fields, hmac, iso, newId, respond, sha256,
 const ACCESS_MS = 15 * 60_000
 const SESSION_MS = 30 * 24 * 60 * 60_000
 const at = value => new Date(value).toISOString()
-function secrets(env) {
+export function requireAuthSecrets(env) {
   if (typeof env.WECHAT_APP_ID !== 'string' || !/^[a-zA-Z0-9_-]{6,64}$/.test(env.WECHAT_APP_ID) ||
       typeof env.WECHAT_APP_SECRET !== 'string' || env.WECHAT_APP_SECRET.length < 16 ||
       typeof env.SUBJECT_PEPPER !== 'string' || env.SUBJECT_PEPPER.length < 32)
@@ -65,7 +65,7 @@ async function newSession(db, accountId, now) {
   return { accessToken, refreshToken, accessExpiresAt, sessionId }
 }
 async function exchange(request, { db, env, now, wechatFetch }) {
-  secrets(env)
+  requireAuthSecrets(env)
   const input = await body(request)
   fields(input, ['code'])
   const code = string(input.code, 'code', 2048)
@@ -122,7 +122,7 @@ async function exchange(request, { db, env, now, wechatFetch }) {
   return respond(await newSession(db, mapping.user_id, now()), 200)
 }
 async function refresh(request, { db, env, now }) {
-  secrets(env)
+  requireAuthSecrets(env)
   const input = await body(request)
   fields(input, ['refreshToken'])
   const old = string(input.refreshToken, 'refreshToken', 256)
