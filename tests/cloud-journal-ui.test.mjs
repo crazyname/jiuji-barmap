@@ -200,3 +200,67 @@ test('a forged or corrupted cross-user offline cache is rejected before display 
     visits:[],operations:[],idMap:{},refreshed:false,error:null,syncing:false})
   assert.throws(()=>f.cloud.getSnapshot(),e=>e.code==='STORAGE')
 })
+
+
+function loadProductionPrivateAdapter() {
+  const p='apps/wechat/src/services/private-cloud.ts'
+  const source=fs.readFileSync(path.join(root,p),'utf8')
+  const compiled=ts.transpileModule(source,{fileName:p,compilerOptions:{
+    module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2020,
+    esModuleInterop:true,jsx:ts.JsxEmit.ReactJSX}}).outputText
+  const module={exports:{}}, identity={userId:'verified-account-A',accessToken:'a'.repeat(64)}
+  let revoked=false
+  const auth={
+    credentialForPrivateApi:()=>revoked?null:identity,
+    verifiedIdentity:()=>revoked?null:{kind:'verified',userId:identity.userId},
+    subscribe:()=>()=>{},
+    invalidatePrivateApi:()=>{revoked=true}
+  }
+  new Function('require','module','exports',compiled)(name=>{
+    if(name==='@tarojs/taro')return {__esModule:true,default:{
+      request:async()=>{throw Error('No production network in tests')},
+      getStorageSync:()=>undefined,setStorageSync:()=>{}
+    }}
+    if(name==='../config/auth')return {AUTH_API_ENABLED:false,AUTH_API_BASE_URL:''}
+    if(name==='./wechat-auth')return {authService:auth}
+    if(name==='../../../../packages/sync/private-cloud')
+      return {CloudJournalCoordinator,CloudSyncError}
+    throw Error('Unexpected production adapter dependency: '+name)
+  },module,module.exports)
+  return {api:module.exports,auth,identity,isRevoked:()=>revoked}
+}
+test('production Taro private API adapter sends verified Bearer and composite cursor only',async()=>{
+  const f=loadProductionPrivateAdapter(),requests=[]
+  const remote=f.api.createPrivateApiRemote(f.auth,'https://private.example.test',true,
+    async options=>{
+      requests.push(options)
+      if(options.method==='GET')return {statusCode:200,data:{
+        entries:[],nextCursor:null
+      }}
+      return {statusCode:200,data:{entry:{id:'server-1'}}}
+    })
+  const page=await remote.listDrinks({
+    before:'2026-10-18T12:30:00.000Z',beforeId:'abc-1'
+  })
+  assert.deepEqual(page.records,[])
+  assert.equal(page.nextCursor,null)
+  assert.equal(requests.length,1)
+  assert.match(requests[0].url,/beforeId=abc-1/)
+  assert.match(requests[0].url,/before=2026-10-18T12%3A30%3A00.000Z/)
+  assert.equal(requests[0].header.Authorization,'Bearer '+'a'.repeat(64))
+  assert.doesNotMatch(requests[0].url,/\/v1\/sync(?:\/|\?|$)/)
+})
+test('production private adapter remains disabled and 401 revokes AuthService access immediately',async()=>{
+  const f=loadProductionPrivateAdapter()
+  let count=0
+  const backend=async()=>{count++;return {statusCode:200,data:{entries:[],nextCursor:null}}}
+  const disabled=f.api.createPrivateApiRemote(f.auth,'',false,backend)
+  await assert.rejects(disabled.listDrinks(),e=>e.code==='AUTH_REQUIRED')
+  assert.equal(count,0)
+  const active=f.api.createPrivateApiRemote(f.auth,'https://private.example.test',true,
+    async()=>{count++;return {statusCode:401,data:{error:{code:'AUTH_UNAUTHORIZED'}}}})
+  await assert.rejects(active.listDrinks(),e=>e.code==='AUTH_REQUIRED')
+  assert.equal(f.isRevoked(),true)
+  await assert.rejects(active.listDrinks(),e=>e.code==='AUTH_REQUIRED')
+  assert.equal(count,1)
+})
