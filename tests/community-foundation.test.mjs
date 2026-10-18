@@ -171,3 +171,17 @@ test('legacy Sites dev posts are not automatically treated as approved public po
   assert.equal(f.repo.publicAvailable(),false)
   assert.deepEqual(f.disk.get('jiuji.react.posts')[0].id,'old-post')
 })
+
+
+test('community draft author, local ID and visibility cannot be overwritten by a forged runtime payload',()=>{
+  const f=setup(),d=f.repo.newDraft()
+  const spoof={...validFields(),authorUserId:'attacker',id:'public-forgery',
+    visibility:'public',status:'approved',revision:999,privateEntryId:'secret-private-record'}
+  const saved=f.repo.saveDraft(d.id,spoof,1)
+  assert.equal(saved.authorUserId,'verified-A')
+  assert.equal(saved.id,d.id)
+  assert.equal(saved.visibility,'private')
+  assert.equal(saved.status,'local_draft')
+  assert.equal(saved.revision,2)
+  assert.equal(Object.hasOwn(saved,'privateEntryId'),false)
+})
