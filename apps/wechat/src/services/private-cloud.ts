@@ -16,8 +16,11 @@ export function createPrivateApiRemote(auth: AuthService, origin: string, enable
     payload?: unknown): Promise<T> {
     if(!enabled || !/^https:\/\/[^/?#]+(?:\/[^?#]*)?$/.test(origin))
       throw new CloudSyncError('AUTH_REQUIRED','私人云服务尚未部署或通过验收')
-    const credential=auth.credentialForPrivateApi()
-    if(!credential)throw new CloudSyncError('AUTH_REQUIRED','需要先验证账号')
+    const attested=auth.credentialForPrivateApi()
+    if(!attested)throw new CloudSyncError('AUTH_REQUIRED','需要先验证账号')
+    // Capture the immutable request-time identity; an injected adapter could
+    // otherwise mutate a shared object before the old HTTP response arrives.
+    const credential={userId:attested.userId,accessToken:attested.accessToken}
     let response
     try{
       response=await fetcher({
