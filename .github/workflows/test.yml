@@ -21,7 +21,7 @@ jobs:
         run: npm run check
       - name: Validate cocktail knowledge source and structured version data
         run: npm run cocktails:check
-       - name: Execute private backend HTTP and real SQLite integration
+      - name: Execute private backend HTTP and real SQLite integration
         run: npm run test:backend
       - name: Two-device HTTP SQLite cloud sync integration
         run: npm run test:cloud
