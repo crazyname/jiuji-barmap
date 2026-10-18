@@ -4,7 +4,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import fs from 'node:fs'
 import { DatabaseSync } from 'node:sqlite'
-import { createHandler } from '../src/index.mjs'
+import { createHandler, createScheduledHandler } from '../src/index.mjs'
 import { fileURLToPath } from 'node:url'
 import path from 'node:path'
 
@@ -59,6 +59,7 @@ function fixture({noSecrets=false,failWechat=false}={}) {
       session_key:'never-sent-to-client'})
   }
   const send=createHandler({wechatFetch:wx,now:()=>time})
+  const cleanup=createScheduledHandler({now:()=>time})
   const env={DB:db,...(!noSecrets?secrets:{})}
   async function call(method,route,data,token,extraHeaders={}) {
     const headers={...extraHeaders}
@@ -74,7 +75,8 @@ function fixture({noSecrets=false,failWechat=false}={}) {
     assert.equal(result.status,200,JSON.stringify(result.body))
     return result.body
   }
-  return {db,call,login,clock:n=>{time+=n},wechatCalls:()=>calls,env}
+  return {db,call,login,clock:n=>{time+=n},wechatCalls:()=>calls,
+    cleanup:()=>cleanup({},env),env}
 }
 let mutation=0
 const idem=()=> 'backend-mutation-'+(++mutation)
@@ -319,4 +321,82 @@ test('code2Session transport outage returns generic error without leaking secret
   const result=await f.call('POST','/v1/auth/wechat/exchange',{code:'invalid'})
   assert.equal(JSON.stringify(result).includes(secrets.WECHAT_APP_SECRET),false)
   check(result,401,'AUTH_CODE_INVALID')
+})
+
+
+test('expired Access can logout with matching current Refresh; both tokens are thereafter rejected',async()=>{
+  const f=fixture(),a=await f.login()
+  check(await f.call('POST','/v1/private/drinks',drink(),a.accessToken),201)
+  f.clock(15*60_000+1)
+  check(await f.call('GET','/v1/me',undefined,a.accessToken),401,'AUTH_UNAUTHORIZED')
+  check(await f.call('POST','/v1/auth/logout',{refreshToken:a.refreshToken},a.accessToken),200)
+  assert.ok(f.db.query('SELECT revoked_at FROM auth_sessions WHERE id=?',a.sessionId)[0].revoked_at)
+  check(await f.call('POST','/v1/auth/refresh',{refreshToken:a.refreshToken}),
+    401,'AUTH_REVOKED')
+  check(await f.call('GET','/v1/private/drinks',undefined,a.accessToken),
+    401,'AUTH_UNAUTHORIZED')
+})
+test('logout does not let mismatched Access/Refresh pairs revoke other users sessions',async()=>{
+  const f=fixture(),a=await f.login(),b=await f.login('userB-cross')
+  f.clock(15*60_000+1)
+  check(await f.call('POST','/v1/auth/logout',{refreshToken:a.refreshToken},b.accessToken),
+    401,'AUTH_UNAUTHORIZED')
+  check(await f.call('POST','/v1/auth/logout',{refreshToken:b.refreshToken},a.accessToken),
+    401,'AUTH_UNAUTHORIZED')
+  check(await f.call('POST','/v1/auth/logout',{refreshToken:a.refreshToken}),
+    401,'AUTH_UNAUTHORIZED')
+  check(await f.call('POST','/v1/auth/refresh',{refreshToken:a.refreshToken}),200)
+  check(await f.call('POST','/v1/auth/refresh',{refreshToken:b.refreshToken}),200)
+})
+test('old Access cannot logout after refresh rotation even with new Refresh',async()=>{
+  const f=fixture(),a=await f.login()
+  const rotated=await f.call('POST','/v1/auth/refresh',{refreshToken:a.refreshToken})
+  check(rotated,200)
+  check(await f.call('POST','/v1/auth/logout',
+    {refreshToken:rotated.body.refreshToken},a.accessToken),401,'AUTH_UNAUTHORIZED')
+  check(await f.call('POST','/v1/auth/logout',
+    {refreshToken:rotated.body.refreshToken},rotated.body.accessToken),200)
+  check(await f.call('POST','/v1/auth/refresh',{refreshToken:rotated.body.refreshToken}),
+    401,'AUTH_REVOKED')
+})
+test('many DIFFERENT invalid Refresh tokens share IP rate bucket and cannot inflate per-token rows',async()=>{
+  const f=fixture()
+  for(let i=0;i<15;i++) {
+    const randomInvalid=i.toString(16).padStart(64,'0')
+    check(await f.call('POST','/v1/auth/refresh',{refreshToken:randomInvalid},undefined,
+      {'cf-connecting-ip':'203.0.113.9'}),401,'AUTH_REVOKED')
+  }
+  check(await f.call('POST','/v1/auth/refresh',{refreshToken:'f'.repeat(64)},undefined,
+    {'cf-connecting-ip':'203.0.113.9'}),429,'AUTH_RATE_LIMITED')
+  const rows=f.db.query("SELECT bucket,subject_hash,hits FROM auth_rate_limits WHERE bucket LIKE 'refresh:%'")
+  assert.equal(rows.length,1)
+  assert.equal(rows[0].hits,15)
+  assert.ok(!JSON.stringify(rows).includes('203.0.113.9'))
+  // User-supplied forwarded-for must not alter Cloudflare's per-source bucket.
+  check(await f.call('POST','/v1/auth/refresh',{refreshToken:'e'.repeat(64)},undefined,
+    {'cf-connecting-ip':'203.0.113.9','x-forwarded-for':'198.51.100.1'}),
+    429,'AUTH_RATE_LIMITED')
+  check(await f.call('POST','/v1/auth/refresh',{refreshToken:'d'.repeat(64)},undefined,
+    {'cf-connecting-ip':'203.0.113.10'}),401,'AUTH_REVOKED')
+  assert.equal(f.db.query("SELECT count(*) AS n FROM auth_rate_limits WHERE bucket LIKE 'refresh:%'")[0].n,2)
+  f.clock(60_000)
+  check(await f.call('POST','/v1/auth/refresh',{refreshToken:'c'.repeat(64)},undefined,
+    {'cf-connecting-ip':'203.0.113.9'}),401,'AUTH_REVOKED')
+})
+test('Cron removes stale rate/code entries and only expired sessions and their replay hashes',async()=>{
+  const f=fixture(),a=await f.login()
+  check(await f.call('POST','/v1/auth/refresh',{refreshToken:'b'.repeat(64)}),
+    401,'AUTH_REVOKED')
+  assert.equal(f.db.query('SELECT count(*) AS n FROM auth_rate_limits')[0].n,2)
+  assert.equal(f.db.query('SELECT count(*) AS n FROM wechat_code_replays')[0].n,1)
+  f.clock(25*60*60_000)
+  await f.cleanup()
+  assert.equal(f.db.query('SELECT count(*) AS n FROM auth_rate_limits')[0].n,0)
+  assert.equal(f.db.query('SELECT count(*) AS n FROM wechat_code_replays')[0].n,0)
+  assert.equal(f.db.query('SELECT count(*) AS n FROM auth_sessions')[0].n,1)
+  check(await f.call('POST','/v1/auth/refresh',{refreshToken:a.refreshToken}),200)
+  f.clock(32*24*60*60_000)
+  await f.cleanup()
+  assert.equal(f.db.query('SELECT count(*) AS n FROM auth_sessions')[0].n,0)
+  assert.equal(f.db.query('SELECT count(*) AS n FROM used_refresh_tokens')[0].n,0)
 })
