@@ -143,6 +143,10 @@ export function CommunityEditor({draft,repo,venues,onSaved,onClose,onDiscard,all
     finally{setSaving(false)}
   }
   const show=fields()
+  if(repo.authorId()!==draft.authorUserId)
+    return <View className='community-page'>
+      <Text className='community-feedback'>账号已切换，上一账号的图文草稿不再显示或编辑。</Text>
+    </View>
   return <View className='community-page community-editor'>
     <Text className='community-heading'>图文草稿</Text>
     <Text className='community-sub'>只保存在当前已验证账号的设备草稿区，不会自动投稿</Text>

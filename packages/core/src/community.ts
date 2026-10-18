@@ -123,6 +123,7 @@ export class CommunityRepository {
   private publicCache:CommunityPost[]=[]
   constructor(deps:{identity:CommunityIdentity;storage:CommunityStorage;newId:()=>string;
     now:()=>string;source?:CommunityPublicSource;publisher?:CommunityPublisher}){this.deps=deps}
+  authorId():string|null {return this.deps.identity.verifiedUserId()}
   private owner():string {
     const id=this.deps.identity.verifiedUserId()
     if(!id)throw new CommunityError('AUTH_REQUIRED','需要完成服务端身份验证后才能保存社区草稿')

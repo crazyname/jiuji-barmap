@@ -12,12 +12,15 @@ export default function Page(){
   const router=useRouter(),auth=useAuthState(authService)
   const [draft,setDraft]=useState<CommunityDraft|null>(null)
   const [list,setList]=useState<CommunityDraft[]>([])
+  const [loadedOwner,setLoadedOwner]=useState<string|null>(null)
   const [error,setError]=useState('')
   const [listing,setListing]=useState(router.params.list==='1')
   const id=typeof router.params.id==='string'?router.params.id:''
   function load(){
-    if(!authService.verifiedIdentity()){setDraft(null);setList([]);return}
+    const identity=authService.verifiedIdentity()
+    if(!identity){setDraft(null);setList([]);setLoadedOwner(null);return}
     try{
+      setLoadedOwner(identity.userId)
       setList(communityRepository.listDrafts())
       if(id) {
         const row=communityRepository.getDraft(id)
@@ -29,6 +32,11 @@ export default function Page(){
   useDidShow(()=>{void authService.checkSession().then(load)})
   // Do not display a retained React draft after A -> B account replacement.
   const currentUser=authService.verifiedIdentity()?.userId||null
+  if(currentUser && loadedOwner!==currentUser)
+    return <View className='community-page'>
+      <Text className='community-feedback'>正在确认当前账号的草稿归属，旧账号内容不会显示。</Text>
+      <Button onClick={()=>void Taro.navigateBack()}>返回</Button>
+    </View>
   if(draft && currentUser && draft.authorUserId!==currentUser)
     return <View className='community-page'>
       <Text className='community-feedback'>账户已切换；上一账号草稿已卸载，请返回重新进入。</Text>
