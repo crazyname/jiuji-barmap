@@ -9,6 +9,7 @@ import path from 'node:path'
 import { createRequire } from 'node:module'
 import { fileURLToPath } from 'node:url'
 import { createJournalRepository, JournalError } from '../packages/core/src/journal.ts'
+import { CloudSyncError } from '../packages/sync/private-cloud.ts'
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const appRequire = createRequire(path.join(root, 'apps/wechat/package.json'))
@@ -41,6 +42,7 @@ const load = (file, extra = {}) => {
     if (name === '@tarojs/taro') return mockTaro
     if (name.endsWith('.css')) return {}
     if (name.includes('packages/core/src/journal')) return { JournalError, createJournalRepository }
+    if (name.includes('packages/sync/private-cloud')) return { CloudSyncError }
     if (name === '../../services/journal-editor') return formLogic
     if (extra[name]) return extra[name]
     throw new Error('Unexpected runtime dependency: ' + name)
