@@ -296,3 +296,55 @@ test('server-confirmed logout is distinct, no offline refresh token persistence'
   assert.match(f.auth.getState().message,/服务器也已确认/)
   assert.equal(f.auth.credentialForPrivateApi(),null)
 })
+
+
+test('timeout after server CREATE then edit preserves original mutation payload and sends dependent PATCH',async()=>{
+  const f=setup(),cloud=f.coordinator(),original=f.remote.createDrink
+  let first=true
+  f.remote.createDrink=async(...args)=>{
+    const server=await original(...args)
+    if(first){first=false;throw new CloudSyncError('NETWORK','server replied too late')}
+    return server
+  }
+  const locallyCreated=cloud.createDrink(input(),mut())
+  await cloud.sync()
+  assert.equal(cloud.status('drink',locallyCreated.id),'failed')
+  assert.equal(f.backend.drinks.size,1)
+  const originalPayload=deep(cloud.getSnapshot().operations[0].payload)
+  cloud.updateDrink(locallyCreated.id,{note:'超时后新增的本机编辑'},1)
+  assert.equal(cloud.getSnapshot().operations.length,2)
+  assert.deepEqual(cloud.getSnapshot().operations[0].payload,originalPayload)
+  await cloud.sync()
+  assert.equal(f.backend.drinks.size,1)
+  assert.equal(f.backend.updateCalls,1)
+  assert.equal([...f.backend.drinks.values()][0].note,'超时后新增的本机编辑')
+  assert.equal(cloud.getSnapshot().operations.length,0)
+})
+test('timeout after server CREATE then local DELETE must not cancel uncertain create and orphan server row',async()=>{
+  const f=setup(),cloud=f.coordinator(),original=f.remote.createDrink
+  let first=true
+  f.remote.createDrink=async(...args)=>{
+    const server=await original(...args)
+    if(first){first=false;throw new CloudSyncError('NETWORK','already committed')}
+    return server
+  }
+  const d=cloud.createDrink(input(),mut())
+  await cloud.sync()
+  assert.equal(f.backend.drinks.size,1)
+  cloud.deleteDrink(d.id,1)
+  assert.deepEqual(cloud.getSnapshot().operations.map(x=>x.action),['create','delete'])
+  await cloud.sync()
+  assert.equal(f.backend.drinks.size,0)
+  assert.equal(f.backend.deleteCalls,1)
+  assert.equal(cloud.getSnapshot().operations.length,0)
+})
+test('initially failed storage read is recoverable without deleting previously saved private data',()=>{
+  const f=setup(),cloud=f.coordinator()
+  cloud.createDrink(input(),mut())
+  f.setReadFail(true);cloud.invalidate()
+  assert.throws(()=>cloud.getSnapshot(),e=>e.code==='STORAGE')
+  f.setReadFail(false)
+  assert.equal(cloud.recoverStorage().drinks.length,1)
+  assert.equal(f.disk.has(mainKey),true)
+  assert.equal(f.disk.has(backupKey),true)
+})
