@@ -68,6 +68,8 @@ jobs:
         run: npm run test:auth
       - name: Exercise private cloud sync React UI states
         run: npm run test:cloud-ui
+      - name: Exercise real React community feed and draft editor interactions
+        run: npm run test:community-ui
       - name: Strict TypeScript check for journal and WeChat adapter
         run: apps/wechat/node_modules/.bin/tsc --noEmit -p tsconfig.journal.json
       - name: Compile WeChat mini program

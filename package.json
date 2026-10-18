@@ -33,6 +33,7 @@
     "test:hardening": "node --experimental-strip-types --test tests/private-sync-hardening.test.mjs",
     "cocktails:check": "node --experimental-strip-types scripts/validate-cocktail-import.mjs",
     "test:cocktails": "node --experimental-strip-types --test tests/cocktail-knowledge.test.mjs tests/cocktail-knowledge-ui.test.mjs",
-    "test:community-model": "node --experimental-strip-types --test tests/community-foundation.test.mjs"
+    "test:community-model": "node --experimental-strip-types --test tests/community-foundation.test.mjs",
+    "test:community-ui": "node --experimental-strip-types --test tests/community-ui.test.mjs"
   }
 }
