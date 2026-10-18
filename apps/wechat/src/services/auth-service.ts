@@ -86,6 +86,19 @@ export class AuthService {
     }
     return { kind: 'verified', userId: this.state.account.id }
   }
+  /** A short-lived bearer credential for the private HTTP adapter only.
+   * Never persist, log or supply it to UI components. */
+  credentialForPrivateApi(): { userId: string; accessToken: string } | null {
+    const identity = this.verifiedIdentity()
+    return identity && this.tokens
+      ? { userId: identity.userId, accessToken: this.tokens.accessToken } : null
+  }
+  /** Called on private API 401/403 to immediately unload account-owned content. */
+  invalidatePrivateApi(): void {
+    this.serial++
+    this.busy = false
+    this.erase('expired', '私人会话已失效，请重新登录')
+  }
   async signIn(): Promise<void> {
     if (this.busy) return
     if (!this.deps.enabled) {

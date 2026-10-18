@@ -11,8 +11,11 @@ export type CloudPhase = 'pending' | 'syncing' | 'synced' | 'failed' | 'conflict
 export type CloudCursor = { before: string; beforeId: string }
 export type CloudPage<T> = { records: T[]; nextCursor: CloudCursor | null }
 export class CloudSyncError extends Error {
-  constructor(readonly code: 'AUTH_REQUIRED'|'NETWORK'|'CONFLICT'|'STORAGE'|'INVALID'|'NOT_FOUND',
-    message: string, readonly status?: number) { super(message); this.name='CloudSyncError' }
+  readonly code: 'AUTH_REQUIRED'|'NETWORK'|'CONFLICT'|'STORAGE'|'INVALID'|'NOT_FOUND'
+  readonly status?: number
+  constructor(code: CloudSyncError['code'], message: string, status?: number) {
+    super(message);this.name='CloudSyncError';this.code=code;this.status=status
+  }
 }
 export interface CloudRemote {
   listDrinks(cursor?: CloudCursor): Promise<CloudPage<DrinkEntry>>
@@ -62,8 +65,10 @@ export class CloudJournalCoordinator {
   private listeners=new Set<()=>void>()
   private running: Promise<void> | null=null
   private serial=0
-  constructor(private deps:{identity:CloudIdentity; storage:CloudStorage; remote:CloudRemote;
-    newId:()=>string; now:()=>string}) {}
+  private deps:{identity:CloudIdentity; storage:CloudStorage; remote:CloudRemote;
+    newId:()=>string; now:()=>string}
+  constructor(deps:{identity:CloudIdentity; storage:CloudStorage; remote:CloudRemote;
+    newId:()=>string; now:()=>string}) {this.deps=deps}
   subscribe(listener:()=>void):()=>void {
     this.listeners.add(listener);return ()=>{this.listeners.delete(listener)}
   }
@@ -334,7 +339,9 @@ export class CloudJournalCoordinator {
   }
   async sync():Promise<void> {
     if(this.running)return this.running
-    const owner=this.owner(),serial=this.serial
+    const owner=this.owner()
+    this.active() // load account namespace BEFORE locking the generation
+    const serial=this.serial
     const task=(async()=>{
       this.update(x=>{x.syncing=true;x.error=null})
       try {
@@ -359,9 +366,9 @@ export class CloudJournalCoordinator {
           }while(true)
           return rows
         }
-        const visits=await all(this.deps.remote.listVisits)
+        const visits=await all(cursor=>this.deps.remote.listVisits(cursor))
         this.ensure(owner,serial)
-        const drinks=await all(this.deps.remote.listDrinks)
+        const drinks=await all(cursor=>this.deps.remote.listDrinks(cursor))
         this.ensure(owner,serial)
         this.update(state=>{
           const pending=new Set(state.operations.map(x=>x.localId))
