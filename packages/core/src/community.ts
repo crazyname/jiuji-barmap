@@ -72,8 +72,13 @@ export function validateCommunityFields(fields:CommunityFields):CommunityFields 
     (!fields.isSponsored&&fields.sponsorName!==null) ||
     (fields.type==='promotion'&&!fields.isSponsored))
     throw new CommunityError('INVALID','标题、正文、话题、素材授权或商业推广声明无效')
-  return serial({...fields,title:fields.title.trim(),body:fields.body.trim(),
-    topics:fields.topics.map(tag=>tag.trim()),sponsorName:fields.sponsorName?.trim()||null})
+  // Exact projection: CommunityDraft carries authorUserId, local IDs, review
+  // state and timestamps; NONE may be included in an outbound submission.
+  return {title:fields.title.trim(),body:fields.body.trim(),type:fields.type,
+    barId:fields.barId,topics:fields.topics.map(tag=>tag.trim()),
+    images:fields.images.map(image=>({url:image.url,source:image.source,
+      licensed:true,...(image.aspectRatio===undefined?{}:{aspectRatio:image.aspectRatio})})),
+    isSponsored:fields.isSponsored,sponsorName:fields.sponsorName?.trim()||null}
 }
 function safePost(value:unknown):value is CommunityPost {
   if(!value||typeof value!=='object')return false
