@@ -130,3 +130,73 @@ test('UI does not expose other account content after identity invalidation',asyn
   assert.doesNotMatch(words(tree),/白色尼格罗尼/)
   await act(async()=>tree.unmount())
 })
+
+
+test('editing while CREATE upload is in flight keeps a dependent revision-checked update',async()=>{
+  const f=example()
+  const local=f.cloud.createDrink(drink,'cloud-test-mutation-race-1')
+  let signal,release
+  const started=new Promise(resolve=>{signal=resolve})
+  const hold=new Promise(resolve=>{release=resolve})
+  let server=null
+  f.remote.createDrink=async(input,mutationId)=>{
+    signal();await hold
+    server={...local,id:'server-race-1',revision:1,note:input.note||null,
+      clientMutationId:mutationId}
+    return {...server}
+  }
+  f.remote.updateDrink=async(id,changes,expectedRevision)=>{
+    assert.equal(id,'server-race-1')
+    assert.equal(expectedRevision,1)
+    server={...server,...changes,revision:2}
+    return {...server}
+  }
+  f.remote.listDrinks=async()=>({records:server?[server]:[],nextCursor:null})
+  const uploading=f.cloud.sync()
+  await started
+  f.cloud.updateDrink(local.id,{note:'上传过程中新增修改'},1)
+  assert.equal(f.cloud.getSnapshot().operations.length,2)
+  release();await uploading
+  assert.equal(f.cloud.getSnapshot().operations.length,1)
+  assert.equal(f.cloud.localRepository().listDrinks()[0].note,'上传过程中新增修改')
+  await f.cloud.sync()
+  assert.equal(server.note,'上传过程中新增修改')
+  assert.equal(f.cloud.getSnapshot().operations.length,0)
+})
+test('deleting a still-uploading CREATE queues server cleanup instead of orphaning the record',async()=>{
+  const f=example(),local=f.cloud.createDrink(drink,'cloud-test-mutation-race-2')
+  let signal,release
+  const started=new Promise(resolve=>{signal=resolve})
+  const hold=new Promise(resolve=>{release=resolve})
+  let server=null
+  f.remote.createDrink=async(input,mutationId)=>{
+    signal();await hold
+    server={...local,id:'server-race-2',revision:1,
+      clientMutationId:mutationId}
+    return {...server}
+  }
+  f.remote.deleteDrink=async(id,rev)=>{
+    assert.equal(id,'server-race-2')
+    assert.equal(rev,1)
+    server=null
+  }
+  f.remote.listDrinks=async()=>({records:server?[server]:[],nextCursor:null})
+  const uploading=f.cloud.sync()
+  await started
+  f.cloud.deleteDrink(local.id,1)
+  assert.equal(f.cloud.localRepository().listDrinks().length,0)
+  release();await uploading
+  assert.equal(f.cloud.getSnapshot().operations.length,1)
+  await f.cloud.sync()
+  assert.equal(server,null)
+  assert.equal(f.cloud.localRepository().listDrinks().length,0)
+  assert.equal(f.cloud.getSnapshot().operations.length,0)
+})
+test('a forged or corrupted cross-user offline cache is rejected before display or upload',async()=>{
+  const f=example()
+  const key='jiuji-private-cloud-v1:'+encodeURIComponent(f.user.id)
+  f.disk.set(key,{schema:1,ownerUserId:f.user.id,
+    drinks:[{...drink,id:'forged',revision:1,ownerUserId:'other-user',visibility:'private'}],
+    visits:[],operations:[],idMap:{},refreshed:false,error:null,syncing:false})
+  assert.throws(()=>f.cloud.getSnapshot(),e=>e.code==='STORAGE')
+})
