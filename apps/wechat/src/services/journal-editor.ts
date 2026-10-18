@@ -5,7 +5,8 @@ import type { PrivateJournalRepository } from '../../../../packages/core/src/jou
 import { JournalError } from '../../../../packages/core/src/journal'
 import { CloudSyncError } from '../../../../packages/sync/private-cloud'
 
-export type CocktailOption = { id: string; label: string }
+export type CocktailOption = { id: string; label: string;
+  variants?: readonly { id: string; label: string }[] }
 export type VenueOption = { id: number; name: string }
 export interface DrinkDraft {
   drinkLabel: string
@@ -13,6 +14,7 @@ export interface DrinkDraft {
   time: string
   contextKind: DrinkContextKind
   cocktailId: string | null
+  recipeVariantId?: string | null
   note: string
   personalRating: string
   barId: number | null
@@ -34,7 +36,7 @@ export function localDateTime(now: Date): { date: string; time: string } {
     time: p(now.getHours()) + ':' + p(now.getMinutes()) }
 }
 export function createDrinkDraft(now: Date = new Date(), visitSessionId: string | null = null): DrinkDraft {
-  return { ...localDateTime(now), drinkLabel: '', contextKind: 'bar', cocktailId: null,
+  return { ...localDateTime(now), drinkLabel: '', contextKind: 'bar', cocktailId: null, recipeVariantId: null,
     note: '', personalRating: '', barId: null, menuItem: '', preparationNote: '',
     placeNote: '', visitSessionId }
 }
@@ -74,6 +76,10 @@ export function buildDrinkInput(draft: DrinkDraft, catalog: readonly CocktailOpt
     throw new JournalFormError('contextKind', '请选择饮用场景')
   if (draft.cocktailId && !catalog.some(item => item.id === draft.cocktailId))
     throw new JournalFormError('cocktailId', '请选择有效的知识库酒款')
+  if (draft.recipeVariantId &&
+      (!draft.cocktailId || !catalog.find(c => c.id === draft.cocktailId)?.variants
+        ?.some(v => v.id === draft.recipeVariantId)))
+    throw new JournalFormError('recipeVariantId', '配方版本与酒款不匹配，不能自动关联')
   const parsedRating = draft.personalRating.trim() === '' ? null : Number(draft.personalRating)
   if (parsedRating !== null && (!Number.isFinite(parsedRating) || parsedRating < 0 ||
       parsedRating > 5 || !/^(?:[0-4](?:\.[0-9])?|5(?:\.0)?)$/.test(draft.personalRating.trim()))) {
@@ -88,6 +94,7 @@ export function buildDrinkInput(draft: DrinkDraft, catalog: readonly CocktailOpt
   return {
     drinkLabel, consumedAt, contextKind: draft.contextKind,
     ...(draft.cocktailId ? { cocktailId: draft.cocktailId } : {}),
+    ...(draft.cocktailId && draft.recipeVariantId ? { recipeVariantId: draft.recipeVariantId } : {}),
     ...(draft.visitSessionId ? { visitSessionId: draft.visitSessionId } : {}),
     ...(optionalString(draft.note) ? { note: draft.note.trim() } : {}),
     ...(parsedRating !== null ? { personalRating: parsedRating } : {}),

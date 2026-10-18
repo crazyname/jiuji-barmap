@@ -67,6 +67,9 @@ export default function DrinkEditor({ repository, authenticated, saveStatusLabel
   }
   const selectedBar = venues.findIndex(item => item.id === draft.barId) + 1
   const selectedCocktail = catalog.findIndex(item => item.id === draft.cocktailId) + 1
+  const matchedCocktail=catalog.find(item=>item.id===draft.cocktailId)
+  const versions=matchedCocktail?.variants||[]
+  const selectedVersion=versions.findIndex(v=>v.id===draft.recipeVariantId)+1
   const types = [
     { id: 'bar', label: '酒吧饮用' }, { id: 'home', label: '在家自调' },
     { id: 'other', label: '其他' }
@@ -82,19 +85,31 @@ export default function DrinkEditor({ repository, authenticated, saveStatusLabel
       <Text className='journal-label'>酒名 <Text className='journal-required'>*</Text></Text>
       <Input className='journal-input' placeholder='例如：尼格罗尼，或自定义酒名'
         value={draft.drinkLabel} maxlength={120} cursorSpacing={24}
-        onInput={event => edit({ drinkLabel: event.detail.value, cocktailId: null })} />
+        onInput={event => edit({ drinkLabel: event.detail.value, cocktailId: null, recipeVariantId: null })} />
       {catalog.length ? <View>
         <Text className='journal-label'>可选知识库酒款</Text>
         <Picker mode='selector' range={['自由填写酒名', ...catalog.map(item => item.label)]}
           value={selectedCocktail} onChange={event => {
             const index = Number(event.detail.value) - 1
             const selected = catalog[index]
-            edit({ cocktailId: selected?.id || null,
+            edit({ cocktailId: selected?.id || null, recipeVariantId:null,
               ...(selected ? { drinkLabel: selected.label } : {}) })
           }}>
           <View className='journal-picker'>{selectedCocktail ? catalog[selectedCocktail - 1].label : '不关联知识库酒款'}　⌄</View>
         </Picker>
-      </View> : <Text className='journal-hint'>正式酒款知识库尚未接入，可直接填写任意酒名。</Text>}
+      </View> : <Text className='journal-hint'>知识库暂无匹配酒款，可直接填写任意酒名。</Text>}
+      {matchedCocktail && versions.length?<View>
+        <Text className='journal-label'>具体配方版本（可选）</Text>
+        <Picker mode='selector' range={['仅关联酒款',...versions.map(v=>v.label)]}
+          value={selectedVersion} onChange={event=>{
+            const picked=versions[Number(event.detail.value)-1]
+            edit({recipeVariantId:picked?.id||null})
+          }}>
+          <View className='journal-picker'>{selectedVersion
+            ? versions[selectedVersion-1].label : '不选择具体版本'}　⌄</View>
+        </Picker>
+        <Text className='journal-hint'>个人评分只保存在这次饮用，不会成为公开版本评价。</Text>
+      </View>:null}
       <View className='journal-datetime'>
         <View className='journal-date-field'><Text className='journal-label'>饮用日期</Text>
           <Picker mode='date' value={draft.date} onChange={event => edit({ date: event.detail.value })}>
