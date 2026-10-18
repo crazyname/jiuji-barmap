@@ -278,6 +278,7 @@ test('React immediately renders device storage failure instead of claiming cloud
       e=>e.code==='STORAGE'&&!e.message.includes('老酒日记内容'))
   })
   assert.match(words(tree),/设备存储异常，尚未确认保存/)
+  assert.equal(cloudRecordLabel(f.cloud,'drink','any-id'),'设备存储异常，尚未确认保存')
   assert.doesNotMatch(words(tree),/已同步/)
   assert.doesNotMatch(words(tree),/老酒日记内容/)
   f.disk.set=original

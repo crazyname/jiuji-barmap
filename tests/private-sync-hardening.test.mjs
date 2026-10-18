@@ -348,3 +348,20 @@ test('initially failed storage read is recoverable without deleting previously s
   assert.equal(f.disk.has(mainKey),true)
   assert.equal(f.disk.has(backupKey),true)
 })
+
+
+test('late server logout confirmation cannot erase a freshly authenticated account',async()=>{
+  const f=authFixture()
+  await f.auth.signIn()
+  let release
+  const pendingTransport=new Promise(resolve=>{release=resolve})
+  f.wait(pendingTransport)
+  const oldLogout=f.auth.signOut()
+  assert.equal(f.auth.getState().status,'guest')
+  await f.auth.signIn()
+  assert.equal(f.auth.getState().status,'authenticated')
+  release()
+  await oldLogout
+  assert.equal(f.auth.getState().status,'authenticated')
+  assert.equal(f.auth.verifiedIdentity().userId,'server-verified-A')
+})
