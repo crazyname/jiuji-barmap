@@ -26,18 +26,22 @@ export function createPrivateApiRemote(auth: AuthService, origin: string, enable
         ...(payload === undefined?{}:{data:payload}),timeout:10000
       })
     }catch{
-      if(!auth.credentialForPrivateApi() ||
-        auth.credentialForPrivateApi()!.userId!==credential.userId)
-        throw new CloudSyncError('AUTH_REQUIRED','账号已变更，停止同步')
+      const current=auth.credentialForPrivateApi()
+      if(!current || current.userId!==credential.userId ||
+        current.accessToken!==credential.accessToken)
+        throw new CloudSyncError('AUTH_REQUIRED','账号或会话已变更，停止同步')
       throw new CloudSyncError('NETWORK','当前离线或服务器不可达，本机队列已保留')
     }
+    const current=auth.credentialForPrivateApi()
+    // Reject stale HTTP responses BEFORE processing even a 401. Otherwise a
+    // prior session could revoke a newly authenticated B or same-user session.
+    if(!current || current.userId!==credential.userId ||
+      current.accessToken!==credential.accessToken)
+      throw new CloudSyncError('AUTH_REQUIRED','账号或会话已变更，停止同步')
     if(response.statusCode===401 || response.statusCode===403){
       auth.invalidatePrivateApi()
       throw new CloudSyncError('AUTH_REQUIRED','会话已失效，请重新登录',response.statusCode)
     }
-    const current=auth.credentialForPrivateApi()
-    if(!current || current.userId!==credential.userId)
-      throw new CloudSyncError('AUTH_REQUIRED','账号已变更，停止同步')
     const value:unknown=response.data
     if(response.statusCode===409)throw new CloudSyncError('CONFLICT','服务器记录已更新，需要人工处理',409)
     if(response.statusCode===404)throw new CloudSyncError('NOT_FOUND','服务器记录不存在',404)
