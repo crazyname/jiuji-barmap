@@ -146,6 +146,7 @@ export class CloudJournalCoordinator {
     try {this.deps.storage.write(key(next.ownerUserId),copy(persisted))}
     catch {
       this.storageBlocked=true
+      this.emit() // React must immediately show STORAGE rather than stale "synced".
       throw new CloudSyncError('STORAGE','设备存储失败，尚未确认保存，请检查空间并恢复')
     }
     this.state=next;this.emit()
