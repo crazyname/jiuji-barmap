@@ -2,11 +2,14 @@
 import React, { useState } from 'react'
 import Taro, { useDidShow, useRouter } from '@tarojs/taro'
 import { PersonalJournalList, PersonalJournalDetail } from '../../components/journal/PersonalJournalViews'
-import { createLockedWeChatJournalRepository } from '../../services/private-journal'
+import { createSessionJournalRepository } from '../../services/private-journal'
+import { authService } from '../../services/wechat-auth'
+import { useAuthState } from '../../utils/use-auth-state'
+import { PrivateLockedView } from '../../components/auth/PrivateLockedView'
 import { getVenues } from '../../utils/venues'
 
 // Deliberately locked until a future server-verified account session exists.
-const repository = createLockedWeChatJournalRepository()
+const repository = createSessionJournalRepository(authService)
 function openDrink(id: string): void {
   void Taro.navigateTo({ url: '/pages/journal-drink-detail/index?id=' + encodeURIComponent(id) })
 }
@@ -18,8 +21,11 @@ function knownBars() { return getVenues().map(bar => ({ id: bar.id, name: bar.na
 
 export function JournalListPage({ mode }: { mode: 'timeline' | 'footprints' | 'cocktails' }) {
   const [refreshVersion, setRefreshVersion] = useState(0)
-  useDidShow(() => setRefreshVersion(n => n + 1))
-  return <PersonalJournalList mode={mode} repository={repository}
+  const auth = useAuthState(authService)
+  useDidShow(() => { void authService.checkSession(); setRefreshVersion(n => n + 1) })
+  if (auth.status !== 'authenticated' || !authService.verifiedIdentity())
+    return <PrivateLockedView state={auth} onBack={back} />
+  return <PersonalJournalList key={auth.account!.id + '-' + auth.epoch} mode={mode} repository={repository}
     refreshVersion={refreshVersion} bars={knownBars()}
     onOpenDrink={openDrink} onOpenVisit={openVisit} onBack={back} />
 }
@@ -27,8 +33,11 @@ export function JournalDetailPage({ mode }: { mode: 'drink' | 'visit' }) {
   const router = useRouter()
   const recordId = typeof router.params.id === 'string' ? router.params.id : ''
   const [refreshVersion, setRefreshVersion] = useState(0)
-  useDidShow(() => setRefreshVersion(n => n + 1))
-  return <PersonalJournalDetail mode={mode} recordId={recordId}
+  const auth = useAuthState(authService)
+  useDidShow(() => { void authService.checkSession(); setRefreshVersion(n => n + 1) })
+  if (auth.status !== 'authenticated' || !authService.verifiedIdentity())
+    return <PrivateLockedView state={auth} onBack={back} />
+  return <PersonalJournalDetail key={auth.account!.id + '-' + auth.epoch} mode={mode} recordId={recordId}
     repository={repository} refreshVersion={refreshVersion} bars={knownBars()}
     onOpenDrink={openDrink} onOpenVisit={openVisit} onBack={back}
     confirm={async (title, content) => {

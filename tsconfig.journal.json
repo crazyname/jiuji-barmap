@@ -34,6 +34,14 @@
     "apps/wechat/src/pages/journal-footprints/index.tsx",
     "apps/wechat/src/pages/journal-cocktails/index.tsx",
     "apps/wechat/src/pages/journal-drink-detail/index.tsx",
-    "apps/wechat/src/pages/journal-visit-detail/index.tsx"
+    "apps/wechat/src/pages/journal-visit-detail/index.tsx",
+    "apps/wechat/src/services/auth-contracts.ts",
+    "apps/wechat/src/services/auth-service.ts",
+    "apps/wechat/src/services/wechat-auth.ts",
+    "apps/wechat/src/config/auth.ts",
+    "apps/wechat/src/utils/use-auth-state.ts",
+    "apps/wechat/src/components/auth/AuthPanel.tsx",
+    "apps/wechat/src/components/auth/PrivateLockedView.tsx",
+    "apps/wechat/src/pages/mine/index.tsx"
   ]
 }

@@ -4,6 +4,9 @@ import { Button, Input, ScrollView, Text, View } from '@tarojs/components'
 import Taro, { useDidShow } from '@tarojs/taro'
 import { favoriteIds, getVenues, Venue } from '../../utils/venues'
 import { refreshSites, syncState } from '../../services/sync'
+import { AuthPanel } from '../../components/auth/AuthPanel'
+import { authService } from '../../services/wechat-auth'
+import { useAuthState } from '../../utils/use-auth-state'
 import './index.css'
 
 type Panel = 'home' | 'favorites' | 'recipes' | 'posts' | 'history' | 'settings'
@@ -37,6 +40,7 @@ function ownEntries(kind: 'recipes' | 'posts'): Entry[] {
 }
 export default function MinePage() {
   useSyncCustomTabBar(3)
+  const authState = useAuthState(authService)
   const [panel, setPanel] = useState<Panel>('home')
   const [profile, setProfile] = useState<Profile>({ name: '酒迹用户', bio: '' })
   const [name, setName] = useState('酒迹用户')
@@ -75,6 +79,7 @@ export default function MinePage() {
     setRefreshing(false)
   }
   useDidShow(() => {
+    void authService.checkSession()
     loadLocal()
     void update()
   })
@@ -119,7 +124,7 @@ export default function MinePage() {
           <View className='mine-person'>
             <Text className='mine-name'>{profile.name}</Text>
             <Text className='mine-sub'>{profile.bio || '尚未填写个人简介'}</Text>
-            <Text className='mine-guest'>本机资料 · 访客模式</Text>
+            <Text className='mine-guest'>{authState.status === 'authenticated' ? '已验证账户 · 本机资料未自动合并' : '本机资料 · 访客模式'}</Text>
           </View>
           <View className='mine-edit' onClick={() => setEditing(!editing)}>
             <Text>{editing ? '取消' : '编辑'}</Text>
@@ -131,6 +136,7 @@ export default function MinePage() {
           <Input className='mine-field' value={bio} maxlength={100} placeholder='写一句个人简介' onInput={e => setBio(e.detail.value)} />
           <Button className='mine-main-button' onClick={saveProfile}>保存资料</Button>
         </View> : null}
+        <AuthPanel service={authService} />
         <View className='mine-stat-grid'>
           <View className='mine-stat' onClick={() => setPanel('favorites')}><Text className='mine-stat-number'>{favorites.length}</Text><Text>收藏酒吧</Text></View>
           <View className='mine-stat' onClick={() => setPanel('recipes')}><Text className='mine-stat-number'>{recipes.length}</Text><Text>我的配方</Text></View>
@@ -194,9 +200,7 @@ export default function MinePage() {
         {visits.length ? <Button className='mine-plain-button' onClick={() => void clearVisits()}>清除本机浏览记录</Button> : null}
       </View> : null}
       {panel === 'settings' ? <View className='mine-card'>
-        <View className='mine-menu-row' onClick={() => void Taro.showToast({ title: '账号登录即将开放', icon: 'none' })}>
-          <Text className='mine-menu-title'>登录 / 注册</Text><Text className='mine-menu-note'>即将开放　›</Text>
-        </View>
+        <AuthPanel service={authService} />
         <View className='mine-menu-row' onClick={() => void Taro.showModal({ title: '隐私说明', content: '公开酒吧和帖子通过网络读取。昵称、浏览记录等本机资料保存在当前设备；账号同步功能开放后会提供相应管理入口。', showCancel: false })}>
           <Text className='mine-menu-title'>隐私说明</Text><Text className='mine-menu-note'>›</Text>
         </View>

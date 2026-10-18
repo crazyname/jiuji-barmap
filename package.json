@@ -25,6 +25,7 @@
     "sites:probe": "node scripts/probe-sites-api.cjs",
     "test:journal": "node --experimental-strip-types --test tests/private-journal.test.mjs",
     "test:quick-ui": "node --experimental-strip-types --test tests/quick-journal-ui.test.mjs",
-    "test:journal-views": "node --experimental-strip-types --test tests/personal-journal-views.test.mjs"
+    "test:journal-views": "node --experimental-strip-types --test tests/personal-journal-views.test.mjs",
+    "test:auth": "node --experimental-strip-types --test tests/wechat-auth.test.mjs"
   }
 }
