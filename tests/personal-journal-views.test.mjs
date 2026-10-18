@@ -6,6 +6,7 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { createRequire } from 'node:module'
 import { createJournalRepository, JournalError } from '../packages/core/src/journal.ts'
+import { CommunityRepository } from '../packages/core/src/community.ts'
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const requireApp = createRequire(path.join(root, 'apps/wechat/package.json'))
@@ -85,14 +86,14 @@ async function renderList(mode, repository, extra = {}) {
   })
   return { tree, openedDrinks, openedVisits, back }
 }
-async function renderDetail(mode, recordId, repository, confirm = async () => true) {
+async function renderDetail(mode, recordId, repository, confirm = async () => true, extra = {}) {
   const openedDrinks = [], openedVisits = [], back = []
   let tree
   await act(async () => {
     tree = create(React.createElement(PersonalJournalDetail, {
       repository, mode, recordId, bars, confirm,
       onOpenDrink: id => openedDrinks.push(id),
-      onOpenVisit: id => openedVisits.push(id), onBack: () => back.push(true)
+      onOpenVisit: id => openedVisits.push(id), onBack: () => back.push(true), ...extra
     }))
   })
   return { tree, openedDrinks, openedVisits, back }
@@ -332,4 +333,42 @@ test('PR-05 private-view stylesheet is loaded by Taro and date Picker defaults t
     'apps/wechat/src/components/journal/PersonalJournalViews.tsx'), 'utf8')
   assert.match(source, /import ['"]\.\/personal-views\.css['"]/)
   assert.match(source, /filterDate \|\| dateKey\(new Date\(\)\.toISOString\(\)\)/)
+})
+
+
+test('private detail React share controls only open an independent scrubbed draft after explicit tap',async()=>{
+  const f=fixture()
+  const original=addDrink(f.repository,'有私人含义的那一杯')
+  const visit=addVisit(f.repository)
+  const originalDrink=structuredClone(f.repository.getDrink(original.id))
+  const originalVisit=structuredClone(f.repository.getVisit(visit.id))
+  const disk=new Map(),shared=[]
+  const drafts=new CommunityRepository({
+    identity:{verifiedUserId:()=> 'alice'},
+    storage:{read:key=>disk.get(key),write:(key,x)=>disk.set(key,structuredClone(x))},
+    newId:()=> 'render-share-'+(shared.length+1),
+    now:()=> '2026-10-18T08:00:00Z'
+  })
+  const drinkDetail=await renderDetail('drink',original.id,f.repository,async()=>true,{
+    onShareDrink:entry=>shared.push(drafts.fromDrink(entry))
+  })
+  assert.equal(shared.length,0,'no automatic share on rendering the private page')
+  await act(async()=>button(drinkDetail.tree,'分享到社区').props.onClick())
+  assert.equal(shared.length,1)
+  assert.equal(shared[0].body,'')
+  assert.equal(shared[0].barId,null)
+  assert.deepEqual(shared[0].images,[])
+  assert.equal(JSON.stringify(shared[0]).includes(original.id),false)
+  assert.deepEqual(f.repository.getDrink(original.id),originalDrink)
+  await act(async()=>drinkDetail.tree.unmount())
+  const visitDetail=await renderDetail('visit',visit.id,f.repository,async()=>true,{
+    onShareVisit:entry=>shared.push(drafts.fromVisit(entry))
+  })
+  await act(async()=>button(visitDetail.tree,'分享到社区').props.onClick())
+  assert.equal(shared.length,2)
+  assert.equal(shared[1].title,'一次探店分享')
+  assert.equal(shared[1].barId,null)
+  drafts.discardDraft(shared[1].id)
+  assert.deepEqual(f.repository.getVisit(visit.id),originalVisit)
+  await act(async()=>visitDetail.tree.unmount())
 })
