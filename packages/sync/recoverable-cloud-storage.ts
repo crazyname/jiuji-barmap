@@ -106,7 +106,7 @@ export function createRecoverableCloudStorage(raw:RawPrivateStorage):CloudStorag
       const latest=Math.max(primary.sequence,recovery.sequence)
       if(latest>=Number.MAX_SAFE_INTEGER-1)throw storageError()
       let pack:Envelope
-      try {pack={format:FORMAT,sequence:latest+1,checksum:checksum(value),data:value}}
+      try {pack={format:FORMAT,sequence:Math.max(0,latest)+1,checksum:checksum(value),data:value}}
       catch {throw storageError()}
       try {
         raw.write(secondary(key),pack)
