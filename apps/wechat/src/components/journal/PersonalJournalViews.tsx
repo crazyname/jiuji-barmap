@@ -126,11 +126,14 @@ export interface PrivateDetailProps extends Navigate {
   refreshVersion?: number
   syncLabel?: (kind:'drink'|'visit',id:string)=>string
   onChanged?: () => void
+  onShareDrink?: (entry:DrinkEntry)=>void
+  onShareVisit?: (visit:VisitSession)=>void
   onBack: () => void
   confirm: (title: string, content: string) => Promise<boolean>
 }
 export function PersonalJournalDetail({ repository, recordId, mode, bars,
-  refreshVersion = 0, onBack, onOpenDrink, onOpenVisit, confirm, syncLabel, onChanged }: PrivateDetailProps) {
+  refreshVersion = 0, onBack, onOpenDrink, onOpenVisit, confirm, syncLabel, onChanged,
+  onShareDrink, onShareVisit }: PrivateDetailProps) {
   type State = { drink: DrinkEntry | null; visit: VisitSession | null;
     visits: VisitSession[]; drinks: DrinkEntry[] }
   const [loaded, setLoaded] = useState<PrivateViewResult<State> | null>(null)
@@ -246,6 +249,8 @@ export function PersonalJournalDetail({ repository, recordId, mode, bars,
           <Button className='pv-main-button' disabled={pending} onClick={() => void saveEdit()}>确认保存修改</Button>
           <Button className='pv-outline' onClick={() => { setEditing(false); setError('') }}>取消编辑</Button>
         </View> : <Button className='pv-outline' onClick={beginEdit}>编辑私人感受与评分</Button>}
+        {onShareDrink?<Button className='pv-outline' disabled={pending}
+          onClick={()=>onShareDrink(drink)}>分享到社区（先编辑草稿）</Button>:null}
         <Button className='pv-danger' disabled={pending} onClick={() => void perform(
           '删除这杯酒？', '删除后无法恢复，不会删除关联的探店经历。',
           () => { repository.deleteDrink(drink.id, drink.revision) }, true)}>删除这条饮用记录</Button>
@@ -258,6 +263,8 @@ export function PersonalJournalDetail({ repository, recordId, mode, bars,
           {data.drinks.length ? data.drinks.map(entry => <DrinkRow key={entry.id} entry={entry}
             visits={[visit]} bars={bars} syncLabel={syncLabel} onOpen={() => onOpenDrink(entry.id)} />) :
             <Text className='pv-muted'>这次探店还没有关联饮用记录。</Text>}
+          {onShareVisit?<Button className='pv-outline' disabled={pending}
+            onClick={()=>onShareVisit(visit)}>分享到社区（先编辑草稿）</Button>:null}
           <Button className='pv-danger' disabled={pending} onClick={() => void perform(
             '删除这次探店？', '关联饮用记录将保留，但会解除与本次探店的关系。',
             () => { repository.deleteVisit(visit.id, visit.revision) }, true)}>删除这次探店</Button>
