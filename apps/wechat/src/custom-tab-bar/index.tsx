@@ -15,7 +15,7 @@ export function actionDestination(index: number): { type: 'page' | 'tab'; url: s
   switch (index) {
     case 0: return { type: 'page', url: '/pages/journal-drink/index' }
     case 1: return { type: 'page', url: '/pages/journal-visit/index' }
-    case 2: return { type: 'tab', url: '/pages/community/index' }
+    case 2: return { type: 'page', url: '/pages/community-editor/index' }
     default: return null
   }
 }

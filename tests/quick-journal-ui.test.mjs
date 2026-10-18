@@ -154,7 +154,7 @@ test('native action sheet maps visit/community and cancel without route or state
   assert.deepEqual(nav, [{ type: 'page', url: '/pages/journal-visit/index' }])
   actionIndex = 2
   await act(async () => { tree.root.findByProps({ ariaLabel: '打开记录与发布操作' }).props.onClick() })
-  assert.deepEqual(nav.at(-1), { type: 'tab', url: '/pages/community/index' })
+  assert.deepEqual(nav.at(-1), { type: 'page', url: '/pages/community-editor/index' })
   const count = nav.length
   cancelAction = true
   await act(async () => { tree.root.findByProps({ ariaLabel: '打开记录与发布操作' }).props.onClick() })

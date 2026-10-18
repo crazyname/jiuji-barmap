@@ -34,14 +34,16 @@ test('Sites exporter rejects sponsored posts with no sponsor disclosure',()=>{
   assert.notEqual(result.status,0);
  }finally{fs.rmSync(dir,{recursive:true,force:true})}
 });
-test('React demos render Sites recipes and sponsored posts without auto-uploading them',()=>{
+test('legacy Sites demo fixture remains intact while PR-11 new community never auto-publishes it',()=>{
  const mix=fs.readFileSync(path.join(root,'apps/wechat/src/pages/mix/index.tsx'),'utf8');
  const community=fs.readFileSync(path.join(root,'apps/wechat/src/pages/community/index.tsx'),'utf8');
  assert.match(mix,/demoRecipes/);
  assert.match(mix,/未核实/);
  assert.doesNotMatch(mix,/queueRemoteUpsert\(/);
- assert.match(community,/demoPosts/);
- assert.match(community,/sponsorName/);
+ assert.match(community,/communityRepository\.listPublic/);
+ assert.doesNotMatch(community,/demoPosts|sites-test|queueRemoteUpsert/);
+ const detail=fs.readFileSync(path.join(root,'apps/wechat/src/components/community/CommunityViews.tsx'),'utf8');
+ assert.match(detail,/community-sponsored/);
  const content=data('apps/wechat/src/data/sites-test.json');
  assert.ok(content.posts.filter(x=>x.type==='promo').every(x=>x.isSponsored&&x.sponsorName));
 });

@@ -8,6 +8,8 @@ import { authService } from '../../services/wechat-auth'
 import { useAuthState } from '../../utils/use-auth-state'
 import { PrivateLockedView } from '../../components/auth/PrivateLockedView'
 import { getVenues } from '../../utils/venues'
+import { communityRepository } from '../../services/community'
+import type { DrinkEntry, VisitSession } from '../../../../../packages/core/src/models'
 
 // Deliberately locked until a future server-verified account session exists.
 const repository = privateMirrorRepository
@@ -18,6 +20,19 @@ function openVisit(id: string): void {
   void Taro.navigateTo({ url: '/pages/journal-visit-detail/index?id=' + encodeURIComponent(id) })
 }
 function back(): void { void Taro.navigateBack() }
+function openShareDraft(kind:'drink'|'visit',record:DrinkEntry|VisitSession):void {
+  // An explicit tap is required. Conversion copies NONE of the private
+  // note/rating/photo/date/location/source ID fields into community JSON.
+  if(!authService.verifiedIdentity())return
+  try {
+    const draft=kind==='drink'
+      ?communityRepository.fromDrink(record as DrinkEntry)
+      :communityRepository.fromVisit(record as VisitSession)
+    void Taro.navigateTo({url:'/pages/community-editor/index?id='+encodeURIComponent(draft.id)})
+  }catch {
+    void Taro.showToast({title:'设备草稿保存失败，私人记录未更改',icon:'none'})
+  }
+}
 function knownBars() { return getVenues().map(bar => ({ id: bar.id, name: bar.name })) }
 
 export function JournalListPage({ mode }: { mode: 'timeline' | 'footprints' | 'cocktails' }) {
@@ -56,6 +71,8 @@ export function JournalDetailPage({ mode }: { mode: 'drink' | 'visit' }) {
       repository={repository} refreshVersion={refreshVersion+version} bars={knownBars()}
       syncLabel={(kind,id)=>cloudRecordLabel(privateCloud,kind,id)}
       onChanged={()=>void privateCloud.sync()}
+      onShareDrink={drink=>openShareDraft('drink',drink)}
+      onShareVisit={visit=>openShareDraft('visit',visit)}
       onOpenDrink={openDrink} onOpenVisit={openVisit} onBack={back}
     confirm={async (title, content) => {
       const response = await Taro.showModal({ title, content, confirmText: '确认', cancelText: '取消' })

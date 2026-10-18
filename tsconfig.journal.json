@@ -53,6 +53,12 @@
     "apps/wechat/src/components/cocktails/CocktailKnowledgeView.tsx",
     "apps/wechat/src/pages/mix/index.tsx",
     "apps/wechat/src/pages/cocktail-detail/index.tsx",
-    "apps/wechat/src/pages/recipe-variant/index.tsx"
+    "apps/wechat/src/pages/recipe-variant/index.tsx",
+    "packages/core/src/community.ts",
+    "apps/wechat/src/services/community.ts",
+    "apps/wechat/src/components/community/CommunityViews.tsx",
+    "apps/wechat/src/pages/community/index.tsx",
+    "apps/wechat/src/pages/community-detail/index.tsx",
+    "apps/wechat/src/pages/community-editor/index.tsx"
   ]
 }

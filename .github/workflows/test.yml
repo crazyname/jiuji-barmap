@@ -27,6 +27,8 @@ jobs:
         run: npm run test:cloud
       - name: Exercise private offline recovery, quota and session lifecycle
         run: npm run test:hardening
+      - name: Test community post schema, draft privacy and review boundaries
+        run: npm run test:community-model
       - name: Check migration gates
         run: npm run migration:status
   private-backend-bundle:
@@ -66,6 +68,8 @@ jobs:
         run: npm run test:auth
       - name: Exercise private cloud sync React UI states
         run: npm run test:cloud-ui
+      - name: Exercise real React community feed and draft editor interactions
+        run: npm run test:community-ui
       - name: Strict TypeScript check for journal and WeChat adapter
         run: apps/wechat/node_modules/.bin/tsc --noEmit -p tsconfig.journal.json
       - name: Compile WeChat mini program
