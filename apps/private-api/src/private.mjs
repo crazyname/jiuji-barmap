@@ -258,13 +258,19 @@ async function remove(request, owner, id, kind, {db,now}) {
   return respond({ok:true})
 }
 function paging(url) {
-  const allowed=['limit','before','context','visitSessionId']
+  const allowed=['limit','before','beforeId','context','visitSessionId']
   for (const key of url.searchParams.keys())
     if (!allowed.includes(key)) fail(400,'INVALID_INPUT','查询参数无效')
   const text=url.searchParams.get('limit')??'50'
   if (!/^\d{1,3}$/.test(text)||+text<1||+text>100)
     fail(400,'INVALID_INPUT','limit 必须在 1 至 100 之间')
-  return {limit:+text,before:url.searchParams.get('before'),
+  const before=url.searchParams.get('before')
+  const beforeId=url.searchParams.get('beforeId')
+  if (beforeId !== null && before === null)
+    fail(400,'INVALID_INPUT','beforeId 必须与 before 同时提供')
+  if (beforeId !== null && !/^[A-Za-z0-9._:-]{1,128}$/.test(beforeId))
+    fail(400,'INVALID_INPUT','beforeId 无效')
+  return {limit:+text,before,beforeId,
     context:url.searchParams.get('context'),visit:url.searchParams.get('visitSessionId')}
 }
 async function listing(request, owner, kind, {db}) {
@@ -277,12 +283,27 @@ async function listing(request, owner, kind, {db}) {
   const params=[owner]
   let sql='SELECT * FROM '+table+' WHERE owner_user_id=?'
   const time=isDrink?'consumed_at':'occurred_at'
-  if (query.before) {sql+=' AND '+time+' < ?';params.push(iso(query.before,'before'))}
+  if (query.before) {
+    const instant=iso(query.before,'before')
+    if (query.beforeId !== null) {
+      // Matches ORDER BY <time> DESC, id ASC, even for >100 equal timestamps.
+      sql+=' AND ('+time+' < ? OR ('+time+' = ? AND id > ?))'
+      params.push(instant,instant,query.beforeId)
+    } else {
+      // Legacy timestamp-only callers keep their pre-PR08 semantics.
+      sql+=' AND '+time+' < ?'
+      params.push(instant)
+    }
+  }
   if (isDrink && query.context) {sql+=' AND context_kind=?';params.push(query.context)}
   if (isDrink && query.visit) {sql+=' AND visit_session_id=?';params.push(string(query.visit,'visitSessionId'))}
-  sql+=' ORDER BY '+time+' DESC, id ASC LIMIT ?';params.push(query.limit)
-  const rows=(await db.prepare(sql).bind(...params).all()).results
-  return respond({[isDrink?'entries':'visits']:rows.map(isDrink?fromDrink:fromVisit)})
+  sql+=' ORDER BY '+time+' DESC, id ASC LIMIT ?';params.push(query.limit+1)
+  const fetched=(await db.prepare(sql).bind(...params).all()).results
+  const hasMore=fetched.length>query.limit
+  const rows=fetched.slice(0,query.limit)
+  const last=rows[rows.length-1]
+  return respond({[isDrink?'entries':'visits']:rows.map(isDrink?fromDrink:fromVisit),
+    nextCursor:hasMore && last ? {before:last[time],beforeId:last.id} : null})
 }
 export async function handlePrivate(request, path, owner, ctx) {
   const parts=path.split('/').filter(Boolean)

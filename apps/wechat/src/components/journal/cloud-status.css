@@ -1,0 +1,8 @@
+.cloud-container{padding:20rpx 24rpx;background:#FFFFFF;border:1rpx solid #E6E6E8;
+border-radius:12rpx;margin:12rpx 20rpx;color:#242329}
+.cloud-status{display:block;color:#82442F;font-size:26rpx;font-weight:600}
+.cloud-detail{display:block;color:#6F6D74;font-size:22rpx;margin-top:9rpx}
+.cloud-error{display:block;color:#B42318;font-size:23rpx;margin-top:10rpx}
+.cloud-retry{background:#F7F5F5;color:#82442F;font-size:23rpx;margin-top:14rpx}
+.cloud-conflict{padding:16rpx 0;border-top:1rpx solid #E6E6E8;font-size:24rpx}
+.cloud-conflict button{background:#FFFFFF;color:#82442F;font-size:23rpx;margin-top:10rpx}

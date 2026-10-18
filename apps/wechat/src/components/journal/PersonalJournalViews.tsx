@@ -16,6 +16,7 @@ export interface PersonalJournalListProps extends Navigate {
   mode: Mode
   bars: readonly { id: number; name: string }[]
   refreshVersion?: number
+  syncLabel?: (kind:'drink'|'visit',id:string)=>string
   onBack: () => void
 }
 
@@ -31,13 +32,15 @@ function StatusMessage({ status, message, onRetry }: {
     {status === 'error' ? <Button className='pv-outline' onClick={onRetry}>重新加载</Button> : null}
   </View>
 }
-function DrinkRow({ entry, visits, bars, onOpen }: {
+function DrinkRow({ entry, visits, bars, onOpen, syncLabel }: {
   entry: DrinkEntry; visits: readonly VisitSession[];
   bars: readonly { id: number; name: string }[]; onOpen: () => void
+  syncLabel?: (kind:'drink'|'visit',id:string)=>string
 }) {
   const visit = linkedVisit(entry, visits)
   return <View className='pv-row' onClick={onOpen}>
     <Text className='pv-main'>{entry.drinkLabel}</Text>
+    {syncLabel?<Text className='pv-muted'>{syncLabel('drink',entry.id)}</Text>:null}
     <Text className='pv-muted'>{dateLabel(entry.consumedAt)} · {CONTEXT_LABEL[entry.contextKind]}</Text>
     <Text className='pv-muted'>{personalRatingLabel(entry.personalRating)}</Text>
     {entry.note ? <Text className='pv-summary'>{noteSummary(entry.note)}</Text> : null}
@@ -46,7 +49,7 @@ function DrinkRow({ entry, visits, bars, onOpen }: {
   </View>
 }
 export function PersonalJournalList({ repository, mode, bars, refreshVersion = 0,
-  onOpenDrink, onOpenVisit, onBack }: PersonalJournalListProps) {
+  onOpenDrink, onOpenVisit, onBack, syncLabel }: PersonalJournalListProps) {
   const [loaded, setLoaded] = useState<PrivateViewResult<TimelineData | FootprintsData | ArchiveData> | null>(null)
   const [retry, setRetry] = useState(0)
   const [filterDate, setFilterDate] = useState('')
@@ -80,7 +83,7 @@ export function PersonalJournalList({ repository, mode, bars, refreshVersion = 0
             </Picker>
           </View>
           {shown.length ? shown.map(row => <DrinkRow key={row.id} entry={row}
-            visits={data.visits} bars={bars} onOpen={() => onOpenDrink(row.id)} />) :
+            visits={data.visits} bars={bars} syncLabel={syncLabel} onOpen={() => onOpenDrink(row.id)} />) :
             <Text className='pv-empty'>{data.drinks.length ? '没有符合筛选条件的饮用记录。' :
               '还没有私人饮用记录；可从底部＋开始记一杯酒。'}</Text>}
         </View>
@@ -89,6 +92,8 @@ export function PersonalJournalList({ repository, mode, bars, refreshVersion = 0
         return data.visits.length ? <View>{data.visits.map(visit => <View
           className='pv-row' key={visit.id} onClick={() => onOpenVisit(visit.id)}>
           <Text className='pv-main'>{placeLabel(visit, bars)}</Text>
+          {syncLabel?<Text className='pv-muted'>{syncLabel('visit',visit.id)}</Text>:null}
+          {syncLabel?<Text className='pv-muted'>{syncLabel('visit',visit.id)}</Text>:null}
           <Text className='pv-muted'>{dateLabel(visit.occurredAt)}</Text>
           {visit.note ? <Text className='pv-summary'>{noteSummary(visit.note)}</Text> : null}
           <Text className='pv-link-hint'>{data.drinks.filter(d => d.visitSessionId === visit.id).length} 杯饮用记录 · 查看经历 ›</Text>
@@ -101,7 +106,7 @@ export function PersonalJournalList({ repository, mode, bars, refreshVersion = 0
           <Text className='pv-back' onClick={() => setArchiveKey(null)}>‹ 返回我的酒款</Text>
           <Text className='pv-main'>{picked.label} · {picked.entries.length} 次饮用</Text>
           {picked.entries.map(entry => <DrinkRow key={entry.id} entry={entry}
-            visits={[]} bars={bars} onOpen={() => onOpenDrink(entry.id)} />)}
+            visits={[]} bars={bars} syncLabel={syncLabel} onOpen={() => onOpenDrink(entry.id)} />)}
         </View> : data.groups.length ? <View>{data.groups.map(group => <View className='pv-row'
           key={group.key} onClick={() => setArchiveKey(group.key)}>
           <Text className='pv-main'>{group.label}</Text>
@@ -119,11 +124,13 @@ export interface PrivateDetailProps extends Navigate {
   bars: readonly { id: number; name: string }[]
   mode: 'drink' | 'visit'
   refreshVersion?: number
+  syncLabel?: (kind:'drink'|'visit',id:string)=>string
+  onChanged?: () => void
   onBack: () => void
   confirm: (title: string, content: string) => Promise<boolean>
 }
 export function PersonalJournalDetail({ repository, recordId, mode, bars,
-  refreshVersion = 0, onBack, onOpenDrink, onOpenVisit, confirm }: PrivateDetailProps) {
+  refreshVersion = 0, onBack, onOpenDrink, onOpenVisit, confirm, syncLabel, onChanged }: PrivateDetailProps) {
   type State = { drink: DrinkEntry | null; visit: VisitSession | null;
     visits: VisitSession[]; drinks: DrinkEntry[] }
   const [loaded, setLoaded] = useState<PrivateViewResult<State> | null>(null)
@@ -162,6 +169,7 @@ export function PersonalJournalDetail({ repository, recordId, mode, bars,
         action()
         setError('')
         setEditing(false)
+        onChanged?.()
         if (close) onBack()
         else load()
       } catch (cause) {
@@ -201,6 +209,7 @@ export function PersonalJournalDetail({ repository, recordId, mode, bars,
         message={loaded.message} onRetry={() => setRetry(x => x + 1)} /> :
       mode === 'drink' && drink && data ? <View className='pv-card'>
         <Text className='pv-main'>{drink.drinkLabel}</Text>
+        {syncLabel?<Text className='pv-muted'>{syncLabel('drink',drink.id)}</Text>:null}
         <Text className='pv-muted'>{dateLabel(drink.consumedAt)} · {CONTEXT_LABEL[drink.contextKind]}</Text>
         <Text className='pv-muted'>{personalRatingLabel(drink.personalRating)}</Text>
         {drink.cocktailId ? <Text className='pv-muted'>关联酒款 ID：{drink.cocktailId}</Text> : null}
@@ -247,7 +256,7 @@ export function PersonalJournalDetail({ repository, recordId, mode, bars,
           <Text className='pv-summary'>{visit.note || '未填写备注'}</Text>
           <Text className='pv-section'>这次探店的饮用 · {data.drinks.length} 杯</Text>
           {data.drinks.length ? data.drinks.map(entry => <DrinkRow key={entry.id} entry={entry}
-            visits={[visit]} bars={bars} onOpen={() => onOpenDrink(entry.id)} />) :
+            visits={[visit]} bars={bars} syncLabel={syncLabel} onOpen={() => onOpenDrink(entry.id)} />) :
             <Text className='pv-muted'>这次探店还没有关联饮用记录。</Text>}
           <Button className='pv-danger' disabled={pending} onClick={() => void perform(
             '删除这次探店？', '关联饮用记录将保留，但会解除与本次探店的关系。',

@@ -400,3 +400,60 @@ test('Cron removes stale rate/code entries and only expired sessions and their r
   assert.equal(f.db.query('SELECT count(*) AS n FROM auth_sessions')[0].n,0)
   assert.equal(f.db.query('SELECT count(*) AS n FROM used_refresh_tokens')[0].n,0)
 })
+
+
+test('PR08 composite cursor returns >100 equal-time drinks across pages without gaps or repeats',async()=>{
+  const f=fixture(), a=await f.login(), b=await f.login('userB-page')
+  const instant='2026-10-17T20:30:00+08:00'
+  for(let i=0;i<216;i++){
+    const created=await f.call('POST','/v1/private/drinks',drink({
+      drinkLabel:'并列时间 '+i,consumedAt:instant}),a.accessToken)
+    check(created,201)
+  }
+  let cursor=null, ids=[], pages=0
+  do {
+    const params=new URLSearchParams({limit:'47'})
+    if(cursor){params.set('before',cursor.before);params.set('beforeId',cursor.beforeId)}
+    const resp=await f.call('GET','/v1/private/drinks?'+params,undefined,a.accessToken)
+    check(resp,200)
+    ids.push(...resp.body.entries.map(x=>x.id))
+    assert.ok(resp.body.entries.length<=47)
+    cursor=resp.body.nextCursor
+    pages++
+    assert.ok(pages<=7,'cursor traversal must terminate')
+  }while(cursor)
+  assert.equal(pages,5)
+  assert.equal(ids.length,216)
+  assert.equal(new Set(ids).size,216)
+  assert.deepEqual(ids,[...ids].sort(),'tie order uses id ASC')
+  const other=await f.call('GET','/v1/private/drinks?limit=47',undefined,b.accessToken)
+  assert.deepEqual(other.body.entries,[])
+  assert.equal(other.body.nextCursor,null)
+})
+test('PR08 composite cursor visits traverse same-time records and reject malformed or partial cursor',async()=>{
+  const f=fixture(),t=await f.login()
+  for(let i=0;i<124;i++)check(await f.call('POST','/v1/private/visits',
+    visit({placeLabel:'第'+i+'次'}),t.accessToken),201)
+  let cursor=null, seen=[]
+  do{
+    const q=new URLSearchParams({limit:'60'})
+    if(cursor){q.set('before',cursor.before);q.set('beforeId',cursor.beforeId)}
+    const page=await f.call('GET','/v1/private/visits?'+q,undefined,t.accessToken)
+    check(page,200)
+    seen.push(...page.body.visits.map(x=>x.id))
+    cursor=page.body.nextCursor
+  }while(cursor)
+  assert.equal(seen.length,124)
+  assert.equal(new Set(seen).size,124)
+  check(await f.call('GET','/v1/private/drinks?beforeId=hi',undefined,t.accessToken),
+    400,'INVALID_INPUT')
+  const base='before=2026-10-17T19%3A00%3A00.000Z&beforeId='
+  check(await f.call('GET','/v1/private/visits?'+base+'%27%20OR%201%3D1',
+    undefined,t.accessToken),400,'INVALID_INPUT')
+  check(await f.call('GET','/v1/private/visits?'+base+'abc%20def',
+    undefined,t.accessToken),400,'INVALID_INPUT')
+  check(await f.call('GET','/v1/private/visits?'+base+'abc',undefined,t.accessToken),200)
+})
+
+// Shared real SQLite/HTTP harness for PR-08 two-device integration tests.
+export { fixture }

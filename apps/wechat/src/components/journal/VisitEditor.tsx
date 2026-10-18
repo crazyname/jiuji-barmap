@@ -10,6 +10,7 @@ import './index.css'
 export interface VisitEditorProps {
   repository: PrivateJournalRepository
   authenticated: boolean
+  saveStatusLabel?: string
   venues: readonly VenueOption[]
   initialDate?: Date
   mutationIdFactory?: () => string
@@ -18,7 +19,7 @@ export interface VisitEditorProps {
   onSaved: (visit: VisitSession) => void
 }
 
-export default function VisitEditor({ repository, authenticated, venues,
+export default function VisitEditor({ repository, authenticated, saveStatusLabel, venues,
   initialDate, mutationIdFactory = newClientMutationId, onCancel,
   onDirtyChange, onSaved }: VisitEditorProps) {
   const [draft, setDraft] = useState<VisitDraft>(() => createVisitDraft(initialDate))
@@ -95,7 +96,7 @@ export default function VisitEditor({ repository, authenticated, venues,
         onInput={event => edit({ note: event.detail.value })} />
     </View>
     {error ? <Text className='journal-error'>{error}</Text> : null}
-    {saved ? <Text className='journal-saved'>私人探店经历已保存</Text> : null}
+    {saved ? <Text className='journal-saved'>{saveStatusLabel || '私人探店经历已保存'}</Text> : null}
     <Button className='journal-main' disabled={submitting || saved}
       onClick={() => void submit()}>{submitting ? '保存中…' : '保存这次私人探店'}</Button>
     <Button className='journal-secondary' disabled={submitting}

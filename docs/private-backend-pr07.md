@@ -64,3 +64,8 @@
 ## 手动发布门禁
 
 待 Cloudflare 账号授权、独立 D1 ID、微信 AppID/Secret、WAF/隐私审核、真机认证与不同设备交叉校验；GitHub CI 只能证明本地 SQLite 数据路径和 Worker 构建，不能证明真实线上已经提供可用服务。
+
+
+## PR-08 复合游标补充
+
+列表接口新增 `beforeId`（须和有效 ISO `before` 同时提供）；排序固定时间 DESC、ID ASC。响应增加 `nextCursor: {before,beforeId} | null`；客户端连续使用它读取所有页面，同一时间戳超过 100 条不会遗漏或重复。原 `before` 单参保持兼容但不适合作为完整历史同步的稳定游标。查询仍先从有效服务器会话确定 owner。已加入 216 条同时间饮用和 124 条同时间探店的真实 SQLite HTTP 分页测试。

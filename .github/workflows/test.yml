@@ -21,6 +21,8 @@ jobs:
         run: npm run check
       - name: Execute private backend HTTP and real SQLite integration
         run: npm run test:backend
+      - name: Two-device HTTP SQLite cloud sync integration
+        run: npm run test:cloud
       - name: Check migration gates
         run: npm run migration:status
   private-backend-bundle:
@@ -56,6 +58,8 @@ jobs:
         run: npm run test:journal-views
       - name: Exercise WeChat authentication and React account state
         run: npm run test:auth
+      - name: Exercise private cloud sync React UI states
+        run: npm run test:cloud-ui
       - name: Strict TypeScript check for journal and WeChat adapter
         run: apps/wechat/node_modules/.bin/tsc --noEmit -p tsconfig.journal.json
       - name: Compile WeChat mini program

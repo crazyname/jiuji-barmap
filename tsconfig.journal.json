@@ -42,6 +42,9 @@
     "apps/wechat/src/utils/use-auth-state.ts",
     "apps/wechat/src/components/auth/AuthPanel.tsx",
     "apps/wechat/src/components/auth/PrivateLockedView.tsx",
-    "apps/wechat/src/pages/mine/index.tsx"
+    "apps/wechat/src/pages/mine/index.tsx",
+    "packages/sync/private-cloud.ts",
+    "apps/wechat/src/services/private-cloud.ts",
+    "apps/wechat/src/components/journal/CloudJournalStatus.tsx"
   ]
 }
