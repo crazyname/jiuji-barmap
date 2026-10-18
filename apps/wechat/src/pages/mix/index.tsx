@@ -4,8 +4,9 @@ import Taro, { useDidShow } from '@tarojs/taro'
 import { useSyncCustomTabBar } from '../../utils/custom-tabbar'
 import { publishedRows } from '../../services/sync'
 import { knowledgeCatalog } from '../../services/cocktail-knowledge'
-import { legacyRecipePreview } from '../../../../packages/core/src/cocktails'
-import type { LegacyFlatRecipe } from '../../../../packages/core/src/cocktails'
+import { legacyRecipePreview } from '../../../../../packages/core/src/cocktails'
+import type { LegacyFlatRecipe } from '../../../../../packages/core/src/cocktails'
+import demoSites from '../../data/sites-test.json'
 import { CocktailKnowledgeView } from '../../components/cocktails/CocktailKnowledgeView'
 import '../shared.css'
 
@@ -14,6 +15,8 @@ export default function MixPage(){
   useSyncCustomTabBar(1)
   const [legacy,setLegacy]=useState<LegacyFlatRecipe[]>([])
   const [oldPublic,setOldPublic]=useState<LegacyFlatRecipe[]>([])
+  const demoRecipes=(demoSites.recipes||[]).map(r=>legacyRecipePreview(r,'sites-dev'))
+    .filter((r):r is LegacyFlatRecipe=>r!==null)
   const [status,setStatus]=useState('')
   const [offline,setOffline]=useState(false)
   const [title,setTitle]=useState('')
@@ -21,7 +24,7 @@ export default function MixPage(){
   const [steps,setSteps]=useState('')
   useDidShow(()=>{
     try{
-      const original:TaroGeneral.IAnyObject|unknown=Taro.getStorageSync(KEY)
+      const original:unknown=Taro.getStorageSync(KEY)
       if(original!==undefined && original!=='' && !Array.isArray(original)){
         setStatus('旧配方存储格式无法读取，原始内容仍保留，请勿覆盖。')
         setLegacy([])
@@ -76,8 +79,9 @@ export default function MixPage(){
         <Text className='kb-meta'>{r.ingredients}</Text>
         <Text className='kb-meta'>{r.steps}</Text>
       </View>)}
-      {oldPublic.length?<Text className='kb-section'>旧 Sites 配方（未核实，仅供参考）</Text>:null}
-      {oldPublic.map(r=><View key={r.id} className='kb-row'>
+      {demoRecipes.length||oldPublic.length
+        ?<Text className='kb-section'>旧 Sites／演示配方（未核实，仅供参考）</Text>:null}
+      {[...oldPublic,...demoRecipes.filter(r=>!oldPublic.some(old=>old.id===r.id))].map(r=><View key={r.id} className='kb-row'>
         <Text className='kb-title'>{r.title}</Text>
         <Text className='kb-meta'>旧扁平资料 · 来源未核实 · 不属于官方知识库</Text>
         <Text className='kb-meta'>{r.ingredients}</Text>

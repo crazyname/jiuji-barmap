@@ -28,11 +28,15 @@ test('sync adapters use device storage and HTTPS but contain no packaged admin c
   assert.match(code,/SYNC_API_BASE_URL = 'https:\/\/jiuji-test-console\.equal-genet-1707\.chatgpt\.site'/)
  }
 })
-test('wechat and native clients pull on display and private drafts are queued for later upload',()=>{
- for(const file of ['apps/wechat/src/pages/map/index.tsx','apps/wechat/src/pages/mix/index.tsx',
+test('WeChat keeps public Sites browsing while private cocktail drafts never join device-token queue',()=>{
+ for(const file of ['apps/wechat/src/pages/map/index.tsx',
   'apps/wechat/src/pages/community/index.tsx','apps/wechat/src/pages/mine/index.tsx'])
   assert.match(read(file),/refreshSites\(/,file)
- assert.match(read('apps/wechat/src/pages/mix/index.tsx'),/visibility:'private'/)
+ const mix=read('apps/wechat/src/pages/mix/index.tsx')
+ assert.match(mix,/publishedRows/)
+ assert.match(mix,/jiuji\.react\.recipes/)
+ assert.doesNotMatch(mix,/queueRemoteUpsert\(/)
+ assert.match(mix,/visibility:'private'/)
  assert.match(read('apps/wechat/src/pages/community/index.tsx'),/visibility:'private'/)
  const mobile=read('apps/mobile/App.tsx')
  assert.match(mobile,/refreshMobileSites\(/)

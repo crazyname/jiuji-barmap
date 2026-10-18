@@ -28,7 +28,8 @@ function verified(raw:{verification:unknown;source:unknown},label:string):void {
   }
 }
 function ingredient(v:unknown,label:string):asserts v is RecipeIngredient {
-  if(!isObj(v)||!nonEmpty(v.name)||typeof v.optional!=='boolean'||
+  if(!isObj(v))error(label,'ingredient must be an object')
+  if(!nonEmpty(v.name)||typeof v.optional!=='boolean'||
     !['ml','oz','dash','piece','tsp','unspecified'].includes(String(v.unit)))
     error(label,'invalid ingredient fields')
   if(v.quantity===null) {
