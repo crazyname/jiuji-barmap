@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Button, Input, Text, View } from '@tarojs/components'
+import { Button, Text, View } from '@tarojs/components'
 import Taro, { useDidShow } from '@tarojs/taro'
 import { useSyncCustomTabBar } from '../../utils/custom-tabbar'
 import { publishedRows } from '../../services/sync'
@@ -21,7 +21,6 @@ export default function MixPage(){
   const [oldPublic,setOldPublic]=useState<LegacyFlatRecipe[]>([])
   const [status,setStatus]=useState('')
   const [offline,setOffline]=useState(false)
-  const [search,setSearch]=useState('')
   const demoRecipes=(demoSites.recipes||[]).map(r=>legacyRecipePreview(r,'sites-dev'))
     .filter((r):r is LegacyFlatRecipe=>r!==null)
   useEffect(()=>{

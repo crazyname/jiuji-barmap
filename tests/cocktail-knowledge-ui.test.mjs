@@ -15,9 +15,11 @@ const ts=requireApp('typescript'), host=new Proxy({}, {get:(_,key)=>String(key)}
 const data=validateCocktailCatalog(JSON.parse(fs.readFileSync(
  path.join(root,'apps/wechat/src/data/cocktail-knowledge.json'),'utf8')))
 const disk=new Map(),KEY='jiuji.react.recipes'
-let writes=0
-const taro={getStorageSync:k=>disk.get(k)||'',setStorageSync:(k,v)=>{writes++;disk.set(k,structuredClone(v))},
- getNetworkType:async()=>({networkType:'none'}),navigateTo:async()=>{}}
+let writes=0,reads=0,authenticated=false
+const taro={getStorageSync:k=>{reads++;return disk.get(k)||''},
+ setStorageSync:(k,v)=>{writes++;disk.set(k,structuredClone(v))},
+ getNetworkType:async()=>({networkType:'none'}),navigateTo:async()=>{},
+ showModal:async()=>({confirm:true})}
 let CatalogView
 function load(file){
  const compiled=ts.transpileModule(fs.readFileSync(path.join(root,file),'utf8'),{
@@ -43,6 +45,11 @@ function load(file){
   if(name==='../../services/sync')return {publishedRows:()=>[],
     queueRemoteUpsert:()=>{throw Error('private draft must not be published')}}
   if(name==='../../utils/custom-tabbar')return {useSyncCustomTabBar:()=>{}}
+  if(name==='../../services/wechat-auth')return {authService:{
+    verifiedIdentity:()=>authenticated?{userId:'verified-kb-account'}:null}}
+  if(name==='../../utils/use-auth-state')return {useAuthState:()=>({
+    status:authenticated?'authenticated':'guest',account:authenticated?{id:'verified-kb-account'}:null,
+    epoch:1})}
   throw Error('unexpected dependency '+name)
  },mod,mod.exports)
  return mod.exports
@@ -125,24 +132,28 @@ test('typing a free drink name clears explicit cocktail and version association'
  assert.equal(saved[0].recipeVariantId,null)
  await act(async()=>t.unmount())
 })
-test('MixPage keeps old draft bytes and never calls Sites public recipe mutation',async()=>{
+test('guest MixPage never reads legacy private key; authenticated user confirms view only',async()=>{
  const old=[{id:'old-draft',title:'私人历史草稿',
   ingredients:'少量酒精与果汁适量',steps:'原始步骤',extra:'保留字段'}]
- disk.set(KEY,structuredClone(old));writes=0
- const t=await mount(React.createElement(MixPage))
+ disk.set(KEY,structuredClone(old));writes=0;reads=0;authenticated=false
+ const guest=await mount(React.createElement(MixPage))
+ assert.match(text(guest),/游客可浏览公共知识库/)
+ assert.doesNotMatch(text(guest),/私人历史草稿/)
+ assert.equal(reads,0)
  assert.deepEqual(disk.get(KEY),old)
- assert.match(text(t),/私人历史草稿/)
- assert.match(text(t),/未核实/)
- const name=t.root.findAllByType('Input').find(x=>x.props.placeholder==='私人草稿：酒款名称')
- const areas=t.root.findAllByType('Textarea')
- await act(async()=>name.props.onInput({detail:{value:'本机新草稿'}}))
- await act(async()=>areas[0].props.onInput({detail:{value:'适量苏打'}}))
- await act(async()=>areas[1].props.onInput({detail:{value:'轻轻搅拌'}}))
- const button=t.root.findAllByType('Button').find(x=>x.children.includes('仅存本机草稿'))
- await act(async()=>button.props.onClick())
- assert.equal(writes,1)
- assert.equal(disk.get(KEY).length,2)
- assert.deepEqual(disk.get(KEY)[1],old[0])
- assert.equal(disk.get(KEY)[0].visibility,'private')
- await act(async()=>t.unmount())
+ await act(async()=>guest.unmount())
+ authenticated=true
+ const account=await mount(React.createElement(MixPage))
+ assert.doesNotMatch(text(account),/私人历史草稿/)
+ assert.equal(reads,0)
+ const reveal=account.root.findAllByType('Button')
+  .find(x=>x.children.includes('确认查看本机历史草稿'))
+ assert.ok(reveal)
+ await act(async()=>{reveal.props.onClick();await Promise.resolve()})
+ assert.match(text(account),/私人历史草稿/)
+ assert.match(text(account),/未归属任何账号/)
+ assert.ok(reads>=1)
+ assert.equal(writes,0)
+ assert.deepEqual(disk.get(KEY),old)
+ await act(async()=>account.unmount())
 })
