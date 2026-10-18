@@ -90,9 +90,10 @@ test('sync retry button invokes coordinator; server acknowledgment changes React
 })
 test('React conflict controls preserve local draft until explicit server reload',async()=>{
   const f=example()
-  f.remote.listDrinks=async()=>({records:[],nextCursor:null})
+  let persisted=null
+  f.remote.listDrinks=async()=>({records:persisted?[persisted]:[],nextCursor:null})
   const first=f.cloud.createDrink(drink,'cloud-test-mutation-3')
-  f.remote.createDrink=async(input,id)=>({
+  f.remote.createDrink=async(input,id)=>(persisted={
     id:'remote-2',ownerUserId:f.user.id,drinkLabel:input.drinkLabel,
     consumedAt:input.consumedAt,contextKind:input.contextKind,
     note:input.note,cocktailId:null,recipeVariantId:null,visitSessionId:null,
