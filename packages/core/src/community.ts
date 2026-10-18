@@ -87,7 +87,19 @@ function safePost(value:unknown):value is CommunityPost {
 /** Defense in depth; server must already authorize every public row. */
 export function publicApprovedPosts(input:unknown):CommunityPost[] {
   if(!Array.isArray(input))return []
-  return input.filter(safePost).map(p=>serial(p))
+  // Project exact public whitelist; never echo unexpected fields from a
+  // compromised read adapter (private note, rating, coordinates, source ID).
+  return input.filter(safePost).map((raw:CommunityPost)=>({
+    id:raw.id,authorUserId:raw.authorUserId,authorDisplayName:raw.authorDisplayName,
+    title:raw.title,body:raw.body,type:raw.type,barId:raw.barId,
+    topics:serial(raw.topics),images:raw.images.map(image=>({
+      url:image.url,source:image.source,licensed:true,
+      ...(image.aspectRatio===undefined?{}:{aspectRatio:image.aspectRatio})
+    })),
+    isSponsored:raw.isSponsored,sponsorName:raw.sponsorName,
+    visibility:'public' as const,moderationStatus:'approved' as const,
+    createdAt:raw.createdAt,updatedAt:raw.updatedAt,revision:raw.revision
+  }))
 }
 type DraftSnapshot={schema:1;owner:string;drafts:CommunityDraft[]}
 export class CommunityRepository {
