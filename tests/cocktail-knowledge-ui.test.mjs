@@ -37,6 +37,8 @@ function load(file){
   if(name.includes('packages/core/src/journal'))return {JournalError}
   if(name.includes('packages/sync/private-cloud'))return {CloudSyncError}
   if(name==='../../services/cocktail-knowledge')return {knowledgeCatalog:data}
+  if(name==='../../data/sites-test.json')return JSON.parse(fs.readFileSync(
+    path.join(root,'apps/wechat/src/data/sites-test.json'),'utf8'))
   if(name==='../../components/cocktails/CocktailKnowledgeView')return {CocktailKnowledgeView:CatalogView}
   if(name==='../../services/sync')return {publishedRows:()=>[],
     queueRemoteUpsert:()=>{throw Error('private draft must not be published')}}
