@@ -114,7 +114,8 @@ export class CloudJournalCoordinator {
   private time(){return this.deps.now()}
   private getRow(kind:CloudKind,id:string):DrinkEntry|VisitSession {
     const state=this.active()
-    const item=(kind==='drink'?state.drinks:state.visits).find(x=>x.id===id)
+    const real=state.idMap[id]||id
+    const item=(kind==='drink'?state.drinks:state.visits).find(x=>x.id===real)
     if(!item)throw new CloudSyncError('NOT_FOUND','私人记录不存在')
     return item
   }
@@ -154,6 +155,7 @@ export class CloudJournalCoordinator {
     expectedRevision:number,action:'update'|'link'):DrinkEntry|VisitSession {
     assertRev(expectedRevision)
     const row=this.getRow(kind,id)
+    id=row.id
     if(row.revision!==expectedRevision)throw new CloudSyncError('CONFLICT','本机记录版本已变化')
     const active=this.active()
     if(active.operations.some(o=>o.localId===id && o.status==='conflict'))
@@ -182,13 +184,15 @@ export class CloudJournalCoordinator {
     return this.change('visit',id,changes,expectedRevision,'update') as VisitSession
   }
   linkDrink(id:string,visitSessionId:string|null,expectedRevision:number):DrinkEntry {
-    if(visitSessionId && !this.active().visits.some(v=>v.id===visitSessionId))
+    if(visitSessionId && !this.active().visits.some(v=>v.id===this.resolveId(visitSessionId!)))
       throw new CloudSyncError('NOT_FOUND','关联的探店不存在')
-    return this.change('drink',id,{visitSessionId},expectedRevision,'link') as DrinkEntry
+    return this.change('drink',id,{visitSessionId:visitSessionId?this.resolveId(visitSessionId):null},
+      expectedRevision,'link') as DrinkEntry
   }
   private remove(kind:CloudKind,id:string,expectedRevision:number) {
     assertRev(expectedRevision)
     const row=this.getRow(kind,id)
+    id=row.id
     if(row.revision!==expectedRevision)throw new CloudSyncError('CONFLICT','本机版本冲突')
     this.update(d=>{
       const queue=d.operations
@@ -220,8 +224,8 @@ export class CloudJournalCoordinator {
         a.id.localeCompare(b.id))
     return {
       createDrink:(x,m)=>cloud.createDrink(x,m),createVisit:(x,m)=>cloud.createVisit(x,m),
-      getDrink:id=>copy(cloud.active().drinks.find(x=>x.id===id)||null),
-      getVisit:id=>copy(cloud.active().visits.find(x=>x.id===id)||null),
+      getDrink:id=>copy(cloud.active().drinks.find(x=>x.id===cloud.resolveId(id))||null),
+      getVisit:id=>copy(cloud.active().visits.find(x=>x.id===cloud.resolveId(id))||null),
       listDrinks:()=>sort(copy(cloud.active().drinks),'consumedAt'),
       listVisits:()=>sort(copy(cloud.active().visits),'occurredAt'),
       updateDrink:(id,x,r)=>cloud.updateDrink(id,x,r),updateVisit:(id,x,r)=>cloud.updateVisit(id,x,r),
@@ -229,7 +233,8 @@ export class CloudJournalCoordinator {
       deleteDrink:(id,r)=>cloud.deleteDrink(id,r),deleteVisit:(id,r)=>cloud.deleteVisit(id,r),
       listDrinksForVisit:id=>{
         cloud.getRow('visit',id)
-        return sort(copy(cloud.active().drinks.filter(x=>x.visitSessionId===id)),'consumedAt')
+        const resolved=cloud.resolveId(id)
+        return sort(copy(cloud.active().drinks.filter(x=>x.visitSessionId===resolved)),'consumedAt')
       },
       groupDrinksByCocktail:():CocktailArchiveGroup[]=>{
         const groups=new Map<string,CocktailArchiveGroup>()
@@ -244,9 +249,11 @@ export class CloudJournalCoordinator {
       }
     }
   }
+  resolveId(id:string):string {return this.mapped(id,this.active())||id}
   status(kind:CloudKind,id:string):CloudPhase {
     const snapshot=this.active()
-    const ops=snapshot.operations.filter(o=>o.localId===id&&o.kind===kind)
+    const resolved=this.resolveId(id)
+    const ops=snapshot.operations.filter(o=>(o.localId===id||o.localId===resolved)&&o.kind===kind)
     if(!ops.length)return 'synced'
     const last=ops[ops.length-1]
     return last.status
