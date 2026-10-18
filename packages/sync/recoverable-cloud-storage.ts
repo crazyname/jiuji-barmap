@@ -59,6 +59,35 @@ export function createRecoverableCloudStorage(raw:RawPrivateStorage):CloudStorag
     return {primary:parse(a),recovery:parse(b)}
   }
   return {
+    repair(key){
+      const {primary,recovery}=slots(key)
+      if(!primary.valid && !recovery.valid)throw storageError()
+      // Do not destroy unknown raw bytes: quarantine them BEFORE replacement.
+      // Repair is only called through CloudJournalCoordinator.recoverStorage(),
+      // never implicitly from a failed normal write or cold start.
+      const winner=recovery.valid&&recovery.sequence>primary.sequence?recovery:
+        primary.valid?primary:recovery
+      const good=winner.sequence>0?
+        {format:FORMAT,sequence:winner.sequence,checksum:checksum(winner.data),data:winner.data}:
+        winner.data
+      try {
+        for(const [slot,parsed] of [[key,primary],[secondary(key),recovery]] as const){
+          if(!parsed.valid && !parsed.empty) {
+            const quarantine=slot+':quarantine'
+            const existing=raw.read(quarantine)
+            if(!empty(existing))throw storageError()
+            const damaged=raw.read(slot)
+            raw.write(quarantine,damaged)
+            if(JSON.stringify(raw.read(quarantine))!==JSON.stringify(damaged))
+              throw storageError()
+          }
+          if(!parsed.valid || parsed.sequence<winner.sequence) {
+            raw.write(slot,good)
+            if(JSON.stringify(raw.read(slot))!==JSON.stringify(good))throw storageError()
+          }
+        }
+      }catch{throw storageError()}
+    },
     read(key){
       const {primary,recovery}=slots(key)
       if(!primary.valid&&!recovery.valid){

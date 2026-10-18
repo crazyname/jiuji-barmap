@@ -30,7 +30,12 @@ export interface CloudRemote {
   deleteDrink(id: string, expectedRevision: number): Promise<void>
   deleteVisit(id: string, expectedRevision: number): Promise<void>
 }
-export interface CloudStorage { read(key: string): unknown; write(key: string, value: unknown): void }
+export interface CloudStorage {
+  read(key: string): unknown
+  write(key: string, value: unknown): void
+  /** Optional explicit, lossless repair of a damaged redundant slot. */
+  repair?(key:string):void
+}
 export interface CloudIdentity { verifiedUserId(): string | null }
 export type CloudOperation = {
   opId: string; kind: CloudKind; action: CloudAction; localId: string
@@ -124,7 +129,11 @@ export class CloudJournalCoordinator {
   recoverStorage():CloudSnapshot {
     this.serial++
     this.state=null;this.running=null;this.storageBlocked=false
-    try {return this.getSnapshot()}
+    try {
+      const owner=this.owner()
+      this.deps.storage.repair?.(key(owner))
+      return this.getSnapshot()
+    }
     catch(error) {
       this.storageBlocked=true
       throw error instanceof CloudSyncError?error:
