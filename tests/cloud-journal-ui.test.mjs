@@ -6,6 +6,7 @@ import path from 'node:path'
 import { createRequire } from 'node:module'
 import { fileURLToPath } from 'node:url'
 import { CloudJournalCoordinator, CloudSyncError } from '../packages/sync/private-cloud.ts'
+import { createRecoverableCloudStorage } from '../packages/sync/recoverable-cloud-storage.ts'
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..')
 const requireApp=createRequire(path.join(root,'apps/wechat/package.json'))
 const React=requireApp('react'),{create,act}=requireApp('react-test-renderer')
@@ -225,6 +226,8 @@ function loadProductionPrivateAdapter() {
     if(name==='./wechat-auth')return {authService:auth}
     if(name==='../../../../packages/sync/private-cloud')
       return {CloudJournalCoordinator,CloudSyncError}
+    if(name==='../../../../packages/sync/recoverable-cloud-storage')
+      return {createRecoverableCloudStorage}
     throw Error('Unexpected production adapter dependency: '+name)
   },module,module.exports)
   return {api:module.exports,auth,identity,isRevoked:()=>revoked}
