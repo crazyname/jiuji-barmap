@@ -2,7 +2,7 @@
 // Recoverable, UNENCRYPTED two-slot persistence for offline private queue.
 // FNV checksum detects accidental corruption only. It is NOT authentication,
 // encryption or tamper resistance; no encryption key is stored on the device.
-import { CloudSyncError } from './private-cloud'
+import { CloudSyncError } from './private-cloud.ts'
 import type { CloudStorage } from './private-cloud'
 
 export interface RawPrivateStorage {
