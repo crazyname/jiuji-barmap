@@ -43,7 +43,11 @@ export function JournalDetailPage({ mode }: { mode: 'drink' | 'visit' }) {
   const recordId = typeof router.params.id === 'string' ? router.params.id : ''
   const [refreshVersion, setRefreshVersion] = useState(0)
   const auth = useAuthState(authService)
-  useDidShow(() => { void authService.checkSession(); setRefreshVersion(n => n + 1) })
+  const version=useCloudVersion(privateCloud, auth.status==='authenticated')
+  useDidShow(() => {void authService.checkSession().then(()=>{
+    if(authService.verifiedIdentity())void privateCloud.sync()
+    setRefreshVersion(n=>n+1)
+  })})
   if (auth.status !== 'authenticated' || !authService.verifiedIdentity())
     return <PrivateLockedView state={auth} onBack={back} />
   return <React.Fragment key={auth.account!.id+'-'+auth.epoch}>

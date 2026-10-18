@@ -10,6 +10,7 @@ import './index.css'
 export interface DrinkEditorProps {
   repository: PrivateJournalRepository
   authenticated: boolean
+  saveStatusLabel?: string
   venues: readonly VenueOption[]
   catalog?: readonly CocktailOption[]
   initialVisitSessionId?: string | null
@@ -20,7 +21,7 @@ export interface DrinkEditorProps {
   onSaved: (entry: DrinkEntry) => void
 }
 
-export default function DrinkEditor({ repository, authenticated, venues, catalog = [],
+export default function DrinkEditor({ repository, authenticated, saveStatusLabel, venues, catalog = [],
   initialVisitSessionId = null, initialDate, mutationIdFactory = newClientMutationId,
   onCancel, onDirtyChange, onSaved }: DrinkEditorProps) {
   const [draft, setDraft] = useState<DrinkDraft>(() => createDrinkDraft(initialDate, initialVisitSessionId))
@@ -146,11 +147,11 @@ export default function DrinkEditor({ repository, authenticated, venues, catalog
         onInput={event => edit({ personalRating: event.detail.value })} />
     </View>
     {error ? <Text className='journal-error'>{error}</Text> : null}
-    {saved ? <Text className='journal-saved'>私人记录保存成功</Text> : null}
+    {saved ? <Text className='journal-saved'>{saveStatusLabel || '私人记录保存成功'}</Text> : null}
     <Button className='journal-main' disabled={submitting || saved}
       onClick={() => void submit()}>{submitting ? '保存中…' : '保存到私人日记'}</Button>
     <Button className='journal-secondary' disabled={submitting}
       onClick={() => onCancel(dirty)}>取消并返回</Button>
-    <Text className='journal-hint'>照片上传与跨设备同步尚未接入；输入不会自动变成公开帖子。</Text>
+    <Text className='journal-hint'>仅本机保存不等于云端同步成功；输入不会自动成为公开帖子或评价。</Text>
   </View>
 }

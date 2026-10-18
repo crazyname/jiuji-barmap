@@ -104,7 +104,7 @@ export function createPrivateApiRemote(auth: AuthService, origin: string, enable
 export const privateCloud = new CloudJournalCoordinator({
   identity:{verifiedUserId:()=>authService.verifiedIdentity()?.userId||null},
   storage:{
-    read:key=>{const value:TaroGeneral.IAnyObject|undefined=Taro.getStorageSync(key)
+    read:key=>{const value=Taro.getStorageSync(key) as unknown
       return value || undefined},
     write:(key,value)=>{Taro.setStorageSync(key,value)}
   },
