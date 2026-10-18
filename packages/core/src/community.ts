@@ -33,6 +33,13 @@ export interface CommunityPublicSource {
   list(cursor?:string):Promise<PublicPage>
   get(id:string):Promise<CommunityPost|null>
 }
+export interface CommunityReportRequest {
+  postId:string;reason:'spam'|'privacy'|'abuse'|'copyright'|'other'
+  clientMutationId:string
+}
+export interface CommunityReportReceipt {
+  id:string;status:'received'|'under_review'|'resolved'|'rejected'
+}
 export interface CommunityPublisher {
   /** Future PR-12 endpoint: actor determined server-side, NOT from JSON author ID. */
   submit(input:CommunitySubmission):Promise<CommunityPost>
@@ -183,8 +190,12 @@ export class CommunityRepository {
       !changes.topics.every(t=>validString(t,24))||
       !Array.isArray(changes.images)||changes.images.some(x=>!imageAllowed(x)))
       throw new CommunityError('INVALID','草稿字段或商业推广信息无效')
-    snap.drafts[i]={...old,...serial(values),updatedAt:this.deps.now(),
-      revision:old.revision+1,status:'local_draft'}
+    // Do not spread an arbitrary JS caller object over the stored draft:
+    // author, ID, visibility, and revision are repository-owned fields.
+    snap.drafts[i]={...old,title:values.title,body:values.body,type:values.type,
+      barId:values.barId,topics:serial(values.topics),images:serial(values.images),
+      isSponsored:values.isSponsored,sponsorName:values.sponsorName,
+      updatedAt:this.deps.now(),revision:old.revision+1,status:'local_draft'}
     this.write(snap);return serial(snap.drafts[i])
   }
   discardDraft(id:string):void {
