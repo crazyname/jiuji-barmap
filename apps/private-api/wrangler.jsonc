@@ -1,0 +1,18 @@
+{
+  "$schema": "https://unpkg.com/wrangler/config-schema.json",
+  "name": "jiuji-private-api",
+  "main": "src/index.mjs",
+  "compatibility_date": "2026-09-01",
+  "workers_dev": false,
+  "triggers": { "crons": ["0 3 * * *"] },
+  "d1_databases": [{
+    "binding": "DB",
+    "database_name": "jiuji-private",
+    "database_id": "REPLACE_WITH_YOUR_D1_DATABASE_ID",
+    "migrations_dir": "migrations"
+  }],
+  "vars": {
+    "ACCESS_TTL_SECONDS": "900",
+    "SESSION_TTL_SECONDS": "2592000"
+  }
+}

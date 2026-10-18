@@ -26,6 +26,7 @@
     "test:journal": "node --experimental-strip-types --test tests/private-journal.test.mjs",
     "test:quick-ui": "node --experimental-strip-types --test tests/quick-journal-ui.test.mjs",
     "test:journal-views": "node --experimental-strip-types --test tests/personal-journal-views.test.mjs",
-    "test:auth": "node --experimental-strip-types --test tests/wechat-auth.test.mjs"
+    "test:auth": "node --experimental-strip-types --test tests/wechat-auth.test.mjs",
+    "test:backend": "node --test --experimental-sqlite apps/private-api/tests/*.test.mjs"
   }
 }
