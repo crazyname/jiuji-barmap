@@ -27,6 +27,13 @@ export default function Page(){
     }catch{setDraft(null);setError('设备草稿读取失败，原始内容已保留')}
   }
   useDidShow(()=>{void authService.checkSession().then(load)})
+  // Do not display a retained React draft after A -> B account replacement.
+  const currentUser=authService.verifiedIdentity()?.userId||null
+  if(draft && currentUser && draft.authorUserId!==currentUser)
+    return <View className='community-page'>
+      <Text className='community-feedback'>账户已切换；上一账号草稿已卸载，请返回重新进入。</Text>
+      <Button onClick={()=>void Taro.navigateBack()}>返回</Button>
+    </View>
   if(auth.status!=='authenticated'||!authService.verifiedIdentity())
     return <View className='community-page'><Text className='community-heading'>图文创作</Text>
       <Text className='community-feedback'>未认证，无法创建或查看账号草稿。正式微信登录尚未开放，游客只可浏览经审核的公开内容。</Text>

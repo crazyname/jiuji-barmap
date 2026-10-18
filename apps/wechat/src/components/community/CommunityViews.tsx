@@ -35,9 +35,10 @@ export function CommunityPostCard({post,onOpen}:{
     </View>
   </View>
 }
-export function CommunityFeed({posts,loading,error,available,onRetry,onOpen,onCompose,onDrafts}:{
+export function CommunityFeed({posts,loading,error,available,onRetry,onOpen,onCompose,onDrafts,onLoadMore,nextCursor}:{
   posts:CommunityPost[];loading:boolean;error:string|null;available:boolean
   onRetry:()=>void;onOpen:(id:string)=>void;onCompose:()=>void;onDrafts:()=>void
+  nextCursor?:string|null;onLoadMore?:()=>void
 }){
   const cols=useMemo(()=>splitCommunityColumns(posts),[posts])
   return <View className='community-page'>
@@ -61,6 +62,8 @@ export function CommunityFeed({posts,loading,error,available,onRetry,onOpen,onCo
           {column.map(post=><CommunityPostCard key={post.id} post={post} onOpen={onOpen}/>)}
         </View>)}
       </View>}
+    {!loading&&!error&&nextCursor&&onLoadMore?
+      <Button className='community-secondary' onClick={onLoadMore}>加载下一页审核内容</Button>:null}
     <Text className='community-disclaimer'>没有经过审核的帖子不会进入公开内容流；点赞、评论与图片上传尚未开放。</Text>
   </View>
 }
