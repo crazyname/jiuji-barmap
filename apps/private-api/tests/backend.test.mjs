@@ -138,7 +138,7 @@ test('missing server AppID, AppSecret or pepper refuses auth; no demo principal'
   assert.equal(f.db.query('SELECT count(*) AS n FROM users')[0].n,0)
 })
 test('rate limiter blocks repeated guessing using persistent SQL bucket',async()=>{
-  const f=fixture()
+  const f=fixture({failWechat:true})
   for(let i=0;i<10;i++)
     check(await f.call('POST','/v1/auth/wechat/exchange',{code:'invalid'+i}),401,'AUTH_CODE_INVALID')
   check(await f.call('POST','/v1/auth/wechat/exchange',{code:'invalid11'}),
