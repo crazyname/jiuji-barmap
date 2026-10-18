@@ -23,6 +23,20 @@ jobs:
         run: npm run test:backend
       - name: Check migration gates
         run: npm run migration:status
+  private-backend-bundle:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install backend bundler
+        working-directory: apps/private-api
+        run: npm install --no-audit --no-fund
+      - name: Check Worker bundle without deploying
+        working-directory: apps/private-api
+        run: npm run deploy:check
   wechat-taro-build:
     runs-on: ubuntu-latest
     timeout-minutes: 20
