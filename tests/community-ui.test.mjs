@@ -163,3 +163,49 @@ test('preview/cancel/discard callbacks are separate; no private source row mutat
   assert.ok(f.repo.getDraft(d.id))
   await act(async()=>tree.unmount())
 })
+
+
+test('React editor immediately hides a previous author draft after account switch',async()=>{
+  const f=fixture(),d=f.repo.newDraft()
+  f.repo.saveDraft(d.id,{title:'A 私密草稿标题',body:'A 草稿正文',
+    type:'general',barId:null,topics:[],images:[],isSponsored:false,sponsorName:null},1)
+  const current=f.repo.getDraft(d.id)
+  const props={draft:current,repo:f.repo,venues:[],onSaved:()=>{},
+    onClose:()=>{},onDiscard:()=>{},allowSubmit:false}
+  const tree=await render(React.createElement(CommunityEditor,props))
+  assert.match(text(tree),/A 私密草稿标题|A 草稿正文/)
+  f.user.id='verified-user-B'
+  await act(async()=>tree.update(React.createElement(CommunityEditor,props)))
+  assert.match(text(tree),/账号已切换/)
+  assert.doesNotMatch(text(tree),/A 私密草稿标题|A 草稿正文/)
+  await act(async()=>tree.unmount())
+})
+test('actual community Tab page navigates from approved card to distinct detail route',async()=>{
+  const approved=post(42,{title:'经过审核的帖子'})
+  const navigations=[]
+  const file='apps/wechat/src/pages/community/index.tsx'
+  const code=fs.readFileSync(path.join(root,file),'utf8')
+  const js=ts.transpileModule(code,{fileName:file,compilerOptions:{
+    module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2020,
+    esModuleInterop:true,jsx:ts.JsxEmit.ReactJSX}}).outputText
+  const mod={exports:{}}
+  const source={publicAvailable:()=>true,listPublic:async()=>({posts:[approved],nextCursor:null})}
+  new Function('require','module','exports',js)(name=>{
+    if(name==='react')return React
+    if(name==='react/jsx-runtime')return requireApp('react/jsx-runtime')
+    if(name==='@tarojs/taro')return {__esModule:true,default:{
+      navigateTo:async x=>{navigations.push(x.url)}
+    },useDidShow:fn=>React.useEffect(fn,[])}
+    if(name==='../../utils/custom-tabbar')return {useSyncCustomTabBar:()=>{}}
+    if(name==='../../components/community/CommunityViews')return {CommunityFeed}
+    if(name==='../../services/community')return {communityRepository:source}
+    throw Error('Unexpected Taro community route import '+name)
+  },mod,mod.exports)
+  const tree=await render(React.createElement(mod.exports.default))
+  await act(async()=>{await new Promise(resolve=>setImmediate(resolve))})
+  const card=tree.root.findAllByProps({className:'community-card'})[0]
+  assert.ok(card,'the approved card was rendered by the actual page')
+  await act(async()=>card.props.onClick())
+  assert.deepEqual(navigations,['/pages/community-detail/index?id=post-42'])
+  await act(async()=>tree.unmount())
+})
