@@ -6,6 +6,7 @@ import path from 'node:path'
 import { createRequire } from 'node:module'
 import { fileURLToPath } from 'node:url'
 import { CloudJournalCoordinator, CloudSyncError } from '../packages/sync/private-cloud.ts'
+import { createRecoverableCloudStorage } from '../packages/sync/recoverable-cloud-storage.ts'
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..')
 const requireApp=createRequire(path.join(root,'apps/wechat/package.json'))
 const React=requireApp('react'),{create,act}=requireApp('react-test-renderer')
@@ -225,6 +226,8 @@ function loadProductionPrivateAdapter() {
     if(name==='./wechat-auth')return {authService:auth}
     if(name==='../../../../packages/sync/private-cloud')
       return {CloudJournalCoordinator,CloudSyncError}
+    if(name==='../../../../packages/sync/recoverable-cloud-storage')
+      return {createRecoverableCloudStorage}
     throw Error('Unexpected production adapter dependency: '+name)
   },module,module.exports)
   return {api:module.exports,auth,identity,isRevoked:()=>revoked}
@@ -263,4 +266,44 @@ test('production private adapter remains disabled and 401 revokes AuthService ac
   assert.equal(f.isRevoked(),true)
   await assert.rejects(active.listDrinks(),e=>e.code==='AUTH_REQUIRED')
   assert.equal(count,1)
+})
+
+
+test('React immediately renders device storage failure instead of claiming cloud synced',async()=>{
+  const f=example(),tree=await mount(f.cloud)
+  const original=f.disk.set.bind(f.disk)
+  f.disk.set=()=>{throw Error('private body must never appear: 老酒日记内容')}
+  await act(async()=>{
+    assert.throws(()=>f.cloud.createDrink(drink,'private-storage-reject-1'),
+      e=>e.code==='STORAGE'&&!e.message.includes('老酒日记内容'))
+  })
+  assert.match(words(tree),/设备存储异常，尚未确认保存/)
+  assert.equal(cloudRecordLabel(f.cloud,'drink','any-id'),'设备存储异常，尚未确认保存')
+  assert.doesNotMatch(words(tree),/已同步/)
+  assert.doesNotMatch(words(tree),/老酒日记内容/)
+  f.disk.set=original
+  const recover=tree.root.findAllByType('Button')
+    .find(x=>x.children.some(y=>typeof y==='string'&&y.includes('检查存储并恢复')))
+  assert.ok(recover)
+  await act(async()=>{recover.props.onClick()})
+  assert.match(words(tree),/仅当前设备缓存/)
+  await act(async()=>tree.unmount())
+})
+test('old in-flight 401 must NOT revoke a newly verified session of same or another account',async()=>{
+  const f=loadProductionPrivateAdapter()
+  let deliver
+  const remote=f.api.createPrivateApiRemote(f.auth,'https://private.example.test',true,
+    async()=>new Promise(resolve=>{deliver=resolve}))
+  const old=remote.listDrinks()
+  // Same account, fresh session: identity matches but bearer MUST also match.
+  f.identity.accessToken='b'.repeat(64)
+  deliver({statusCode:401,data:{error:{code:'AUTH_REVOKED'}}})
+  await assert.rejects(old,e=>e.code==='AUTH_REQUIRED')
+  assert.equal(f.isRevoked(),false)
+  const newer=remote.listDrinks()
+  f.identity.userId='verified-account-B'
+  f.identity.accessToken='c'.repeat(64)
+  deliver({statusCode:401,data:{error:{code:'AUTH_REVOKED'}}})
+  await assert.rejects(newer,e=>e.code==='AUTH_REQUIRED')
+  assert.equal(f.isRevoked(),false)
 })

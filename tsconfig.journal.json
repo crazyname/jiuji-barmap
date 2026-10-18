@@ -13,7 +13,8 @@
     "types": [],
     "noEmit": true,
     "jsx": "react-jsx",
-    "allowJs": true
+    "allowJs": true,
+    "allowImportingTsExtensions": true
   },
   "files": [
     "packages/core/src/models.ts",
@@ -45,6 +46,7 @@
     "apps/wechat/src/pages/mine/index.tsx",
     "packages/sync/private-cloud.ts",
     "apps/wechat/src/services/private-cloud.ts",
-    "apps/wechat/src/components/journal/CloudJournalStatus.tsx"
+    "apps/wechat/src/components/journal/CloudJournalStatus.tsx",
+    "packages/sync/recoverable-cloud-storage.ts"
   ]
 }

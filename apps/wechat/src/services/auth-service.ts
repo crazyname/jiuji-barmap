@@ -160,14 +160,24 @@ export class AuthService {
   }
   async signOut(): Promise<void> {
     const old = this.tokens
-    this.serial++
+    const sequence = ++this.serial
     this.busy = false
-    // Invalidate before awaiting network; stale responses cannot restore the session.
-    this.erase('guest', null)
-    if (old) {
-      try { await this.deps.transport.logout(old.accessToken, old.refreshToken) }
-      catch (_) { /* Server revocation must be confirmed in a future online session. */ }
+    // The account and in-memory refresh token disappear BEFORE any network IO.
+    // No refresh token is persisted for an insecure background retry.
+    this.erase('guest', old
+      ? '已退出此设备，正在请求服务器撤销会话…'
+      : '已退出此设备；没有可用于服务器撤销的会话')
+    if (!old) return
+    let message: string
+    try {
+      await this.deps.transport.logout(old.accessToken, old.refreshToken)
+      message = '已退出此设备，服务器也已确认撤销会话'
+    } catch {
+      message = '已退出此设备；服务器撤销未确认。下次需要重新登录，未保留刷新凭证'
     }
+    // A late logout ACK must never overwrite a new login or another account.
+    if (sequence === this.serial && this.state.status === 'guest')
+      this.erase('guest', message)
   }
   // No restore from local storage: a cold start requires a new server-verified exchange.
 }

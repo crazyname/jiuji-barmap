@@ -3,6 +3,7 @@
 import type { DrinkContextKind, NewDrinkEntry, NewVisitSession } from '../../../../packages/core/src/models'
 import type { PrivateJournalRepository } from '../../../../packages/core/src/journal-contracts'
 import { JournalError } from '../../../../packages/core/src/journal'
+import { CloudSyncError } from '../../../../packages/sync/private-cloud'
 
 export type CocktailOption = { id: string; label: string }
 export type VenueOption = { id: number; name: string }
@@ -102,6 +103,13 @@ export function buildVisitInput(draft: VisitDraft): NewVisitSession {
 }
 export function formErrorMessage(error: unknown): string {
   if (error instanceof JournalFormError) return error.message
+  if (error instanceof CloudSyncError) {
+    if (error.code === 'STORAGE') return '设备存储失败，尚未确认保存；请检查可用空间并恢复，当前输入仍保留'
+    if (error.code === 'AUTH_REQUIRED') return '会话未验证，不能读取或同步私人记录'
+    if (error.code === 'CONFLICT') return '服务器记录发生冲突，本机修改已保留，请手动处理'
+    if (error.code === 'NETWORK') return '仅本机保存，服务器尚未确认；网络恢复后可以重试'
+    return '私人记录保存未完成，请检查后重试'
+  }
   if (error instanceof JournalError) {
     if (error.code === 'AUTH_REQUIRED') return '需要登录才能保存私人日记。当前输入仍保留在本页。'
     if (error.code === 'CONFLICT') return '保存冲突，请核对记录后重试'

@@ -5,6 +5,7 @@ import { AUTH_API_BASE_URL, AUTH_API_ENABLED } from '../config/auth'
 import type { DrinkEntry, DrinkEntryChanges, NewDrinkEntry, NewVisitSession, VisitSession,
   VisitSessionChanges } from '../../../../packages/core/src/models'
 import { CloudJournalCoordinator, CloudSyncError } from '../../../../packages/sync/private-cloud'
+import { createRecoverableCloudStorage } from '../../../../packages/sync/recoverable-cloud-storage'
 import type { CloudRemote, CloudPage, CloudCursor } from '../../../../packages/sync/private-cloud'
 import type { AuthService } from './auth-service'
 import { authService } from './wechat-auth'
@@ -15,8 +16,11 @@ export function createPrivateApiRemote(auth: AuthService, origin: string, enable
     payload?: unknown): Promise<T> {
     if(!enabled || !/^https:\/\/[^/?#]+(?:\/[^?#]*)?$/.test(origin))
       throw new CloudSyncError('AUTH_REQUIRED','私人云服务尚未部署或通过验收')
-    const credential=auth.credentialForPrivateApi()
-    if(!credential)throw new CloudSyncError('AUTH_REQUIRED','需要先验证账号')
+    const attested=auth.credentialForPrivateApi()
+    if(!attested)throw new CloudSyncError('AUTH_REQUIRED','需要先验证账号')
+    // Capture the immutable request-time identity; an injected adapter could
+    // otherwise mutate a shared object before the old HTTP response arrives.
+    const credential={userId:attested.userId,accessToken:attested.accessToken}
     let response
     try{
       response=await fetcher({
@@ -25,18 +29,22 @@ export function createPrivateApiRemote(auth: AuthService, origin: string, enable
         ...(payload === undefined?{}:{data:payload}),timeout:10000
       })
     }catch{
-      if(!auth.credentialForPrivateApi() ||
-        auth.credentialForPrivateApi()!.userId!==credential.userId)
-        throw new CloudSyncError('AUTH_REQUIRED','账号已变更，停止同步')
+      const current=auth.credentialForPrivateApi()
+      if(!current || current.userId!==credential.userId ||
+        current.accessToken!==credential.accessToken)
+        throw new CloudSyncError('AUTH_REQUIRED','账号或会话已变更，停止同步')
       throw new CloudSyncError('NETWORK','当前离线或服务器不可达，本机队列已保留')
     }
+    const current=auth.credentialForPrivateApi()
+    // Reject stale HTTP responses BEFORE processing even a 401. Otherwise a
+    // prior session could revoke a newly authenticated B or same-user session.
+    if(!current || current.userId!==credential.userId ||
+      current.accessToken!==credential.accessToken)
+      throw new CloudSyncError('AUTH_REQUIRED','账号或会话已变更，停止同步')
     if(response.statusCode===401 || response.statusCode===403){
       auth.invalidatePrivateApi()
       throw new CloudSyncError('AUTH_REQUIRED','会话已失效，请重新登录',response.statusCode)
     }
-    const current=auth.credentialForPrivateApi()
-    if(!current || current.userId!==credential.userId)
-      throw new CloudSyncError('AUTH_REQUIRED','账号已变更，停止同步')
     const value:unknown=response.data
     if(response.statusCode===409)throw new CloudSyncError('CONFLICT','服务器记录已更新，需要人工处理',409)
     if(response.statusCode===404)throw new CloudSyncError('NOT_FOUND','服务器记录不存在',404)
@@ -103,11 +111,11 @@ export function createPrivateApiRemote(auth: AuthService, origin: string, enable
 }
 export const privateCloud = new CloudJournalCoordinator({
   identity:{verifiedUserId:()=>authService.verifiedIdentity()?.userId||null},
-  storage:{
+  storage:createRecoverableCloudStorage({
     read:key=>{const value=Taro.getStorageSync(key) as unknown
-      return value || undefined},
+      return value === '' || value === null ? undefined : value},
     write:(key,value)=>{Taro.setStorageSync(key,value)}
-  },
+  }),
   remote:createPrivateApiRemote(authService,AUTH_API_BASE_URL,AUTH_API_ENABLED),
   newId:()=>Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,14),
   now:()=>new Date().toISOString()
