@@ -4,7 +4,8 @@ export default defineAppConfig({
     'pages/journal-drink/index', 'pages/journal-visit/index',
     'pages/journal-timeline/index', 'pages/journal-footprints/index',
     'pages/journal-cocktails/index', 'pages/journal-drink-detail/index',
-    'pages/journal-visit-detail/index', 'pages/cocktail-detail/index', 'pages/recipe-variant/index'
+    'pages/journal-visit-detail/index', 'pages/cocktail-detail/index', 'pages/recipe-variant/index',
+    'pages/community-detail/index', 'pages/community-editor/index'
   ],
   window: {
     navigationBarTitleText: '酒迹',
