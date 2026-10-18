@@ -5,6 +5,7 @@ import { AUTH_API_BASE_URL, AUTH_API_ENABLED } from '../config/auth'
 import type { DrinkEntry, DrinkEntryChanges, NewDrinkEntry, NewVisitSession, VisitSession,
   VisitSessionChanges } from '../../../../packages/core/src/models'
 import { CloudJournalCoordinator, CloudSyncError } from '../../../../packages/sync/private-cloud'
+import { createRecoverableCloudStorage } from '../../../../packages/sync/recoverable-cloud-storage'
 import type { CloudRemote, CloudPage, CloudCursor } from '../../../../packages/sync/private-cloud'
 import type { AuthService } from './auth-service'
 import { authService } from './wechat-auth'
@@ -103,11 +104,11 @@ export function createPrivateApiRemote(auth: AuthService, origin: string, enable
 }
 export const privateCloud = new CloudJournalCoordinator({
   identity:{verifiedUserId:()=>authService.verifiedIdentity()?.userId||null},
-  storage:{
+  storage:createRecoverableCloudStorage({
     read:key=>{const value=Taro.getStorageSync(key) as unknown
-      return value || undefined},
+      return value === '' || value === null ? undefined : value},
     write:(key,value)=>{Taro.setStorageSync(key,value)}
-  },
+  }),
   remote:createPrivateApiRemote(authService,AUTH_API_BASE_URL,AUTH_API_ENABLED),
   newId:()=>Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,14),
   now:()=>new Date().toISOString()
