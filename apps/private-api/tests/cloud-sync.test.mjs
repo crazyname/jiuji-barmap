@@ -243,3 +243,58 @@ test('offline link/edit/delete uses private expectedRevision, never posts to pub
   assert.equal(h.db.query('SELECT count(*) AS n FROM drink_entries')[0].n,0)
   assert.equal((await h.call('GET','/v1/sync')).status,404)
 })
+
+
+test('PR09 real SQLite/HTTP: server commits CREATE, durable local ACK fails, restart idempotently recovers',async()=>{
+  const host=fixture()
+  class UnreliableDisk extends Map {
+    fail=false
+    set(key,value){
+      if(this.fail && value?.operations?.length===0 && value?.drinks?.length)
+        throw Error('simulated local disk failure after remote HTTP success')
+      return super.set(key,value)
+    }
+  }
+  const disk=new UnreliableDisk(),a=device(host,'userA-disk-ack-lost',disk)
+  await a.login()
+  const original=a.coordinator.createDrink(drink('真实 SQL 离线幂等'),mutation())
+  disk.fail=true
+  await a.coordinator.sync()
+  assert.equal(host.db.query('SELECT count(*) AS n FROM drink_entries')[0].n,1)
+  assert.throws(()=>a.coordinator.getSnapshot(),e=>e.code==='STORAGE')
+  disk.fail=false
+  assert.equal(a.coordinator.recoverStorage().operations.length,1)
+  await a.coordinator.sync()
+  assert.equal(host.db.query('SELECT count(*) AS n FROM drink_entries')[0].n,1)
+  assert.equal(a.coordinator.getSnapshot().operations.length,0)
+  assert.notEqual(a.coordinator.resolveId(original.id),original.id)
+})
+test('PR09 real SQLite/HTTP: lost PATCH ACK uses GET reconciliation instead of second update',async()=>{
+  const host=fixture()
+  class UnreliableDisk extends Map {
+    fail=false
+    set(key,value){
+      if(this.fail && value?.operations?.length===0 &&
+          value?.drinks?.[0]?.revision===2)
+        throw Error('simulated local disk failure after remote PATCH')
+      return super.set(key,value)
+    }
+  }
+  const disk=new UnreliableDisk(),a=device(host,'userA-patch-ack-lost',disk)
+  await a.login()
+  a.coordinator.createDrink(drink('跨设备保留事实'),mutation())
+  await a.coordinator.sync()
+  const item=a.coordinator.localRepository().listDrinks()[0]
+  a.coordinator.updateDrink(item.id,{note:'服务端已成功修改'},item.revision)
+  disk.fail=true
+  await a.coordinator.sync()
+  const fromSql=host.db.query('SELECT note,revision FROM drink_entries')[0]
+  assert.equal(fromSql.note,'服务端已成功修改')
+  assert.equal(fromSql.revision,2)
+  disk.fail=false
+  a.coordinator.recoverStorage()
+  await a.coordinator.sync()
+  const after=host.db.query('SELECT note,revision FROM drink_entries')[0]
+  assert.equal(after.revision,2,'must not perform a second PATCH')
+  assert.equal(a.coordinator.getSnapshot().operations.length,0)
+})
