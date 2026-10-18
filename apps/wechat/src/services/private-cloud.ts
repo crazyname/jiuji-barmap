@@ -115,4 +115,11 @@ export const privateCloud = new CloudJournalCoordinator({
 authService.subscribe(state=>{
   if(state.status!=='authenticated')privateCloud.invalidate()
 })
+// WeChat foreground pages also retry on useDidShow. Connectivity recovery is
+// a separate, non-public trigger; never run it without current verified auth.
+if (typeof Taro.onNetworkStatusChange === 'function') {
+  Taro.onNetworkStatusChange(event => {
+    if (event.isConnected && authService.verifiedIdentity()) void privateCloud.sync()
+  })
+}
 export const privateMirrorRepository = privateCloud.localRepository()
