@@ -19,6 +19,11 @@ async function rate(db, bucket, subject, max) {
   ).bind(bucket, id, max).run()
   if (changes(result) === 0) fail(429, 'AUTH_RATE_LIMITED', '请求过于频繁')
 }
+// The Cloudflare edge supplies this header. Never use X-Forwarded-For,
+// user-controlled query strings or refresh tokens as the rate subject.
+function sourceAddress(request) {
+  return request.headers.get('cf-connecting-ip') || 'unknown'
+}
 function bearer(request) {
   const auth = request.headers.get('authorization') || ''
   const match = /^Bearer ([0-9a-f]{64})$/.exec(auth)
@@ -69,7 +74,7 @@ async function exchange(request, { db, env, now, wechatFetch }) {
   const input = await body(request)
   fields(input, ['code'])
   const code = string(input.code, 'code', 2048)
-  const ip = request.headers.get('cf-connecting-ip') || 'unknown'
+  const ip = sourceAddress(request)
   await rate(db, 'exchange:' + Math.floor(now() / 60_000), ip, 10)
   const codeHash = await hmac(env.SUBJECT_PEPPER, 'code:' + code)
   try {
@@ -123,12 +128,14 @@ async function exchange(request, { db, env, now, wechatFetch }) {
 }
 async function refresh(request, { db, env, now }) {
   requireAuthSecrets(env)
+  // Limit the edge-verified SOURCE before interpreting any attacker-provided
+  // token, so a million different invalid strings cannot create a million D1 rows.
+  await rate(db, 'refresh:' + Math.floor(now() / 60_000), sourceAddress(request), 15)
   const input = await body(request)
   fields(input, ['refreshToken'])
   const old = string(input.refreshToken, 'refreshToken', 256)
   if (!/^[0-9a-f]{64}$/.test(old)) fail(401, 'AUTH_UNAUTHORIZED', '刷新凭证无效')
   const hash = await sha256(old)
-  await rate(db, 'refresh:' + Math.floor(now() / 60_000), hash, 15)
   const current = await db.prepare('SELECT id,user_id,refresh_expires_at,expires_at,revoked_at ' +
     'FROM auth_sessions WHERE refresh_hash=?').bind(hash).first()
   if (!current) {
@@ -140,7 +147,8 @@ async function refresh(request, { db, env, now }) {
     }
     fail(401, 'AUTH_REVOKED', '刷新凭证已撤销或已使用')
   }
-  if (current.revoked_at || Date.parse(current.refresh_expires_at) <= now() ||
+  if (current.revoked_at) fail(401, 'AUTH_REVOKED', '会话已撤销')
+  if (Date.parse(current.refresh_expires_at) <= now() ||
       Date.parse(current.expires_at) <= now())
     fail(401, 'AUTH_EXPIRED', '会话已过期')
   const accessToken = token(), refreshToken = token()
@@ -162,15 +170,22 @@ async function refresh(request, { db, env, now }) {
   }
   return respond({ accessToken, refreshToken, accessExpiresAt, sessionId: current.id })
 }
-async function logout(request, context) {
-  const session = await sessionForAccess(request, context)
+async function logout(request, { db, now }) {
+  // Allow a 15-minute access token to have expired, while requiring the CURRENT
+  // access and refresh hashes to match ONE still-live, unrevoked session.
+  // This is a single conditional SQL write; no refresh-only or cross-session logout.
+  const accessHash = await sha256(bearer(request))
   const input = await body(request)
   fields(input, ['refreshToken'])
   const candidate = string(input.refreshToken, 'refreshToken', 256)
-  const hash = await sha256(candidate)
-  const result = await context.db.prepare('UPDATE auth_sessions SET revoked_at=?,updated_at=? ' +
-    'WHERE id=? AND refresh_hash=? AND revoked_at IS NULL').bind(
-      at(context.now()), at(context.now()), session.id, hash).run()
+  if (!/^[0-9a-f]{64}$/.test(candidate))
+    fail(401, 'AUTH_UNAUTHORIZED', '会话验证失败')
+  const refreshHash = await sha256(candidate)
+  const instant = at(now())
+  const result = await db.prepare('UPDATE auth_sessions SET revoked_at=?,updated_at=? ' +
+    'WHERE access_hash=? AND refresh_hash=? AND revoked_at IS NULL ' +
+    'AND refresh_expires_at > ? AND expires_at > ?').bind(
+      instant, instant, accessHash, refreshHash, instant, instant).run()
   if (changes(result) !== 1) fail(401, 'AUTH_UNAUTHORIZED', '会话验证失败')
   return respond({ ok: true })
 }

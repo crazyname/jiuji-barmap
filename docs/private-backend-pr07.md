@@ -25,9 +25,10 @@
 - \`POST /v1/auth/wechat/exchange\`：\`{"code":"once-only-wechat-code"}\` → HTTP 200 \`{"accessToken":"opaque-hex","refreshToken":"opaque-hex","accessExpiresAt":"ISO","sessionId":"uuid"}\`。
 - \`GET /v1/me\`：\`Authorization: Bearer <accessToken>\` → \`{"account":{"id":"internal-user-id","displayName":null,"bindings":{"wechat":true,"phone":false,"providers":["wechat"]}},"session":{"id":"uuid","expiresAt":"ISO","revoked":false}}\`。请求方不能指定账号 ID。
 - \`POST /v1/auth/refresh\`：\`{"refreshToken":"old-opaque"}\` → 相同格式的新令牌对与相同 sessionId。旧刷新凭证被记录为已用，重放时拒绝并吊销关联会话（包括其最新 access token）；短期 access token 15 分钟、会话及 refresh 有最大 30 天上限；冷启动令牌恢复仍由 PR-06 客户端的内存策略决定。
-- \`POST /v1/auth/logout\`：Bearer access token + \`{"refreshToken":"current-opaque"}\` → \`{"ok":true}\`。服务端对匹配会话立即标记 revoked，所有后续私有请求 401。
+- `POST /v1/auth/logout`：Bearer **当前会话最后签发的 Access** + `{"refreshToken":"current-opaque"}` → `{"ok":true}`。即使 Access 已超过 15 分钟，只要 Refresh 仍有效、两者哈希对应同一未吊销会话，仍能原子撤销；已轮换的旧 Access 与新 Refresh 不允许混用。仅凭 Refresh 或其他用户的 Access 不可注销。离线无法联系服务器时，PR-06 客户端仍只能本机退出；服务端撤销需另行重试/确认。
 - 微信 code 防重使用仅服务器知道的 HMAC 摘要与唯一索引；openid 不作为公开用户 ID，也不以明文保存在 D1：\`account_bindings.external_subject_hash\` 存经 pepper HMAC 生成的私有标识。任何 code2Session 返回的 \`session_key\` 仅用于服务器完成验证，不缓存、不下发。
-- 登录接口有 D1 持久化按 IP/分钟请求计数限流；刷新有按 token 哈希/分钟限制。生产前应在 Cloudflare 额外部署 WAF/机器人防护、定期清理过期 code/限流数据与审计告警。
+- 登录与刷新都以 Cloudflare 注入的 `cf-connecting-ip` 为来源（数据库只存哈希），按来源/分钟分别限制 10 次与 15 次；不同伪造 Refresh Token 不能产生新的限流身份；不信任 X-Forwarded-For，缺少边缘 IP 时使用共享 unknown 桶。上线仍需 WAF、分布式滥用告警。
+- Wrangler 配置每天 03:00 UTC Cron Trigger：清理两小时前的限流桶、一天前的微信 code 重放哈希、过期超过一天的会话（并级联清理其 Refresh 重放哈希）。有效会话内保留完整防重放记录。生产部署时必须启用、监测 Cron 执行。
 
 ## 私人数据 API（均先验证 Access Token）
 

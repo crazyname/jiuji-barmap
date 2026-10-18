@@ -33,4 +33,24 @@ export function createHandler({ wechatFetch = fetch, now = () => Date.now() } = 
     }
   }
 }
-export default { fetch: createHandler() }
+// Cron cleanup runs outside HTTP auth and never reveals private information.
+// Keep replay history until its session expires; FK cascading removes it then.
+export function createScheduledHandler({ now = () => Date.now() } = {}) {
+  return async function scheduled(_event, env) {
+    const db = requireDb(env)
+    const minuteCutoff = Math.floor(now() / 60_000) - 120
+    const codeCutoff = new Date(now() - 24 * 60 * 60_000).toISOString()
+    const sessionCutoff = new Date(now() - 24 * 60 * 60_000).toISOString()
+    await db.batch([
+      db.prepare("DELETE FROM auth_rate_limits WHERE " +
+        "(bucket LIKE 'exchange:%' OR bucket LIKE 'refresh:%') " +
+        "AND CAST(SUBSTR(bucket, INSTR(bucket, ':') + 1) AS INTEGER) < ?")
+        .bind(minuteCutoff),
+      db.prepare('DELETE FROM wechat_code_replays WHERE used_at < ?')
+        .bind(codeCutoff),
+      db.prepare('DELETE FROM auth_sessions WHERE expires_at < ?')
+        .bind(sessionCutoff)
+    ])
+  }
+}
+export default { fetch: createHandler(), scheduled: createScheduledHandler() }
