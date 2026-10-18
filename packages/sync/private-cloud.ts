@@ -55,7 +55,15 @@ function valid(snapshot: unknown, owner: string): snapshot is CloudSnapshot {
   const v=snapshot as Partial<CloudSnapshot>
   return v.schema===1 && v.ownerUserId===owner && Array.isArray(v.drinks) &&
     Array.isArray(v.visits) && Array.isArray(v.operations) &&
-    !!v.idMap && typeof v.idMap==='object'
+    [...v.drinks,...v.visits].every(row=>!!row && row.ownerUserId===owner &&
+      row.visibility==='private' && typeof row.id==='string' && row.id.length>0 &&
+      Number.isSafeInteger(row.revision) && row.revision>=1) &&
+    v.operations.every(op=>!!op && ['drink','visit'].includes(op.kind) &&
+      ['create','update','delete','link'].includes(op.action) &&
+      ['pending','syncing','failed','conflict'].includes(op.status) &&
+      typeof op.opId==='string' && typeof op.localId==='string') &&
+    !!v.idMap && typeof v.idMap==='object' &&
+    Object.entries(v.idMap).every(([k,val])=>typeof k==='string'&&typeof val==='string')
 }
 const isLocal=(id:string)=>id.startsWith('pending:')
 const assertRev=(n:number)=>{if(!Number.isSafeInteger(n)||n<1)
@@ -73,7 +81,13 @@ export class CloudJournalCoordinator {
     this.listeners.add(listener);return ()=>{this.listeners.delete(listener)}
   }
   private emit(){for(const listener of [...this.listeners])listener()}
-  invalidate():void {this.serial++;this.state=null;this.emit()}
+  invalidate():void {
+    this.serial++;this.state=null
+    // Old in-flight HTTP requests cannot block another verified account's sync.
+    // Their old serial fails ensure() after any response and cannot write B's data.
+    this.running=null
+    this.emit()
+  }
   private owner():string {
     const owner=this.deps.identity.verifiedUserId()
     if(!owner) {if(this.state)this.invalidate();throw new CloudSyncError('AUTH_REQUIRED','未认证，无法访问私人记录')}
@@ -83,7 +97,9 @@ export class CloudJournalCoordinator {
     const owner=this.owner()
     if(this.state?.ownerUserId!==owner) {
       this.serial++
-      const saved=this.deps.storage.read(key(owner))
+      let saved:unknown
+      try {saved=this.deps.storage.read(key(owner))}
+      catch {throw new CloudSyncError('STORAGE','设备存储读取失败')}
       if(saved!==undefined && saved!==null && !valid(saved,owner))
         throw new CloudSyncError('STORAGE','私人队列归属或结构校验失败')
       this.state=saved ? copy(saved as CloudSnapshot) : blank(owner)
@@ -315,6 +331,8 @@ export class CloudJournalCoordinator {
         else server=await this.deps.remote.updateVisit(remoteId,
           op.payload as VisitSessionChanges,op.expectedRevision!)
         this.ensure(owner,serial)
+        if(server && (server.ownerUserId!==owner || server.visibility!=='private'))
+          throw new CloudSyncError('AUTH_REQUIRED','服务器返回记录归属与当前身份不符')
         this.update(next=>{
           next.operations=next.operations.filter(x=>x.opId!==opId)
           if(server) {
@@ -393,6 +411,9 @@ export class CloudJournalCoordinator {
         this.ensure(owner,serial)
         const drinks=await all(cursor=>this.deps.remote.listDrinks(cursor))
         this.ensure(owner,serial)
+        if([...visits,...drinks].some(row=>row.ownerUserId!==owner ||
+          row.visibility!=='private'))
+          throw new CloudSyncError('AUTH_REQUIRED','服务器数据所属账户不一致')
         this.update(state=>{
           const pending=new Set(state.operations.map(x=>x.localId))
           const locallyPendingVisits=state.visits.filter(x=>pending.has(x.id))
