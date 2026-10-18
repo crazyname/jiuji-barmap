@@ -454,3 +454,6 @@ test('PR08 composite cursor visits traverse same-time records and reject malform
     undefined,t.accessToken),400,'INVALID_INPUT')
   check(await f.call('GET','/v1/private/visits?'+base+'abc',undefined,t.accessToken),200)
 })
+
+// Shared real SQLite/HTTP harness for PR-08 two-device integration tests.
+export { fixture }
