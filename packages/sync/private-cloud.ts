@@ -300,7 +300,15 @@ export class CloudJournalCoordinator {
     return state.idMap[id]||id
   }
   private async flush(owner:string,serial:number):Promise<void> {
-    const initial=this.getSnapshot().operations.map(x=>x.opId)
+    // A drink can be created before a visit and linked to that newly created
+    // offline visit later. Upload pending visit creations first so every queued
+    // drink/link can resolve its temporary visit ID; preserve the relative order
+    // of all other mutations (including edits/deletions of each entity).
+    const initial=this.getSnapshot().operations
+      .map((op,index)=>({op,index}))
+      .sort((a,b)=>Number(b.op.kind==='visit'&&b.op.action==='create')-
+        Number(a.op.kind==='visit'&&a.op.action==='create')||a.index-b.index)
+      .map(item=>item.op.opId)
     for(const opId of initial) {
       this.ensure(owner,serial)
       const state=this.getSnapshot(), op=state.operations.find(x=>x.opId===opId)
