@@ -53,7 +53,7 @@ test('the four Taro tabs use the same quiet canvas, white surfaces and text hier
   }
 })
 
-test('visual-only update retains real map, filtering, recipes, posts and local profile', () => {
+test('A minimalist UI retains map, filtering, recipes, verified community and local profile', () => {
   const map = read('apps/wechat/src/pages/map/index.tsx')
   for (const token of ['<Map ', 'validPoint(bar.location)', 'STATUS_OPTIONS[statusIndex]',
     'onMarkerTap', 'updateVenueLocation(', 'Taro.openLocation(', 'transitionView(current'])
@@ -65,8 +65,9 @@ test('visual-only update retains real map, filtering, recipes, posts and local p
   assert.ok(!mix.includes('Taro.setStorageSync(KEY,next)'), 'legacy drafts are read-only pending user migration')
   assert.ok(mix.includes('publishedRows'))
   assert.ok(!mix.includes('queueRemoteUpsert('), 'private recipe drafts must not enter public Sites queue')
-  assert.ok(social.includes('Taro.setStorageSync(KEY,next)'))
-  assert.ok(social.includes('queueRemoteUpsert('))
+  assert.ok(social.includes('CommunityFeed'))
+  assert.ok(social.includes('communityRepository.listPublic'))
+  assert.ok(!social.includes('queueRemoteUpsert('), 'community drafts must never auto-upload via legacy Sites')
   assert.ok(mine.includes('Taro.setStorageSync(PROFILE_KEY'))
   assert.ok(mine.includes('favoriteIds()'))
   assert.ok(mine.includes('readVisits()'))

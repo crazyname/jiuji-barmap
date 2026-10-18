@@ -28,9 +28,9 @@ test('sync adapters use device storage and HTTPS but contain no packaged admin c
   assert.match(code,/SYNC_API_BASE_URL = 'https:\/\/jiuji-test-console\.equal-genet-1707\.chatgpt\.site'/)
  }
 })
-test('WeChat keeps public Sites browsing while private cocktail drafts never join device-token queue',()=>{
+test('WeChat keeps Sites map/profile browsing while community posts leave the legacy mutation queue',()=>{
  for(const file of ['apps/wechat/src/pages/map/index.tsx',
-  'apps/wechat/src/pages/community/index.tsx','apps/wechat/src/pages/mine/index.tsx'])
+  'apps/wechat/src/pages/mine/index.tsx'])
   assert.match(read(file),/refreshSites\(/,file)
  const mix=read('apps/wechat/src/pages/mix/index.tsx')
  assert.match(mix,/publishedRows/)
@@ -38,7 +38,12 @@ test('WeChat keeps public Sites browsing while private cocktail drafts never joi
  assert.doesNotMatch(mix,/queueRemoteUpsert\(/)
  assert.match(mix,/确认查看本机历史草稿/)
  assert.doesNotMatch(mix,/queueRemoteUpsert\(/)
- assert.match(read('apps/wechat/src/pages/community/index.tsx'),/visibility:'private'/)
+ const community=read('apps/wechat/src/pages/community/index.tsx')
+ assert.match(community,/communityRepository\.listPublic/)
+ assert.doesNotMatch(community,/queueRemoteUpsert|refreshSites|publishedRows|demoPosts/)
+ const draft=read('apps/wechat/src/services/community.ts')
+ assert.match(draft,/CommunityRepository/)
+ assert.doesNotMatch(draft,/queueRemoteUpsert|syncEnabled/)
  const mobile=read('apps/mobile/App.tsx')
  assert.match(mobile,/refreshMobileSites\(/)
  assert.match(mobile,/AppState\.addEventListener/)

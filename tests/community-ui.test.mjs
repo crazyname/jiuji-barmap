@@ -5,7 +5,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { createRequire } from 'node:module'
 import { fileURLToPath } from 'node:url'
-import { CommunityRepository } from '../packages/core/src/community.ts'
+import { CommunityRepository, CommunityError } from '../packages/core/src/community.ts'
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..')
 const requireApp=createRequire(path.join(root,'apps/wechat/package.json'))
 const React=requireApp('react'),{create,act}=requireApp('react-test-renderer')
@@ -21,7 +21,7 @@ function load(file){
     if(name==='react')return React
     if(name==='react/jsx-runtime')return requireApp('react/jsx-runtime')
     if(name==='@tarojs/components')return host
-    if(name.includes('packages/core/src/community'))return {CommunityRepository,CommunityError:class extends Error{}}
+    if(name.includes('packages/core/src/community'))return {CommunityRepository,CommunityError}
     if(name.endsWith('.css'))return {}
     throw Error('Unexpected community import '+name)
   },mod,mod.exports)
@@ -147,7 +147,8 @@ test('commercial promotion requires source before draft save; no phantom publish
   await clickByText(tree,'保存本机草稿')
   assert.equal(f.repo.getDraft(draft.id).sponsorName,'已声明合作方')
   assert.equal(f.repo.getDraft(draft.id).status,'local_draft')
-  const submit=tree.root.findAllByType('Button').find(x=>text(x).includes('提交审核'))
+  const submit=tree.root.findAllByType('Button').find(x=>
+    x.children.some(c=>typeof c==='string'&&c.includes('提交审核')))
   assert.equal(submit.props.disabled,true)
   await act(async()=>tree.unmount())
 })
