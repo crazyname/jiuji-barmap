@@ -75,3 +75,59 @@ export type DrinkEntryChanges = Partial<Pick<DrinkEntry, 'drinkLabel' | 'cocktai
   'personalRating' | 'contextDetails'>>
 export type VisitSessionChanges = Partial<Pick<VisitSession, 'barId' | 'placeLabel' |
   'occurredAt' | 'note'>>
+
+
+// PR-10: Public knowledge entities and recipe versions are distinct from
+// private DrinkEntry references and legacy Sites v1 flat Recipe.
+export type KnowledgeVerification = 'verified' | 'unverified'
+export type RecipeVersionStatus = 'published' | 'draft'
+export type RecipeSourceType = 'primary' | 'secondary' | 'legacy' | 'user'
+export interface RecipeSource {
+  name: string
+  url: string | null
+  type: RecipeSourceType
+  verifiedAt: string | null // ISO date, never inferred from createdAt
+}
+export interface Cocktail {
+  id: string
+  nameZh: string
+  nameOriginal: string
+  aliases: string[]
+  description?: string
+  baseCategory?: string
+  tags: string[]
+  source: RecipeSource
+  verification: KnowledgeVerification
+  recipeVariantIds: string[]
+}
+export type IngredientUnit = 'ml' | 'oz' | 'dash' | 'piece' | 'tsp' | 'unspecified'
+export interface RecipeIngredient {
+  name: string
+  quantity: number | null
+  unit: IngredientUnit
+  optional: boolean
+  /** Original source wording if quantity cannot be reliably parsed. */
+  originalText?: string
+}
+export interface RecipeVariant {
+  id: string
+  cocktailId: string
+  title: string
+  author: string
+  source: RecipeSource
+  ingredients: RecipeIngredient[]
+  steps: string[]
+  glass?: string
+  technique?: string
+  garnish?: string
+  yieldMl?: number
+  status: RecipeVersionStatus
+  verification: KnowledgeVerification
+  createdAt: string
+  updatedAt: string
+}
+export interface CocktailCatalog {
+  schemaVersion: 1
+  cocktails: Cocktail[]
+  variants: RecipeVariant[]
+}

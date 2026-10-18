@@ -1,0 +1,139 @@
+{
+  "schemaVersion": 1,
+  "cocktails": [
+    {
+      "id": "margarita",
+      "nameZh": "玛格丽特",
+      "nameOriginal": "Margarita",
+      "aliases": [
+        "玛格丽塔"
+      ],
+      "baseCategory": "龙舌兰",
+      "tags": [
+        "经典",
+        "酸味"
+      ],
+      "source": {
+        "name": "International Bartenders Association (IBA)",
+        "url": "https://iba-world.com/iba-cocktail/margarita/",
+        "type": "primary",
+        "verifiedAt": "2026-10-18"
+      },
+      "verification": "verified",
+      "recipeVariantIds": [
+        "margarita-iba-2026"
+      ]
+    },
+    {
+      "id": "negroni",
+      "nameZh": "尼格罗尼",
+      "nameOriginal": "Negroni",
+      "aliases": [
+        "内格罗尼"
+      ],
+      "baseCategory": "金酒",
+      "tags": [
+        "经典",
+        "苦味"
+      ],
+      "source": {
+        "name": "International Bartenders Association (IBA)",
+        "url": "https://iba-world.com/iba-cocktail/negroni/",
+        "type": "primary",
+        "verifiedAt": "2026-10-18"
+      },
+      "verification": "verified",
+      "recipeVariantIds": [
+        "negroni-iba-2026"
+      ]
+    }
+  ],
+  "variants": [
+    {
+      "id": "margarita-iba-2026",
+      "cocktailId": "margarita",
+      "title": "IBA 公布版本（2026 核对）",
+      "author": "International Bartenders Association",
+      "source": {
+        "name": "IBA · Margarita",
+        "url": "https://iba-world.com/iba-cocktail/margarita/",
+        "type": "primary",
+        "verifiedAt": "2026-10-18"
+      },
+      "ingredients": [
+        {
+          "name": "100% 龙舌兰酒",
+          "quantity": 50,
+          "unit": "ml",
+          "optional": false
+        },
+        {
+          "name": "橙味利口酒 Triple Sec",
+          "quantity": 20,
+          "unit": "ml",
+          "optional": false
+        },
+        {
+          "name": "鲜榨青柠汁",
+          "quantity": 15,
+          "unit": "ml",
+          "optional": false
+        }
+      ],
+      "steps": [
+        "将液体配料与冰块放入摇壶。",
+        "摇匀后滤入冷却的鸡尾酒杯。"
+      ],
+      "glass": "鸡尾酒杯",
+      "technique": "摇和",
+      "garnish": "可选半圈盐边",
+      "status": "published",
+      "verification": "verified",
+      "createdAt": "2026-10-18T00:00:00.000Z",
+      "updatedAt": "2026-10-18T00:00:00.000Z"
+    },
+    {
+      "id": "negroni-iba-2026",
+      "cocktailId": "negroni",
+      "title": "IBA 公布版本（2026 核对）",
+      "author": "International Bartenders Association",
+      "source": {
+        "name": "IBA · Negroni",
+        "url": "https://iba-world.com/iba-cocktail/negroni/",
+        "type": "primary",
+        "verifiedAt": "2026-10-18"
+      },
+      "ingredients": [
+        {
+          "name": "金酒",
+          "quantity": 30,
+          "unit": "ml",
+          "optional": false
+        },
+        {
+          "name": "金巴利苦味利口酒",
+          "quantity": 30,
+          "unit": "ml",
+          "optional": false
+        },
+        {
+          "name": "甜红味美思",
+          "quantity": 30,
+          "unit": "ml",
+          "optional": false
+        }
+      ],
+      "steps": [
+        "在放有冰块的冰镇古典杯中加入全部配料。",
+        "轻轻搅拌混合。"
+      ],
+      "glass": "古典杯",
+      "technique": "搅拌",
+      "garnish": "半片橙子",
+      "status": "published",
+      "verification": "verified",
+      "createdAt": "2026-10-18T00:00:00.000Z",
+      "updatedAt": "2026-10-18T00:00:00.000Z"
+    }
+  ]
+}
