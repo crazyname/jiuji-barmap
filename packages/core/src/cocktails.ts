@@ -17,7 +17,7 @@ function source(raw:unknown,label:string):asserts raw is RecipeSource {
      !(raw.verifiedAt===null || validDate(raw.verifiedAt)))
     error(label,'invalid source')
 }
-function verified(raw:Record<string,unknown>,label:string):void {
+function verified(raw:{verification:unknown;source:unknown},label:string):void {
   if(raw.verification!=='verified'&&raw.verification!=='unverified')
     error(label,'invalid verification status')
   if(raw.verification==='verified'){
